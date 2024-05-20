@@ -5,6 +5,7 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -48,6 +49,18 @@ class LoginRequest extends FormRequest
                 'email' => trans('auth.failed'),
             ]);
         }
+
+        $userId = Auth::id();
+
+        $codes = DB::connection('mysql_two')
+            ->table('users')
+            ->join('user_permissions', 'users.role_id', '=', 'user_permissions.role_id')
+            ->join('user_resources', 'user_permissions.resource_id', '=', 'user_resources.id')
+            ->where('users.id', $userId)
+            ->pluck('user_resources.code')
+            ->toArray();
+
+        session(['user_codes' => $codes]);
 
         RateLimiter::clear($this->throttleKey());
     }
