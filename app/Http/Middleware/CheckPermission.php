@@ -34,7 +34,7 @@ class CheckPermission
         $resources = session('user_codes');
         if (empty($resources)) {
             $userId = auth()->user()->id;
-            $resources = DB::connection('mysql_two')
+            $resources = DB::connection('main')
                 ->table('users')
                 ->join('user_permissions', 'users.role_id', '=', 'user_permissions.role_id')
                 ->join('user_resources', 'user_permissions.resource_id', '=', 'user_resources.id')

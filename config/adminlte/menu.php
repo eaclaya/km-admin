@@ -28,12 +28,6 @@ return [
     [
         'text' => 'Finance Daybook',
         'icon' => 'fa fa-table fa-fw',
-        'submenu' => [
-            [
-                'text' => 'Daybook',
-                'url' => '/daybook',
-                'icon' => 'fa fa-book fa-fw',
-            ]
-        ],
+        'submenu' => require __DIR__ . '/FinanceDaybook.php',
     ],
 ];

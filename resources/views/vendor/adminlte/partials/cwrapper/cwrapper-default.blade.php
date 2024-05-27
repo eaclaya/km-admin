@@ -28,9 +28,10 @@
     <div class="content">
         <div class="{{ config('adminlte.classes_content') ?: $def_container_class }}">
             @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if (Session::has('message'))
+                <div class="alert alert-info">{{ Session::get('message') }}</div>
             @endif
             @stack('content')
             @yield('content')

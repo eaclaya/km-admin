@@ -11,7 +11,8 @@
                 <h3 class="card-title">DayBook</h3>
             </div>
             <div class="card-body">
-                <p>Este es el modulo del libro diario</p>
+                @livewire('datatables.finance-catalogue')
+{{--                <livewire:datatables.finance-catalogue />--}}
             </div>
         </div>
     @stop

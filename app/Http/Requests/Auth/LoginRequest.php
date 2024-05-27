@@ -52,7 +52,7 @@ class LoginRequest extends FormRequest
 
         $userId = Auth::id();
 
-        $codes = DB::connection('mysql_two')
+        $codes = DB::connection('main')
             ->table('users')
             ->join('user_permissions', 'users.role_id', '=', 'user_permissions.role_id')
             ->join('user_resources', 'user_permissions.resource_id', '=', 'user_resources.id')

@@ -29,7 +29,7 @@ class FinanceCatalogueItem extends Model
      */
     public function getModel(): mixed
     {
-        return DB::table($this->model)->select('id','name')->where('id', $this->model_id)->first();
+        return DB::connection('main')->table($this->model)->select('id','name')->where('id', $this->model_id)->first();
     }
 
     /**
