@@ -30,4 +30,9 @@ return [
         'icon' => 'fa fa-table fa-fw',
         'submenu' => require __DIR__ . '/FinanceDaybook.php',
     ],
+    [
+        'text' => 'Invoices Discount',
+        'icon' => 'fa fa-table fa-fw',
+        'submenu' => require __DIR__ . '/InvoicesDiscount.php',
+    ],
 ];

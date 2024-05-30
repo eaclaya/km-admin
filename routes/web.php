@@ -12,5 +12,6 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__ . '/modules/daybook.php';
+require __DIR__ . '/modules/invoice_discount.php';
 
 require __DIR__.'/auth.php';

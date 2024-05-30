@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\FinanceCatalogueController;
 use App\Http\Controllers\FinanceDaybookController;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
