@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('invoices');
+        Schema::dropIfExists('invoices_discount');
+        Schema::dropIfExists('invoice_items');
+        Schema::dropIfExists('invoice_items_discount');
+
         Schema::create('invoices', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('sync_invoices_id');
