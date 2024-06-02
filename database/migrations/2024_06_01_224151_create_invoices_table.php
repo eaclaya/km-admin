@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('invoice_items_discount');
         Schema::create('invoices', function (Blueprint $table) {
-            $table->increments('id');
+            $table->unsignedInteger('id')->autoIncrement();
             $table->unsignedInteger('sync_invoices_id');
             $table->unsignedInteger('client_id');
             $table->unsignedInteger('user_id');
@@ -117,8 +117,8 @@ return new class extends Migration
             $table->unique(['billing_id', 'invoice_number'], 'unique_invoice');
         });
         Schema::create('invoice_items', function (Blueprint $table) {
-            $table->unsignedInteger('sync_invoice_items_id');
             $table->unsignedInteger('id')->autoIncrement();
+            $table->unsignedInteger('sync_invoice_items_id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('invoice_id');
@@ -151,7 +151,7 @@ return new class extends Migration
             $table->unique(['account_id', 'public_id']);
         });
         Schema::create('invoices_discount', function (Blueprint $table) {
-            $table->increments('id');
+            $table->unsignedInteger('id')->autoIncrement();
             $table->unsignedInteger('invoices_id');
             $table->unsignedInteger('client_id');
             $table->unsignedInteger('user_id');
