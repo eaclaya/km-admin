@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,6 +13,19 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $connection = 'main';
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            throw new Exception('No se puede crear este modelo directamente');
+        });
+
+        static::deleting(function ($model) {
+            throw new Exception('No se puede eliminar este modelo directamente');
+        });
+    }
 
     /**
      * The attributes that are mass assignable.

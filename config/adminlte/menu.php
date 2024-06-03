@@ -6,6 +6,9 @@ return [
         'type' => 'navbar-search',
         'text' => 'search',
         'topnav_right' => true,
+        'url' => '#nav-search',
+        'input_name' => 'nav_search',
+        'id' => 'navbarSearch'
     ],
     [
         'type' => 'fullscreen-widget',
@@ -28,6 +31,16 @@ return [
     [
         'text' => 'Finance Daybook',
         'icon' => 'fa fa-table fa-fw',
-        'submenu' => require __DIR__ . '/FinanceDaybook.php',
+        'submenu' => require __DIR__ . '/modules/FinanceDaybook.php',
+    ],
+    [
+        'text' => 'Invoices Discount',
+        'icon' => 'fa fa-table fa-fw',
+        'submenu' => require __DIR__ . '/modules/InvoicesDiscount.php',
+    ],
+    [
+        'text' => 'Clone Models',
+        'icon' => 'fa fa-table fa-fw',
+        'submenu' => require __DIR__ . '/modules/CloneModels.php',
     ],
 ];

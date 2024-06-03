@@ -16,12 +16,6 @@ use App\Models\FinanceCatalogueItem;
 use App\Models\FinanceDaybookEntry;
 use App\Models\FinanceDaybookEntryItem;
 
-use App\Models\Employee;
-use App\Models\CompanyAreas;
-use App\Models\CompanyZones;
-use App\Models\Account;
-use OpenApi\Annotations\Get;
-
 class FinanceDaybookController extends Controller
 {
     Protected $models = [
@@ -40,13 +34,13 @@ class FinanceDaybookController extends Controller
         $clasifications = FinanceCatalogueClassification::orderBy('sort', 'ASC')->get()->keyBy('id');
         return view('finance_catalogue.list', ['items' => $items, 'clasifications' => $clasifications, 'models' => $this->models]);
     }
-    
+
     public function showClassifications()
     {
         $items = FinanceCatalogueClassification::orderBy('sort', 'ASC')->get()->keyBy('id');
         return view('finance_catalogue.list_class', ['items' => $items, 'models' => $this->models]);
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -91,7 +85,7 @@ class FinanceDaybookController extends Controller
                         $employee_id = $value;
                         $checkToday = $checkToday->where('evaluation_employee_id',$value);
                         break;
-    
+
                     case 1:
                         if(!isset($value) || trim($value) == ''){
                             Session::flash('message', "No se proporciono informacion necesaria para crear este proceso de evaluacion");
@@ -101,7 +95,7 @@ class FinanceDaybookController extends Controller
                         $account_id = $value;
                         $checkToday = $checkToday->where('evaluation_account_id',$value);
                         break;
-    
+
                     case 2:
                         if(!isset($value) || trim($value) == ''){
                             Session::flash('message', "No se proporciono informacion necesaria para crear este proceso de evaluacion");
@@ -111,7 +105,7 @@ class FinanceDaybookController extends Controller
                         $zone_id = $value;
                         $checkToday = $checkToday->where('evaluation_zone_id',$value);
                         break;
-                    
+
                     default:
                         $model = null;
                         break;
@@ -128,7 +122,7 @@ class FinanceDaybookController extends Controller
                 case 3:
                     $model = CompanyZones::select('id', 'name')->get();
                     break;
-                
+
                 default:
                     $model = null;
                     break;
@@ -198,7 +192,7 @@ class FinanceDaybookController extends Controller
 
         $financeCatalogue->items()->insert($items);
         $financeCatalogue->save();
-        
+
         return view('finance_catalogue.edit', ['fields' => $fields,'FinanceCatalogue' => $financeCatalogue]);
     }
 
@@ -212,18 +206,18 @@ class FinanceDaybookController extends Controller
     {
         dd('no');
         $fields = $request->fields;
-        
+
         $financeCatalogueNew = new FinanceCatalogue;
-        
+
         $financeCatalogueNew->user_id = Auth::user()->realUser()->id;
         $financeCatalogueNew->account_id = Auth::user()->account_id;
         $financeCatalogueNew->is_verify = 0;
         $financeCatalogueNew->notes = null;
         $financeCatalogueNew->is_complete = 0;
         $financeCatalogueNew->comments = null;
-        
+
         $financeCatalogueNew->save();
-        
+
         $newFields = array();
 
         $itemsTracesRequestFields = array();
@@ -355,7 +349,7 @@ class FinanceDaybookController extends Controller
 		$date = date('Y-m-d');
 		$fileName = $reportType.'_'.$date.".csv";
 		/* ------------------------ */
-		
+
 		$fp = fopen($fileName, 'w');
 		$columns = array_merge($columns, [
             'Clasificación',
@@ -377,7 +371,7 @@ class FinanceDaybookController extends Controller
                     } else {
                         $fields[] = 'No';
                     }
-                    
+
                 }
             };
 			fputcsv($fp, $fields, ';');
