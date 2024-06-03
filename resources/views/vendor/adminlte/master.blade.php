@@ -73,6 +73,13 @@
         <meta name="msapplication-TileImage" content="{{ asset('favicon/ms-icon-144x144.png') }}">
     @endif
 
+    <style>
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+    </style>
+
 </head>
 
 <body class="@yield('classes_body')" @yield('body_data')>
@@ -103,6 +110,31 @@
     @endif
 
     {{-- Custom Scripts --}}
+    <script src="{{asset('vendor/mark.min.js')}}"></script>
+    <script>
+        $('form[action="#nav-search"]').on('submit', function(event) {
+            event.preventDefault(); // Prevenir el envío normal del formulario
+            let formData = $(event.target).serializeArray();
+            let navSearchObj = formData.find(obj => obj.name === "nav_search");
+
+            console.log('El formulario con la search está en proceso de submit');
+            console.dir(navSearchObj.value);
+
+            let instance = new Mark(document.querySelector(".content"));
+
+            instance.unmark();
+
+            instance.mark(navSearchObj.value, {
+                className: 'highlight'
+            });
+
+            if ($('.highlight').length) {
+                $('html, body').animate({
+                    scrollTop: $('.highlight').offset().top
+                }, 2000);
+            }
+        });
+    </script>
     @yield('adminlte_js')
 
 </body>

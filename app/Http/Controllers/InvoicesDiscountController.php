@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CloningControl;
+use App\Models\InvoiceItems;
+use App\Models\Invoices;
+
 use App\Models\InvoicesDiscount;
+use App\Models\Main\Account;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -11,10 +16,15 @@ class InvoicesDiscountController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, $account_id = null)
     {
-//            'invoicesDiscount' => InvoicesDiscount::all(),
-        return view('invoices_discount.index', []);
+        $accounts = Account::get();
+        $invoicesDiscount = InvoicesDiscount::query();
+        if($account_id){
+            $invoicesDiscount = $invoicesDiscount->where('account_id', $account_id);
+        }
+        $invoicesDiscount = $invoicesDiscount->orderBy('created_at', 'desc')->paginate(50);
+        return view('invoices_discount.index', ['invoicesDiscount' => $invoicesDiscount, 'accounts' => $accounts]);
     }
 
     /**

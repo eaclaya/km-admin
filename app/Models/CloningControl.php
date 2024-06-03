@@ -5,12 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CloningControl extends Model
 {
-    use HasFactory;
-
     protected $table = 'cloning_control';
+
+    protected $casts = [
+        'from_date' => 'datetime',
+        'to_date' => 'datetime',
+        'account_id' => 'integer',
+        'is_completed' => 'boolean',
+    ];
 
     protected $fillable = [
         'model',
@@ -20,10 +26,12 @@ class CloningControl extends Model
         'is_completed',
     ];
 
-    protected $casts = [
-        'from_date' => 'datetime',
-        'to_date' => 'datetime',
-    ];
+    public function account()
+    {
+        return DB::connection('main')->table('accounts')
+            ->select('id','name')
+            ->find($this->account_id);
+    }
 
     public function getFirstOrNew($dataReset = null){
         if(isset($dataReset) && count($dataReset) > 0){

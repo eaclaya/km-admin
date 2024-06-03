@@ -33,7 +33,7 @@ class CloneInvoicesTableCommand extends Command
         if ($account_id) {
             $control = new CloningControl;
             $control = $control->getFirstOrNew([
-                'model' => 'invoices',
+                'model' => ENTITY_INVOICE,
                 'accountId' => $account_id,
             ]);
             CloneInvoicesTableJob::dispatch($control->from_date, $control->to_date, $account_id, $control->id);
@@ -43,7 +43,7 @@ class CloneInvoicesTableCommand extends Command
             foreach ($accounts as $accountId) {
                 $control = new CloningControl;
                 $control = $control->getFirstOrNew([
-                    'model' => 'invoices',
+                    'model' => ENTITY_INVOICE,
                     'accountId' => $accountId,
                 ]);
                 CloneInvoicesTableJob::dispatch($control->from_date, $control->to_date, $accountId, $control->id)->delay($count * 60);
