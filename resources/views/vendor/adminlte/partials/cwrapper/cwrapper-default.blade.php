@@ -16,8 +16,9 @@
     @endif
 
     {{-- Content Header --}}
+    <x-breadcrumb />
     @hasSection('content_header')
-        <div class="content-header">
+        <div class="content-header text-center">
             <div class="{{ config('adminlte.classes_content_header') ?: $def_container_class }}">
                 @yield('content_header')
             </div>
@@ -32,6 +33,16 @@
             @endif
             @if (Session::has('message'))
                 <div class="alert alert-info">{{ Session::get('message') }}</div>
+            @endif
+            @if (Session::has('success'))
+                <div class="alert alert-info">{{ Session::get('success') }}</div>
+            @endif
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                <div class="alert alert-danger">
+                    {{ $error }}
+                </div>
+                @endforeach
             @endif
             @stack('content')
             @yield('content')

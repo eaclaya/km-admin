@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckPermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 
 require_once __DIR__ . '/constants.php';
 
@@ -24,4 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withCommands([
         \App\Console\Commands\MakeViewCommand::class,
-    ])->create();
+    ])
+    ->withSchedule(function (Schedule $schedule) {
+        //
+    })->create();

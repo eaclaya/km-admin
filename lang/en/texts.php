@@ -72,7 +72,7 @@ $LANG = array(
     'enable_line_item_tax' => 'Enable specifying <b>line item taxes</b>',
     'dashboard' => 'Dashboard',
     'clients' => 'Clients',
-    'invoices' => 'Invoices',
+    'invoices' => 'Invoice',
     'payments' => 'Payments',
     'credits' => 'Credits',
     'history' => 'History',
@@ -94,7 +94,7 @@ $LANG = array(
     'provide_email' => 'Please provide a valid email address',
     'powered_by' => 'Powered by',
     'no_items' => 'No items',
-    'recurring_invoices' => 'Recurring Invoices',
+    'recurring_invoices' => 'Recurring Invoice',
     'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
         <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
         <p>Examples of dynamic invoice variables:</p>
@@ -108,8 +108,8 @@ $LANG = array(
     'billed_clients' => 'billed clients',
     'active_client' => 'active client',
     'active_clients' => 'active clients',
-    'invoices_past_due' => 'Invoices Past Due',
-    'upcoming_invoices' => 'Upcoming Invoices',
+    'invoices_past_due' => 'Invoice Past Due',
+    'upcoming_invoices' => 'Upcoming Invoice',
     'average_invoice' => 'Average Invoice',
     'archive' => 'Archive',
     'delete' => 'Delete',
@@ -593,7 +593,7 @@ $LANG = array(
     'pro_plan_feature3' => 'Custom URLs - "YourBrand.InvoiceNinja.com"',
     'pro_plan_feature4' => 'Remove "Created by Invoice Ninja"',
     'pro_plan_feature5' => 'Multi-user Access & Activity Tracking',
-    'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoices',
+    'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoice',
     'pro_plan_feature7' => 'Customize Invoice Field Titles & Numbering',
     'pro_plan_feature8' => 'Option to Attach PDFs to Client Emails',
     'resume' => 'Resume',
@@ -917,8 +917,8 @@ $LANG = array(
     'archive_payment_term' => 'Archive Payment Term',
     'recurring_due_dates' => 'Recurring Invoice Due Dates',
     'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
-        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
-        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
+        <p>Invoice on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoice set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
+        <p>Invoice on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
         <p>For example:</p>
         <ul>
           <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
@@ -1020,12 +1020,12 @@ $LANG = array(
     'email_error_invalid_contact_email' => 'Invalid contact email',
 
     'navigation' => 'Navigation',
-    'list_invoices' => 'List Invoices',
+    'list_invoices' => 'List Invoice',
     'list_clients' => 'List Clients',
     'list_quotes' => 'List Quotes',
     'list_tasks' => 'List Tasks',
     'list_expenses' => 'List Expenses',
-    'list_recurring_invoices' => 'List Recurring Invoices',
+    'list_recurring_invoices' => 'List Recurring Invoice',
     'list_payments' => 'List Payments',
     'list_credits' => 'List Credits',
     'tax_name' => 'Tax Name',
@@ -1042,7 +1042,7 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
 
     // Client Passwords
-    'enable_portal_password' => 'Password Protect Invoices',
+    'enable_portal_password' => 'Password Protect Invoice',
     'enable_portal_password_help' => 'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password' => 'Generate Password Automatically',
     'send_portal_password_help' => 'If no password is set, one will be generated and sent with the first invoice.',
@@ -2287,7 +2287,7 @@ $LANG = array(
     'process_account' => 'account',
     'process_zones' => 'zones',
     'process_supervisors' => 'supervisors',
-    
+
     'brand_id' => 'Brand',
 );
 

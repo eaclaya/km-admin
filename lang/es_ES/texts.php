@@ -588,7 +588,7 @@ $LANG = array(
     'pro_plan_feature3' => 'Custom URLs - "YourBrand.InvoiceNinja.com"',
     'pro_plan_feature4' => 'Remove "Created by Invoice Ninja"',
     'pro_plan_feature5' => 'Multi-user Access & Activity Tracking',
-    'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoices',
+    'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoice',
     'pro_plan_feature7' => 'Customize Invoice Field Titles & Numbering',
     'pro_plan_feature8' => 'Option to Attach PDFs to Client Emails',
     'resume' => 'Reanudar',
@@ -916,9 +916,9 @@ $LANG = array(
     'recurring_due_dates' => 'Fecha de Vencimiento de Factura Periodica',
     'recurring_due_date_help' => '<p>Define automáticamente una fecha de vencimiento de la factura..</p>
         <p>Facturas en un ciclo mensual o anual preparadas para vencer el día que se crearon o antes, vencerán al siguiente mes. Facturas preparadas para vencer el 29 o el 30, en los meses que no tienen ese día, vencerán el último día del mes</p>
-        <p>(Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.)</p>
+        <p>(Invoice on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoice set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.)</p>
         <p>Facturas en un ciclo semanal preparadas para vencer el día de la semana que se crearon, vencerán a la siguiente semana.</p>
-        <p>(Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.)</p>
+        <p>(Invoice on a weekly cycle set to be due on the day of the week they are created will be due the next week.)</p>
         <p>Por ejemplo:</p>
         <ul>
           <li>Hoy es día 15, la fecha de vencimiento es el día 1 de cada mes. La fecha de vencimiento deberá ser el día 1 del siguiente mes.</li>
@@ -1018,12 +1018,12 @@ $LANG = array(
     'email_error_invalid_contact_email' => 'Correo de contacto no válido',
 
     'navigation' => 'Navigation',
-    'list_invoices' => 'List Invoices',
+    'list_invoices' => 'List Invoice',
     'list_clients' => 'List Clients',
     'list_quotes' => 'List Quotes',
     'list_tasks' => 'List Tasks',
     'list_expenses' => 'List Expenses',
-    'list_recurring_invoices' => 'List Recurring Invoices',
+    'list_recurring_invoices' => 'List Recurring Invoice',
     'list_payments' => 'List Payments',
     'list_credits' => 'List Credits',
     'tax_name' => 'Tax Name',
@@ -1040,7 +1040,7 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
 
     // Client Passwords
-    'enable_portal_password' => 'Password Protect Invoices',
+    'enable_portal_password' => 'Password Protect Invoice',
     'enable_portal_password_help' => 'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password' => 'Generate Password Automatically',
     'send_portal_password_help' => 'If no password is set, one will be generated and sent with the first invoice.',

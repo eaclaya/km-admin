@@ -31,7 +31,6 @@ class FinanceCatalogueController extends Controller
 
     public function __construct()
     {
-        define("CSV_SEPARATOR", ["Sep=;"]);
     }
 
     /**

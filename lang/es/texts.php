@@ -216,7 +216,7 @@ $LANG = array(
     'clients-passed' => 'Clientes que Superaron L2500',
     'promises_pay'=>'Promesas de pagos de clientes',
     'category_clients'=>'Clientes Por Categorias',
-    'clients-unvisited' => 'Clientes No Visitados', 
+    'clients-unvisited' => 'Clientes No Visitados',
     'routes-visits' => 'Visitas por Ruta (Global)',
     'routes-visits-day' => 'Visitas por Ruta (Dia)',
 	'customer-purchases-frequency' => 'Recurrencia de compras',
@@ -746,7 +746,7 @@ $LANG = array(
     'clone_proforma' => 'Eliminar Proforma',
     'edit_proforma' => 'Editar Proforma',
     'proforma_history' => 'Historial de Proforma',
-    
+
     'save_quote' => 'Guardar Cotización',
     'email_quote' => 'Enviar Cotización',
     'clone_quote' => 'Clonar Cotización',
@@ -762,7 +762,7 @@ $LANG = array(
     'delete_route' => 'Eliminar Ruta',
     'update_route' => 'Actualizar Ruta',
     'routes_commissions'=> 'Comisiones De Rutas',
-    'update' => 'Actualizar', 
+    'update' => 'Actualizar',
 'created_order' => 'Encargado creado con éxito',
 'edit_order' => 'Editar encargado',
 'archive_order' => 'Archivar encargado',
@@ -1381,9 +1381,9 @@ $LANG = array(
     'recurring_due_dates' => 'Fecha de Vencimiento de Factura Recurrente',
     'recurring_due_date_help' => '<p>Define automáticamente una fecha de vencimiento de la factura.</p>
         <p>Facturas en un ciclo mensual o anual preparadas para vencer el día que se crearon o antes, vencerán al siguiente mes. Facturas preparadas para vencer el 29 o el 30, en los meses que no tienen ese día, vencerán el último día del mes</p>
-        <p>(Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.)</p>
+        <p>(Invoice on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoice set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.)</p>
         <p>Facturas en un ciclo semanal preparadas para vencer el día de la semana que se crearon, vencerán a la siguiente semana.</p>
-        <p>(Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.)</p>
+        <p>(Invoice on a weekly cycle set to be due on the day of the week they are created will be due the next week.)</p>
         <p>Por ejemplo:</p>
         <ul>
           <li>Hoy es día 15, la fecha de vencimiento es el día 1 de cada mes. La fecha de vencimiento deberá ser el día 1 del siguiente mes.</li>
@@ -1543,7 +1543,7 @@ $LANG = array(
     'Today' => 'Hoy',
     'showdeleted' => 'Eliminadas',
 
-    'clone_invoice_to_other_warehouse' => 'Clonar Factura a C.D.', 
+    'clone_invoice_to_other_warehouse' => 'Clonar Factura a C.D.',
 
     'january' => 'Enero',
     'february' => 'Febrero',
@@ -2768,7 +2768,7 @@ $LANG = array(
     'process_account' => 'Tienda (Empleados de una tienda)',
     'process_zones' => 'Zonas (Tiendas de una zona)',
     'process_supervisors' => 'Supervizores (Todas las Zonas)',
-    
+
     'brand_id' => 'Marca',
 );
 

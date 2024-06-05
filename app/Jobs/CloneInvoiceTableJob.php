@@ -3,15 +3,17 @@
 namespace App\Jobs;
 
 use App\Models\CloningControl;
+use Illuminate\Support\Facades\DB;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
+
 use Carbon\Carbon;
 
-class CloneInvoicesTableJob implements ShouldQueue
+class CloneInvoiceTableJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -40,21 +42,28 @@ class CloneInvoicesTableJob implements ShouldQueue
         $invoices = DB::connection('main')
             ->table('invoices')
             ->where('account_id', $accountId)
+            ->where('is_sync', 0)
             ->whereBetween('created_at', [$fromDate, $toDate])
             ->get();
-        $invoicesToInsert = $invoices->map(function ($invoice) {
+        $invoiceToInsert = $invoices->map(function ($invoice) {
             $invoiceArray = (array) $invoice;
-            $invoiceArray['sync_invoices_id'] = $invoiceArray['id'];
+            $invoiceArray['sync_invoice_id'] = $invoiceArray['id'];
             unset($invoiceArray['id']);
             unset($invoiceArray['is_sync']);
+            if ($invoiceArray['invoice_date'] == '0000-00-00') {
+                $invoiceArray['invoice_date'] = null;
+            }
+            if ($invoiceArray['last_payment_date'] == '0000-00-00') {
+                $invoiceArray['last_payment_date'] = null;
+            }
             return $invoiceArray;
         })->toArray();
-        $chunks = array_chunk($invoicesToInsert, 500);
+        $chunks = array_chunk($invoiceToInsert, 500);
 
         foreach ($chunks as $chunk) {
             DB::connection('mysql')->table('invoices')->insert($chunk);
             DB::connection('main')->table('invoices')
-                ->whereIn('id', collect($chunk)->pluck('sync_invoices_id'))
+                ->whereIn('id', collect($chunk)->pluck('sync_invoice_id'))
                 ->update(['is_sync' => 1]);
         }
         $invoiceItems = DB::connection('main')->table('invoice_items')->whereIn('invoice_id', $invoices->pluck('id'))->get();
@@ -67,8 +76,10 @@ class CloneInvoicesTableJob implements ShouldQueue
                     unset($invoiceItemArray['id']);
                     return $invoiceItemArray;
                 })->toArray();
-
-                DB::connection('mysql')->table('invoice_items')->insert($invoiceItemsToInsert);
+                $iITI = array_chunk($invoiceItemsToInsert, 25);
+                foreach ($iITI as $chunkIITI) {
+                    DB::connection('mysql')->table('invoice_items')->insert($chunkIITI);
+                }
             }
         }
         $reportProcess = CloningControl::find($cloneId);

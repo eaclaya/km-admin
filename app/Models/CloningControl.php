@@ -50,6 +50,10 @@ class CloningControl extends Model
                                 ->latest()->first();
                 if(isset($cloningControl)){
                     $fromDate = $cloningControl->to_date->addDay()->startOfDay();
+                    $current_at = Carbon::now()->startOfDay();
+                    if($fromDate->gte($current_at)){
+                        return null;
+                    }
                     $toDate = $fromDate->copy()->endOfMonth()->endOfDay();
                     $control = CloningControl::create([
                         'model' => $dataReset['model'],
