@@ -20,6 +20,12 @@
    </style>
 @stop
 
+@section('content_header')
+    <h1>
+        Clasificación de Catalogo Financiero
+    </h1>
+@stop
+
 @section('content')
   	@parent
 
@@ -28,13 +34,6 @@
 	@endif
 
 	<div class="">
-		<div class="row">
-			<div class="col-sm-12">
-				<div>
-					<h2 style="text-align: center;">Clasificación de Catalogo Financiero</h2>
-				</div>
-			</div>
-		</div>
 		<br>
 		{{-- <form method="POST" action="{{route('evaluationprocess.update', $evaluationProcess->id)}}" > --}}
 			{{-- {{ method_field('PUT') }}

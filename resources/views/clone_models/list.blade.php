@@ -3,7 +3,14 @@
 @section("title", "index")
 
 @section("content_header")
-    <h1>Listado</h1>
+    <h1>
+        Listado
+        @if(isset($notIsCompleted))
+            <a class="btn btn-success" href="{{route('clone_models.list',['model'=> $model])}}">Ver Todos los Procesos</a>
+        @else
+            <a class="btn btn-success" href="{{route('clone_models.list',['model'=> $model, 'not_is_completed' => 1])}}">Ver Solo Procesos No Completados</a>
+        @endif
+    </h1>
 @stop
 
 @section("content")
@@ -28,7 +35,14 @@
                         </td>
                         <td>{{$item->from_date}}</td>
                         <td>{{$item->to_date}}</td>
-                        <td>{{$item->is_completed ? 'Si' : 'No'}}</td>
+
+                        <td>
+                            @if($item->is_completed)
+                                Si
+                            @else
+                                <a class="btn btn-success" href="{{route('clone_models.complete',['clone_id'=> $item->id])}}">Completar</a>
+                            @endif
+                        </td>
                         <td>{{$item->created_at}}</td>
                         <td>{{$item->updated_at}}</td>
                     </tr>

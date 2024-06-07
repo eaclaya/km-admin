@@ -1,5 +1,6 @@
 <?php
 
+const CSV_SEPARATOR = ["Sep=;"];
 const ENTITY_SUPPLY = 'supply';
 const ENTITY_REFUND_ITEM = 'refund_item';
 const ENTITY_REFUND = 'refund';

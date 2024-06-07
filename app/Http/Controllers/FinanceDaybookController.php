@@ -30,9 +30,8 @@ class FinanceDaybookController extends Controller
      */
     public function index()
     {
-        $items = FinanceCatalogueItem::orderBy('sort', 'ASC')->whereNull('sub_item_id')->with('subItems')->get();
-        $clasifications = FinanceCatalogueClassification::orderBy('sort', 'ASC')->get()->keyBy('id');
-        return view('finance_catalogue.list', ['items' => $items, 'clasifications' => $clasifications, 'models' => $this->models]);
+//        $entries = FinanceCatalogueItem::orderBy('sort', 'ASC')->whereNull('sub_item_id')->with('subItems')->get();
+        return view('finance_daybook.list', []);
     }
 
     public function showClassifications()

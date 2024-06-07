@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::dropIfExists('invoice_items_discount');
         Schema::create('invoices', function (Blueprint $table) {
             $table->unsignedInteger('id')->autoIncrement();
-            $table->unsignedInteger('sync_invoices_id');
+            $table->unsignedInteger('sync_invoice_id');
             $table->unsignedInteger('client_id');
             $table->unsignedInteger('user_id');
             $table->integer('real_user_id')->nullable();
@@ -113,7 +113,7 @@ return new class extends Migration
             $table->decimal('amount_kms', 12, 2)->default(0.00)->nullable();
             $table->unsignedInteger('packing_id')->default('0');
 
-            $table->unique(['account_id', 'public_id'], 'invoices_account_id_public_id_unique');
+            $table->unique(['account_id', 'public_id'], 'invoice_account_id_public_id_unique');
             $table->unique(['billing_id', 'invoice_number'], 'unique_invoice');
         });
         Schema::create('invoice_items', function (Blueprint $table) {
@@ -152,7 +152,7 @@ return new class extends Migration
         });
         Schema::create('invoices_discount', function (Blueprint $table) {
             $table->unsignedInteger('id')->autoIncrement();
-            $table->unsignedInteger('invoices_id');
+            $table->unsignedInteger('invoice_id');
             $table->unsignedInteger('client_id');
             $table->unsignedInteger('user_id');
             $table->integer('real_user_id')->nullable();
@@ -248,7 +248,7 @@ return new class extends Migration
             $table->decimal('amount_kms', 12, 2)->default(0.00)->nullable();
             $table->unsignedInteger('packing_id')->default('0');
 
-            $table->unique(['account_id', 'public_id'], 'invoices_account_id_public_id_unique');
+            $table->unique(['account_id', 'public_id'], 'invoice_account_id_public_id_unique');
             $table->unique(['billing_id', 'invoice_number'], 'unique_invoice');
         });
         Schema::create('invoice_items_discount', function (Blueprint $table) {

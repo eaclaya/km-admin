@@ -1,4 +1,4 @@
-@extends('header')
+@extends('adminlte::page')
 
 @section('css')
   <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
@@ -33,7 +33,7 @@
 			<div class="row">
 				<table style="margin: 0 auto;">
 					<thead>
-						<tr>
+						{{--<tr>
 							@php
 								$oldersClasificationIds = [];
 							@endphp
@@ -50,12 +50,12 @@
 									<i class="fa fa-plus-square-o" aria-hidden="true"></i> Agregar
 								</a>
 							</th>
-						</tr>
+						</tr>--}}
 					</thead>
 					<tbody>
-						@foreach ($items as $item)
+						{{--@foreach ($items as $item)
 							@include('finance_catalogue.partials.rows',['clasifications' => $clasifications, 'item' => $item, 'oldersClasificationIds' => $oldersClasificationIds, 'models' => $models, 'limitClassifications' => count($items)+1])
-						@endforeach
+						@endforeach--}}
 					</tbody>
 				</table>
 			</div>
@@ -122,7 +122,7 @@
 		}
 
 		async function showCreate(data_string){
-			const totalClasifications = {{$clasifications->count()}};
+			{{--const totalClasifications = {{$clasifications->count()}};--}}
 			data_string = data_string.split('*-*');
 			const item_id = data_string[0];
 

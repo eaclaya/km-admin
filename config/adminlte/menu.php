@@ -34,9 +34,9 @@ return [
         'submenu' => require __DIR__ . '/modules/FinanceDaybook.php',
     ],
     [
-        'text' => 'Invoices Discount',
+        'text' => 'Invoice Discount',
         'icon' => 'fa fa-table fa-fw',
-        'submenu' => require __DIR__ . '/modules/InvoicesDiscount.php',
+        'submenu' => require __DIR__ . '/modules/InvoiceDiscount.php',
     ],
     [
         'text' => 'Clone Models',

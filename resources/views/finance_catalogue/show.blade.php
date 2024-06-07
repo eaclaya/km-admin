@@ -11,7 +11,6 @@
 		</div>
         <div class="col-xs-4">
             @if(Auth::user()->realUser()->hasAnyRole(['Nivl III', 'Auditoria', 'Usuario especial', 'Auxiliar RRHH/capacitaciones', 'Recursos Humanos', 'Capacitacion Manuales y Procesos']))
-                {{-- <a class="btn btn-primary" style="float: right" href="{{ route('evaluationprocess.reports') }}">Reporte de evaluationProces</a> --}}
                 <a class="btn btn-success" style="float: right" href="{{ route('evaluationprocess.fields') }}">Gestionar los Campos</a>
             @endif
 		</div>
