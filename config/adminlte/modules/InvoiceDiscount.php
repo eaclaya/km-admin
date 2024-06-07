@@ -9,10 +9,6 @@ return [
         'text' => 'export_invoice',
         'url' => 'invoice_discount/export_invoice',
         'icon' => 'fa fa-book fa-fw',
+        'can' => 'cosa',
     ],
 ];
-
-
-
-
-
