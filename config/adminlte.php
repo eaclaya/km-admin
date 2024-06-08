@@ -293,7 +293,35 @@ return [
     |
     */
 
-    'menu' => require __DIR__ . '/adminlte/menu.php',
+    'menu' => [
+        // Navbar items:
+        [
+            'type' => 'navbar-search',
+            'text' => 'search',
+            'topnav_right' => true,
+            'url' => '#nav-search',
+            'input_name' => 'nav_search',
+            'id' => 'navbarSearch'
+        ],
+        [
+            'type' => 'fullscreen-widget',
+            'topnav_right' => true,
+        ],
+
+        // Sidebar items:
+        [
+            'type' => 'sidebar-menu-search',
+            'text' => 'Buscar En Menu',
+        ],
+        [
+            'text' => 'Dashboard',
+            'url' => '/dashboard',
+            'icon' => 'fa fa-fw fa-home',
+            'label' => 'New',
+            'label_color' => 'primary',
+        ],
+        ['header' => 'Modulos'],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -308,7 +336,6 @@ return [
     */
 
     'filters' => [
-//        JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
         App\Services\AdminlteMenuFilterSource::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\HrefFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\SearchFilter::class,

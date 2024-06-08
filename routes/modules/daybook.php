@@ -4,6 +4,10 @@ use App\Http\Controllers\FinanceCatalogueController;
 use App\Http\Controllers\FinanceDaybookController;
 use Illuminate\Support\Facades\Route;
 
+//Nota: El middleware checkPermission se encarga de verificar si el usuario tiene permisos para acceder a la ruta
+//Si bien se puede pasar el nombre del permiso directamente (como se ve a continuacion), al no pasarlo se buscara en la base de datos
+//el permiso con el nombre de la ruta y se comparara con los permisos del usuario
+
 Route::middleware(['auth','checkPermission:whatsapp_config'])->group(function () {
     Route::get('finance_catalogue/show_classifications', [FinanceCatalogueController::class, 'showClassifications'])
         ->name('finance_catalogue.show_classifications');

@@ -28,4 +28,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withSchedule(function (Schedule $schedule) {
         //
-    })->create();
+    })
+    ->create();
