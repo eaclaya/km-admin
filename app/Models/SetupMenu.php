@@ -21,7 +21,8 @@ class SetupMenu extends Model
         'label_color',
         'url',
         'text',
-        'icon'
+        'icon',
+        'can'
     ];
 
     /**

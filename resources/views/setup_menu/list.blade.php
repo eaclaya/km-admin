@@ -1,20 +1,9 @@
 @extends('adminlte::page')
 
 @section('css')
-    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
     <style>
-        table td, table th{
-            border: 1px solid black !important;
-            padding: 10px;
-            max-width: fit-content;
-        }
-        .row-error {
-            background: crimson;
-            color: white;
-        }
-        .text-error {
-            border: red;
-            border-style: double;
+        .fixed-input-group {
+            width: 100px !important;
         }
     </style>
 @stop
@@ -27,99 +16,94 @@
 
 @section('content')
     <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <table style="margin: 0 auto;">
-                    <thead>
-                        <tr>
-                            <th>Clasificación</th>
-                            <th>Nombre de la Cuenta</th>
-                            <th>Accion -
-                                <a class="btn btn-success btn-sm" onclick="showCreate('{{null}}*-*1*-*{{(isset($items) && count($items) > 0) ? count($items) + 1 : 1}}')">
-                                    <i class="fa fa-plus-square-o" aria-hidden="true"></i> Agregar
-                                </a>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach ($items as $item)
-                        @include('setup_menu.partials.rows',['item' => $item, 'limitClassifications' => count($items)+1])
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
+        <div class="card- overflow-auto">
+            @if(isset($items))
+                <form action="{{Route('setup_menu.store')}}" method="post">
+                    @csrf
+                    <div class="row">
+                        <table class="table table-bordered" style="margin: 0 auto;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Menu Superior</th>
+                                    <th>Url</th>
+                                    <th>Text</th>
+                                    <th>Icon</th>
+                                    <th>Permiso</th>
+                                    <th>Label</th>
+                                    <th>Color del Label</th>
+                                    <th>Accion -
+                                        <a class="btn btn-success btn-sm" onclick="showCreate('{{null}}')">
+                                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($items as $item)
+                                @include('setup_menu.partials.rows',['item' => $item, 'ml' => 0])
+                            @endforeach
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary mx-auto mt-2">Guardar</button>
+                    </div>
+                </form>
+                <br>
+                @if($items->hasPages())
+                    <h1>Ver mas</h1>
+                    {{ $items->links('pagination::bootstrap-5') }}
+                @endif
+            @else
+                <div class="alert alert-warning" role="alert">
+                    No hay datos para mostrar
+                </div>
+            @endif
         </div>
     </div>
 
-	<div id="myModal" class="modal fade" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					<h4 class="modal-title">Editar</h4>
-				</div>
-				<div class="modal-body">
-					<form action="" method="post" id="form_update">
-						<div class="form-group">
-							<label for="finance_account_name">Nombre de la Cuenta</label>
-							<input type="text" class="form-control" id="finance_account_name" name="finance_account_name" required>
-						</div>
-						<br>
-						<div class="form-group">
-							<label for="model">Identificador del Modelo</label>
-							<select class="form-control" name="model_id" id="model_id" style="width: 50%">
-								<option ></option>
-							</select>
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
 	<div id="myModalCreate" class="modal fade" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
 					<h4 class="modal-title">Crear</h4>
+					<button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
 				</div>
 				<div class="modal-body">
-					<form action="" method="post" id="form_create">
+					<form action="{{Route('setup_menu.create')}}" method="post" id="form_create">
+                        <input type="hidden" name="supra_menu_id" id="supra_menu_id">
+                        @csrf
 						<div class="form-group">
-							<label for="finance_account_name">Nombre de la Cuenta</label>
-							<input type="text" class="form-control" id="finance_account_name_create" name="finance_account_name" required>
+							<label for="url">Url</label>
+							<input type="text" class="form-control" id="url_create" name="url" >
+                            <small class="form-text text-muted">Este campo no es requerido, puede dejarlo vacio o colocar una almoadilla.</small>
 						</div>
-						<div class="form-group">
-							<label for="finance_catalogue_classification_sort_create">Clasificacion</label>
-							<select class="form-control" id="finance_catalogue_classification_sort_create" name="finance_catalogue_classification_sort" required readonly>
-								@foreach ($clasifications as $clasification)
-									<option value="{{$clasification->id}}">{{$clasification->name}}</option>
-								@endforeach
-							</select>
+                        <div class="form-group">
+							<label for="url">Texto</label>
+							<input type="text" class="form-control" id="text_create" name="text" required>
 						</div>
-						<div class="form-group">
-							<label for="sort">Siguiente Posicion</label>
-							<input type="number" name="sort" id="sort_create">
+                        <div class="form-group">
+							<label for="url">Icono</label>
+							<input type="text" class="form-control" id="icon_create" name="icon" >
+                            <small class="form-text text-muted">Este campo no es requerido, puede dejarlo vacio.</small>
 						</div>
-						<div>
-							<label for="model">Modelo (Tabla de la base de datos)</label>
-							<select class="form-control" name="model" id="model" onchange="changeModel(this,'create')" style="width: 50%">
-								<option ></option>
-								@foreach ($models as $model => $name)
-									<option value="{{$model}}">{{$name}}</option>
-								@endforeach
-							</select>
+                        <div class="form-group">
+							<label for="url">Permiso</label>
+							<input type="text" class="form-control" id="can_create" name="can" >
+                            <small class="form-text text-muted">Este campo no es requerido, puede dejarlo vacio.</small>
 						</div>
-						<br>
-						<div>
-							<label for="model">Identificador del Modelo</label>
-							<select class="form-control" name="model_id" id="model_id_create" style="width: 50%">
-								<option ></option>
-							</select>
+                        <div class="form-group">
+							<label for="url">Label</label>
+							<input type="text" class="form-control" id="label_create" name="label" >
+                            <small class="form-text text-muted">Este campo no es requerido, puede dejarlo vacio.</small>
 						</div>
+                        <div class="form-group">
+							<label for="url">Color del Label</label>
+							<input type="text" class="form-control" id="label_color_create" name="label_color" >
+                            <small class="form-text text-muted">Este campo no es requerido, puede dejarlo vacio.</small>
+						</div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
 					</form>
 				</div>
 				<div class="modal-footer">
@@ -139,135 +123,15 @@
             $('[data-toggle="popover"]').popover();
         });
 
-        function dNoneColumns(dNoneClass,action) {
-            let selector = "[class^='"+dNoneClass+"-']";
-            let elements = $(selector);
-            let elementsToShow = elements.find("[class$='-show']");
-            let elementsToHide = elements.find("[class$='-hide']");
-            if(action === 'show'){
-                elements.show();
-                $('.'+dNoneClass+'-show').hide();
-                $('.'+dNoneClass+'-hide').show();
-                elementsToShow.hide();
-                elementsToHide.show();
-            }else{
-                elements.hide();
-                $('.'+dNoneClass+'-hide').hide();
-                $('.'+dNoneClass+'-show').show();
-                elementsToShow.show();
-                elementsToHide.hide();
-            }
-        }
-
-        async function showEdit(data_string){
-            data_string = data_string.split('*-*');
-            const item_id = data_string[0];
-
-            const finance_account_name = data_string[1];
-            const finance_catalogue_classification_sort = data_string[2];
-            const sort = data_string[3];
-            const model = data_string[4];
-            const model_id = data_string[5];
-            const limitSort = data_string[6];
-
-            url = '{{url()->current()}}' + '/' + item_id + '/update';
-            $('#form_update').attr('action', url);
-
-            $('#finance_account_name').val(finance_account_name);
-            $('#finance_catalogue_classification_sort').val(finance_catalogue_classification_sort);
-            $('#sort').val(sort);
-            $('#sort').attr('max', limitSort);
-
-            if(model){
-                const params = {
-                    'model' : model,
-                    'model_id' : (model_id && model_id > 0) ? model_id : null,
-                };
-                let responceAjax = await getModels(params);
-                console.dir(responceAjax);
-                $('#model_id').empty();
-                $("#model_id").select2({
-                    data: responceAjax,
-                    width: 'resolve'
-                }).trigger('change');
-
-                $('#model').val(model);
-
-                if(model_id && model_id > 0){
-                    $('#model_id').val(model_id);
-                }
-            }else{
-                $('#model').val('');
-                $('#model_id').empty();
-                $("#model_id").select2({
-                    data: [],
-                    width: 'resolve'
-                }).trigger('change');
-            }
-
-            $("#myModal").modal();
-            return true;
-        }
-
-        async function showCreate(data_string){
-            const totalClasifications = {{$clasifications->count()}};
-            data_string = data_string.split('*-*');
-            const item_id = data_string[0];
-
-            const finance_catalogue_classification_sort = data_string[1];
-            const sort = data_string[2];
-
-            if(finance_catalogue_classification_sort > totalClasifications){
-                alert('No se puede agregar cuentas debajo de esta Clasificación ya que no existen Clasificaciones sucesivas');
-                return true;
-            }
-
-            let url = '{{url()->current()}}' + '/' + item_id + '/create';
-            $('#form_create').attr('action', url);
-
-            $('#finance_catalogue_classification_sort_create').val(finance_catalogue_classification_sort);
-
-            $("#finance_catalogue_classification_sort_create option:not(:selected)").attr("disabled", "disabled");
-
-            $('#sort_create').val(sort);
+        async function showCreate(supra_menu_id){
+            $('#supra_menu_id').val(supra_menu_id);
 
             $("#myModalCreate").modal();
             return true;
         }
 
-        async function getModels(params) {
-            let respuesta = await $.ajax({
-                type: 'GET',
-                url: '{!! route('finance_catalogue.get_models') !!}',
-                data: params,
-            });
-            if (respuesta.msg === 'erro' || respuesta.response === 'reset_url') {
-                alert('A ocurrido un error');
-            }
-            return respuesta;
-        }
-
-        async function changeModel(element,type){
-            const model = element.value;
-            const params = {
-                'model' : model,
-                'model_id' : null
-            };
-            let responceAjax = await getModels(params);
-            console.dir(responceAjax);
-            if(type == 'edit'){
-                $('#model_id').empty();
-                $('#model_id').select2({
-                    data: responceAjax,
-                    width: 'resolve'
-                }).trigger('change');
-            }else{
-                $('#model_id_create').empty();
-                $('#model_id_create').select2({
-                    data: responceAjax,
-                    width: 'resolve'
-                }).trigger('change');
-            }
-        }
+    function confirmDelete(itemId) {
+        return confirm("¿Estás seguro de que quieres eliminar la ruta: " + itemId + "?");
+    }
     </script>
 @stop

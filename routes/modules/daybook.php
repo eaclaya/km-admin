@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 //Si bien se puede pasar el nombre del permiso directamente (como se ve a continuacion), al no pasarlo se buscara en la base de datos
 //el permiso con el nombre de la ruta y se comparara con los permisos del usuario
 
-Route::middleware(['auth','checkPermission:whatsapp_config'])->group(function () {
+Route::middleware(['auth','checkPermission'])->group(function () {
     Route::get('finance_catalogue/show_classifications', [FinanceCatalogueController::class, 'showClassifications'])
         ->name('finance_catalogue.show_classifications');
     Route::post('finance_catalogue/set_classifications', [FinanceCatalogueController::class, 'setClassifications'])

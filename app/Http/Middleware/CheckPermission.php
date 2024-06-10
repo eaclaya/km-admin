@@ -35,8 +35,9 @@ class CheckPermission
             if (in_array($permissionMenu, $resources)) {
                 return $next($request);
             }
+            return redirect()->route('dashboard')->with(['error' => 'No tiene permisos para acceder a esta página']);
         }
-        return back()->with(['error' => 'No tiene permisos para acceder a esta página']);
+        return $next($request);
     }
 
     private function checkResources()

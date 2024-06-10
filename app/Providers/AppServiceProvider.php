@@ -24,7 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
-            // chequear si existe session sino lo guardamos
             if (!session()->has('menu')) {
                 $setupMenu = SetupMenu::query()
                     ->where('supra_menu_id', null)
@@ -60,7 +59,6 @@ class AppServiceProvider extends ServiceProvider
             $menu['submenu'] = [];
             $ml = $ml + 3;
             foreach ($item->subItems as $subItem){
-
                 $menu['submenu'][] = $this->returnItems($subItem,$ml);
             }
         }
