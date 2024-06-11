@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\Main\Account;
 
 class CloningControl extends Model
 {
@@ -26,12 +27,10 @@ class CloningControl extends Model
         'is_completed',
     ];
 
-    public function account()
+    /*public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return DB::connection('main')->table('accounts')
-            ->select('id','name')
-            ->find($this->account_id);
-    }
+        return $this->belongsTo(Account::class, 'account_id')->usingConnection('main');
+    }*/
 
     public function getFirstOrNew($dataReset = null){
         if(isset($dataReset) && count($dataReset) > 0){
@@ -84,5 +83,15 @@ class CloningControl extends Model
             }
         }
         return false;
+    }
+
+    public function getAccountNameAttribute(): string
+    {
+        $account_id = $this->account_id;
+        $account = Account::on('main')->where('id',$account_id)->select('name')->first();
+        if(!$account){
+            return '';
+        }
+        return $account->name;
     }
 }

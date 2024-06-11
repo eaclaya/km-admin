@@ -15,7 +15,7 @@
 
 @section("content")
     <div class="container">
-        @if (isset($cloningControl) && count($cloningControl) > 0)
+        {{--@if (isset($cloningControl) && count($cloningControl) > 0)
             <table class="table table-bordered table-hover table-striped">
                 <thead class="text-center" style="border: 5px solid black">
                     <tr>
@@ -56,7 +56,8 @@
             @endif
         @else
             <h4>No Existe Informacion de este Proceso</h4>
-        @endif
+        @endif--}}
+        <livewire:Datatables.clone-models-table :model="$model" :account_id="$account_id" :notIsCompleted="$notIsCompleted" />
     </div>
 @stop
 

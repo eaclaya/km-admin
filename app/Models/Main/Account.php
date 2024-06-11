@@ -2,7 +2,10 @@
 
 namespace App\Models\Main;
 
-class Account extends ModelDBMain
+use Illuminate\Database\Eloquent\Model;
+
+class Account extends Model
 {
+    protected $connection = 'main';
     protected $table = 'accounts';
 }

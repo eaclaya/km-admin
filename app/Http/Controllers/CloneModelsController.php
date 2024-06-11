@@ -41,15 +41,15 @@ class CloneModelsController extends Controller
     public function list(Request $request, $model, $account_id = null)
     {
         $notIsCompleted = $request->get('not_is_completed')??null;
-        $cloningControl = CloningControl::query()->where('model', $model);
+        /*$cloningControl = CloningControl::query()->where('model', $model);
         if($account_id){
             $cloningControl = $cloningControl->where('account_id', $account_id);
         }
         if($notIsCompleted){
             $cloningControl = $cloningControl->where('is_completed', 0);
         }
-        $cloningControl = $cloningControl->orderBy('created_at', 'desc')->paginate(50);
-        return view('clone_models.list', ['cloningControl' => $cloningControl, 'model' => $model, 'notIsCompleted' => $notIsCompleted]);
+        $cloningControl = $cloningControl->orderBy('created_at', 'desc')->paginate(50);*/
+        return view('clone_models.list', ['model' => $model, 'account_id' => $account_id, 'notIsCompleted' => $notIsCompleted]);
     }
 
     public function edit()
