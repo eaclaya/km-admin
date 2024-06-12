@@ -13,6 +13,7 @@ use App\Models\ReportProcess;
 use App\Models\Main\Account;
 use App\Repositories\ReportProcessRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceDiscountController extends Controller
 {
@@ -65,20 +66,18 @@ class InvoiceDiscountController extends Controller
     public function setDiscount(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|mimes:csv,txt|max:2048',
+            'csv_file' => 'required|mimes:csv,txt',
         ]);
-        dd($request->file('csv_file'));
-        $path = $request->file('csv_file')->store('csv_files');
-
-        $file = fopen(storage_path('app/' . $path), 'r');
-
-        /*while (($data = fgetcsv($file)) !== FALSE) {
-            // $data is an array with your columns
-            // process your data here
-        }*/
-
-        // Close file
-        fclose($file);
+        $file = $request->file('csv_file');
+        $originalName = $file->getClientOriginalName();
+        $path = $file->storeAs('csv_files', $originalName);
+        $field = storage_path('app/'.$path);
+        $csv = new \ParseCsv\Csv();
+        $csv->encoding('ISO-8859-1','UTF-8');
+        $csv->offset = 1;
+        $csv->limit = 500;
+        $csv->auto($field);
+        dd($csv->data);
 
         return back()->with('success', 'File has been uploaded and processed successfully.');
     }

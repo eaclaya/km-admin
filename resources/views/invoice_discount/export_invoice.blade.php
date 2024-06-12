@@ -51,13 +51,8 @@
         <livewire:Datatables.report-process-table :name="$name" />
 
     </div>
-{{--    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>--}}
     <script>
-        /*$(document).ready( function () {
-            $('table').DataTable({
-                "order": [[ 2, "desc" ]]
-            });
-        } );*/
+
         $("#store").chosen({
             disable_search_threshold: 10,
             no_results_text: "Oops, nothing found!",
