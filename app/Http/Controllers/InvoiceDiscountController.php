@@ -11,13 +11,17 @@ use App\Models\InvoiceDiscount;
 use App\Models\ReportProcess;
 
 use App\Models\Main\Account;
-use Carbon\Carbon;
-use Dotenv\Parser\Entry;
+use App\Repositories\ReportProcessRepository;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class InvoiceDiscountController extends Controller
 {
+    protected $reportProcessRepo;
+
+    public function __construct(ReportProcessRepository $reportProcessRepo)
+    {
+        $this->reportProcessRepo = $reportProcessRepo;
+    }
     public function index(Request $request, $account_id = null)
     {
         $accounts = Account::get();
@@ -83,6 +87,7 @@ class InvoiceDiscountController extends Controller
     {
         $data = $request->all();
         $accounts = Account::where('accounts.exclude', 0)->select('id','name')->get();
+        $name = 'export_invoices';
         if(count($data) > 0){
             $currentAccountId = $data['store'];
             $filter = $data['filter'];
@@ -92,57 +97,37 @@ class InvoiceDiscountController extends Controller
             $to_date = $data['to_date'];
 
             $columns = ['invoice_id', 'company', 'account', 'client', 'RTN', 'invoice_number', 'cai', 'invoice_date', 'total'];
-
-            $currentDate = Carbon::now()->toDateTimeString();
-            $currentDate = explode(" ",$currentDate);
-            $currentTime = '';
-            foreach (explode(":",$currentDate[1]) as $time) {
-                $currentTime .= '_'.$time;
-            }
-            $nameFile = 'export_invoices_'.$currentDate[0].$currentTime.'.csv';
-
-            $bom = "\xEF\xBB\xBF";
-            $file = public_path() . "/" . $nameFile;
-            $fp = fopen($file, 'a');
-            fwrite($fp, $bom);
-            fputcsv($fp, CSV_SEPARATOR, ';');
-            fputcsv($fp, $columns, ';');
-            fclose($fp);
-
             $rows = count($currentStores);
 
-            $reportProcess = new ReportProcess;
-            $reportProcess->file = $nameFile;
-            $reportProcess->report = 'export_invoices';
-            $reportProcess->status = 0;
-            $reportProcess->count_rows = 0;
-            $reportProcess->rows = ($rows == 1) ? $rows : intval(ceil($rows / 4));
+            $data = [
+                'name' => $name,
+                'columns' => $columns,
+                'rows' => $rows
+            ];
 
-            $reportProcess->save();
-
+            $reportProcess = $this->reportProcessRepo->process($data);
             $reportProcessId = $reportProcess->id;
 
             if($rows == 1){
-                dispatch((new ReportExportInvoices($nameFile, $reportProcessId, $currentStores, $from_date, $to_date, $filter))->delay(60));
+                dispatch((new ReportExportInvoices($reportProcess->file, $reportProcessId, $currentStores, $from_date, $to_date, $filter))->delay(60));
             }else{
                 $count = 1;
                 foreach (array_chunk($currentStores, 4) as $chunkStores){
-                    dispatch((new ReportExportInvoices($nameFile, $reportProcessId, $chunkStores, $from_date, $to_date, $filter))->delay(60 * $count));
+                    dispatch((new ReportExportInvoices($reportProcess->file, $reportProcessId, $chunkStores, $from_date, $to_date, $filter))->delay(60 * $count));
                     $count = $count+1;
                 };
             };
 
         }
-        $reportProcess = ReportProcess::where('report','export_invoices')->orderBy('id', 'DESC')->take(30)->get();
         $dateFromControl = CloningControl::where('model', ENTITY_INVOICE)->where('is_completed',1)->first()->from_date->format('d-m-Y');
         $dateToControl = CloningControl::where('model', ENTITY_INVOICE)->where('is_completed',1)->latest("id")->first()->to_date->format('d-m-Y');
 
         return view('invoice_discount.export_invoice',
             [
                 'accounts' => $accounts,
-                'reportProcess' => $reportProcess,
                 'dateFromControl' => $dateFromControl,
-                'dateToControl' => $dateToControl
+                'dateToControl' => $dateToControl,
+                'name' => $name
             ]);
     }
 

@@ -20,6 +20,10 @@ class ReportProcess extends Model
         'report',
         'file',
         'status',
+        'rows',
+        'count_rows',
+        'created_at',
+        'updated_at'
     ];
 
     /**

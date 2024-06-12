@@ -48,73 +48,16 @@
             </div>
         </div>
         <hr>
-        @if(isset($reportProcess))
-            <div class="row">
-                <div class="col-md-12">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <td>Id</td>
-                            <td>Archivo</td>
-                            <td>Estatus</td>
-                            <td>Porcentaje</td>
-                            <td>Fecha Creacion</td>
-                            <td>Fecha Finalización</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($reportProcess as $item)
-                            <tr>
-                                <td>
-                                    {{$item->id}}
-                                </td>
-                                <td>
-                                    @if ($item->status == 0)
-                                        {{$item->file}}
-                                    @else
-                                        <a href="{{asset($item->file)}}">{{$item->file}}</a>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($item->status == 0)
-                                        En Proceso
-                                        <br>
-                                        <a href="{{route('reports.finish_report',['id' => $item->id])}}" class="btn btn-success btn-sm">Marcar Finalizado</a>
-                                    @else
-                                        Finalizado
-                                    @endif
-                                </td>
-                                @php
-                                    $item->count_rows = (is_null($item->count_rows) || $item->count_rows == 0) ? 0 : $item->count_rows;
-                                    $item->rows = (is_null($item->rows) || $item->rows == 0) ? 1 : $item->rows;
+        <livewire:Datatables.report-process-table :name="$name" />
 
-                                    $porcentCompleting = ($item->count_rows * 100) / $item->rows;
-                                    $porcentCompleting = round($porcentCompleting, 0);
-                                    $porcentCompleting = ($porcentCompleting == 0 || $porcentCompleting == 1) ? 'Por Procesar el ' : ceil($porcentCompleting);
-                                @endphp
-                                <td>
-                                    <strong>{{$porcentCompleting}}%</strong>
-                                    @if (intval($porcentCompleting) < 100)
-                                        <a href="{{url()->full()}}" class="btn btn-sm btn-primary">Recargar</a>
-                                    @endif
-                                </td>
-                                <td>{{$item->created_at}}</td>
-                                <td>{{$item->updated_at}}</td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
     </div>
-    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+{{--    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>--}}
     <script>
-        $(document).ready( function () {
+        /*$(document).ready( function () {
             $('table').DataTable({
                 "order": [[ 2, "desc" ]]
             });
-        } );
+        } );*/
         $("#store").chosen({
             disable_search_threshold: 10,
             no_results_text: "Oops, nothing found!",

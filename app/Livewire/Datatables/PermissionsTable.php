@@ -48,6 +48,7 @@ class PermissionsTable extends DataTableComponent
         $updated_at = Carbon::now();
         DB::connection('main')->table('user_resources')->where('id', $id)->update([$column => $value, 'updated_at' => $updated_at]);
     }
+
     #[On('refresh-all-datatable')]
     public function refreshAllDatatable()
     {
