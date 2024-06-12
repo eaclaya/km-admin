@@ -14,6 +14,7 @@
 @stop
 
 @section("content")
+    <form action=""></form>
     <div class="container">
         {{--@if (isset($cloningControl) && count($cloningControl) > 0)
             <table class="table table-bordered table-hover table-striped">

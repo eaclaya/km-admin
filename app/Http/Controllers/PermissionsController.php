@@ -10,17 +10,21 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class CloneModelsController extends Controller
+class PermissionsController extends Controller
 {
 
-    protected $types = [
-        ENTITY_INVOICE => 'Facturas',
+    private $categories = [
+        0 => 'Undefined',
+        1 => 'Menu',
+        2 => 'Actions',
+        3 => 'view',
+        4 => 'report',
+        5 => 'special'
     ];
 
     public function index()
     {
-
-        return view('clone_models.index', ['types' => $this->types]);
+        return view('permissions.list', ['categories' => $this->categories]);
     }
 
     public function create()
@@ -38,11 +42,11 @@ class CloneModelsController extends Controller
 
     }
 
-    public function list(Request $request, $model, $account_id = null)
+    /*public function list(Request $request, $model, $account_id = null)
     {
         $notIsCompleted = $request->get('not_is_completed')??null;
-        return view('clone_models.list', ['model' => $model, 'account_id' => $account_id, 'notIsCompleted' => $notIsCompleted]);
-    }
+        return view('permissions.list', ['model' => $model, 'account_id' => $account_id, 'notIsCompleted' => $notIsCompleted]);
+    }*/
 
     public function edit()
     {
@@ -63,12 +67,12 @@ class CloneModelsController extends Controller
     {
         $control = CloningControl::find($clone_id);
         if(!$control){
-            return redirect()->route('clone_models.list', ['model' => $control->model])->with('error', 'No se encontró el registro de clonación.');
+            return redirect()->route('permissions.list', ['model' => $control->model])->with('error', 'No se encontró el registro de clonación.');
         }
         if($control->is_completed){
-            return redirect()->route('clone_models.list', ['model' => $control->model])->with('error', 'El proceso de clonación ya ha sido completado.');
+            return redirect()->route('permissions.list', ['model' => $control->model])->with('error', 'El proceso de clonación ya ha sido completado.');
         }
         CloneInvoiceTableJob::dispatch($control->from_date, $control->to_date, $control->account_id, $control->id);
-        return redirect()->route('clone_models.list', ['model' => $control->model])->with('success', 'Se ha iniciado el proceso de clonación de facturas.');
+        return redirect()->route('permissions.list', ['model' => $control->model])->with('success', 'Se ha iniciado el proceso de clonación de facturas.');
     }
 }

@@ -15,5 +15,6 @@ require __DIR__ . '/modules/daybook.php';
 require __DIR__ . '/modules/invoice_discount.php';
 require __DIR__ . '/modules/clone_models.php';
 require __DIR__ . '/modules/setup_menu.php';
+require __DIR__ . '/modules/permissions.php';
 
 require __DIR__.'/auth.php';
