@@ -6,10 +6,10 @@ use App\models\Main\Billing;
 use App\Models\Main\Client;
 use App\Models\Invoice;
 use App\Models\Main\OrganizationCompany;
-
 use App\Models\Main\Account;
 use App\Models\ReportProcess;
 
+use App\Repositories\ReportProcessRepository;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Bus\Queueable;
@@ -24,14 +24,19 @@ class ReportExportInvoices implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $nameFile, $reportProcessId, $stores, $from_date, $to_date, $filter;
+    protected ReportProcessRepository $reportProcessRepo;
+    protected string $nameFile;
+    protected int $reportProcessId;
+    protected array $stores;
+    protected string $from_date, $to_date;
+    protected string $filter;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($nameFile, $reportProcessId, $stores, $from_date, $to_date, $filter)
+    public function __construct($reportProcessRepo,$nameFile, $reportProcessId, $stores, $from_date, $to_date, $filter)
     {
         $this->nameFile = $nameFile;
         $this->reportProcessId = $reportProcessId;
@@ -39,6 +44,7 @@ class ReportExportInvoices implements ShouldQueue
         $this->from_date = $from_date;
         $this->to_date = $to_date;
         $this->filter = $filter;
+        $this->reportProcessRepo = $reportProcessRepo;
     }
 
     /**
@@ -48,36 +54,24 @@ class ReportExportInvoices implements ShouldQueue
      */
     public function handle()
     {
-        // dump('inicio a procesar con la siguiente tienda');
         $nameFile = $this->nameFile;
         $reportProcessId = $this->reportProcessId;
         $stores = $this->stores;
         $from_date = $this->from_date;
         $to_date = $this->to_date;
         $filter = $this->filter;
-
 //      ----------------------------
         $file = public_path() . '/' . $nameFile;
         $this->generateInvoiceReport($from_date, $to_date, $stores, $file, $filter);
-
 //        -------------------------
-
-        $reportProcess = ReportProcess::find($reportProcessId);
-        $reportProcess->count_rows = is_null($reportProcess->count_rows) ? 1 : (int)$reportProcess->count_rows + 1;
-        $finish = ($reportProcess->count_rows >= $reportProcess->rows) ? true : false;
-        if($finish){
-            $updated_at = Carbon::now()->toDateTimeString();
-            $reportProcess->updated_at = $updated_at;
-            $reportProcess->status = 1;
-        }
-        $reportProcess->save();
+        $this->reportProcessRepo->updateReportProcess($reportProcessId);
         return;
     }
 
-    private function generateInvoiceReport($startDate, $endDate, $stores, $file, $filter)
+    private function generateInvoiceReport($startDate, $endDate, $stores, $file, $filter): void
     {
         $invoices = Invoice::
-            select(['sync_invoice_items_id', 'account_id', 'invoice_number', 'invoice_date', 'amount','billing_id','client_id'])
+            select(['sync_invoice_id', 'account_id', 'invoice_number', 'invoice_date', 'amount','billing_id','client_id'])
             ->whereIn('account_id', $stores)
             ->where('invoice_type_id', 1)
             ->where('invoice_date', '>=', $startDate)
@@ -101,7 +95,7 @@ class ReportExportInvoices implements ShouldQueue
                 continue;
             }
             $displayData = [
-                $invoice->sync_invoice_items_id,
+                $invoice->sync_invoice_id,
                 isset($companyOrg[$accounts[$invoice->account_id]->organization_company_id]) ? $companyOrg[$accounts[$invoice->account_id]->organization_company_id] : '',
                 isset($accounts[$invoice->account_id]) ? $accounts[$invoice->account_id]->name : '',
                 isset($clients[$invoice->client_id]) ? $clients[$invoice->client_id]->name : '',
