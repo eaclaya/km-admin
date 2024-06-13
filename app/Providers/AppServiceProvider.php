@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\SetupMenu;
+use App\Repositories\ReportProcessRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +40,9 @@ class AppServiceProvider extends ServiceProvider
                 $menu = session()->get('menu');
             }
             $event->menu->add(...$menu);
+        });
+        $this->app->bind(ReportProcessRepository::class, function () {
+            return new ReportProcessRepository();
         });
     }
 

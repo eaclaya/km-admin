@@ -10,6 +10,6 @@ class Invoice extends Model
 
     public function items(): \Illuminate\Database\Eloquent\Relations\HasMany|null
     {
-        return $this->hasMany('App\Models\InvoiceItem', 'invoice_id', 'sync_invoices_id');
+        return $this->hasMany('App\Models\InvoiceItem', 'invoice_id', 'sync_invoice_id');
     }
 }
