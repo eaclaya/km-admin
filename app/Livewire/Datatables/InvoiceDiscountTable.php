@@ -9,6 +9,7 @@ use \Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\LinkColumn;
+use Rappasoft\LaravelLivewireTables\Views\Filters\DateFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class InvoiceDiscountTable extends DataTableComponent
@@ -43,22 +44,22 @@ class InvoiceDiscountTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('invoice_id');
+        $this->setFilterLayoutSlideDown();
     }
 
-    /*public function filters(): array
+    public function filters(): array
     {
         return [
-            CloningControl::make('supra_menu_id')
-                ->options([
-                    ' ' => 'All',
-                    'yes' => 'Yes',
-                    'no' => 'No',
-                ])->filter(function(Builder $builder, string $value) {
-                    $builder->where('supra_menu_id', 'like', '%'.$value.'%');
+            DateFilter::make('Desde')
+                ->filter(function(Builder $builder, string $value) {
+                    $builder->where('invoice_date', '>=', $value);
+                }),
+            DateFilter::make('Hasta')
+                ->filter(function(Builder $builder, string $value) {
+                    $builder->where('invoice_date', '<=', $value);
                 }),
         ];
-    }*/
-
+    }
     public function columns(): array
     {
         return [
