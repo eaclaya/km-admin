@@ -124,7 +124,7 @@ return new class extends Migration
             $table->unsignedInteger('invoice_id');
             $table->unsignedInteger('product_id')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->softDeletes()->nullable();
             $table->string('product_key', 255);
             $table->text('notes');
             $table->decimal('product_cost', 12, 2)->nullable();
@@ -259,7 +259,7 @@ return new class extends Migration
             $table->unsignedInteger('invoice_id');
             $table->unsignedInteger('product_id')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->softDeletes()->nullable();
             $table->string('product_key', 255);
             $table->text('notes');
             $table->decimal('product_cost', 12, 2)->nullable();

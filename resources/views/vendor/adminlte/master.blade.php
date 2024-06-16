@@ -78,6 +78,9 @@
             background-color: yellow;
             font-weight: bold;
         }
+        .form-check-input {
+             position: relative !important;
+        }
     </style>
 
 </head>

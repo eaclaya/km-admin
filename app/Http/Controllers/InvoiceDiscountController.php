@@ -27,12 +27,7 @@ class InvoiceDiscountController extends Controller
     public function index(Request $request, $account_id = null): \Illuminate\Contracts\View\View
     {
         $accounts = Account::get();
-        $invoiceDiscount = InvoiceDiscount::query();
-        if($account_id){
-            $invoiceDiscount = $invoiceDiscount->where('account_id', $account_id);
-        }
-        $invoiceDiscount = $invoiceDiscount->orderBy('created_at', 'desc')->paginate(50);
-        return view('invoice_discount.index', ['invoicesDiscount' => $invoiceDiscount, 'accounts' => $accounts]);
+        return view('invoice_discount.index', ['account_id' => $account_id, 'accounts' => $accounts]);
     }
 
     public function setDiscount(Request $request): \Illuminate\Http\RedirectResponse
@@ -47,10 +42,9 @@ class InvoiceDiscountController extends Controller
 
         $csv = new \ParseCsv\Csv();
         $csv->encoding('ISO-8859-1','UTF-8');
+        $csv->limit = 50;
         $csv->auto($filePath);
-
         $rows = count($csv->data);
-        dd($rows);
         $chunkLimit = 400;
 
         $data = [
@@ -69,7 +63,6 @@ class InvoiceDiscountController extends Controller
             dispatch((new ImportInvoicesDiscount($this->reportProcessRepo,$reportProcessId,$filePath,$chunk))->delay(30 * $count));
             $count = $count+1;
         }
-
         return back()->with('success', 'File has been uploaded and processed successfully.');
     }
 
