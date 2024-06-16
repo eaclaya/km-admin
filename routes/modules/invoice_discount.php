@@ -15,5 +15,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reports/finish_report', [InvoiceDiscountController::class, 'finishReport'])
         ->name('reports.finish_report');
 
-    Route::resource('invoice_discount', InvoiceDiscountController::class);
+    Route::get('invoice_discount/{account_id?}', [InvoiceDiscountController::class, 'index'])
+        ->name('invoice_discount.index');
+
+//    Route::resource('invoice_discount', InvoiceDiscountController::class);
 });
