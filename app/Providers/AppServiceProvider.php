@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Models\SetupMenu;
 use App\Repositories\ReportProcessRepository;
+use App\Services\AdminlteMenuFilterSource;
+use App\Services\FilesServices;
+use App\Services\ReportProcessServices;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -41,8 +44,17 @@ class AppServiceProvider extends ServiceProvider
             }
             $event->menu->add(...$menu);
         });
-        $this->app->bind(ReportProcessRepository::class, function () {
+        $this->app->bind(ReportProcessRepository::class, function ($app) {
             return new ReportProcessRepository();
+        });
+        $this->app->singleton(FilesServices::class, function ($app) {
+            return new FilesServices();
+        });
+        $this->app->singleton(ReportProcessServices::class, function ($app) {
+            return new ReportProcessServices(new ReportProcessRepository(), new FilesServices());
+        });
+        $this->app->singleton(AdminlteMenuFilterSource::class, function ($app) {
+            return new AdminlteMenuFilterSource();
         });
     }
 

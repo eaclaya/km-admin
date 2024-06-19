@@ -6,12 +6,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^2.2",
         "jeroennoten/laravel-adminlte": "^3.11",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
         "parsecsv/php-parsecsv": "^1.3",
-        "rappasoft/laravel-livewire-tables": "^3.2"
+        "rappasoft/laravel-livewire-tables": "^3.2",
+        "setasign/fpdi": "^2.6",
+        "tecnickcom/tcpdf": "^6.7"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",
@@ -30,7 +33,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Libraries/Utils.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

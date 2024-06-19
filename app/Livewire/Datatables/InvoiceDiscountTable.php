@@ -5,6 +5,7 @@ namespace App\Livewire\Datatables;
 use App\Models\CloningControl;
 use App\Models\InvoiceDiscount;
 use App\Models\Main\Account;
+use App\Services\ReportProcessServices;
 use \Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
@@ -20,10 +21,9 @@ class InvoiceDiscountTable extends DataTableComponent
         'exportSelected' => 'Imprimir',
     ];
 
-    public function exportSelected()
+    public function exportSelected(): void
     {
-        dd($this->getSelected());
-        return redirect()->route('invoice_discount.export_invoice', ['ids' => $this->selectedKeys]);
+        redirect()->route('invoice_discount.export_invoice_pdf',['ids' => $this->getSelected()]);
     }
     public function builder(): Builder
     {
@@ -46,7 +46,6 @@ class InvoiceDiscountTable extends DataTableComponent
         $this->setPrimaryKey('invoice_id');
         $this->setFilterLayoutSlideDown();
     }
-
     public function filters(): array
     {
         return [
