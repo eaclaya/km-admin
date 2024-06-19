@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <style>
         body{
             font-family: Arial;
@@ -36,6 +37,16 @@
     </style>
 </head>
 <body>
+@foreach($dataArr as $data)
+    @php
+        $account = $data['account'];
+        $client = $data['client'];
+        $invoice = $data['invoice'];
+        $employee = $data['employee'];
+        $auxiliary = $data['auxiliary'];
+        $entityType = $data['entityType'];
+        $billing = $data['billing'];
+    @endphp
     <div class="container">
         <p><strong>ORIGINAL</strong></p>
         <p><strong>CASA MATRIZ</strong></p>
@@ -43,7 +54,9 @@
         <p>{{strtoupper($account->Matrix_address)}}</p>
         <hr>
 
-{{--        <p><img src="{{ asset('logo/logo_negro.png') }}" alt=""></p>--}}
+{{--        <p><img src="{{ public_path().'/assets/logo/logo_negro.png' }}" alt=""></p>--}}
+{{--        <p><img src="{{ base_path(). '/public/assets/logo/logo_negro.png' }}" alt=""></p>--}}
+{{--        <p><img src="{{ storage_path('app/public/img/logo_menu.png') }}" alt=""></p>--}}
         <p><strong>{{$account->name}}</strong></p>
         <p>{{$account->address1}}</p>
         <p>{{$account->city}}, {{$account->state}}</p>
@@ -220,7 +233,11 @@
             <h4><strong style="font-size: 12px; text-transform: uppercase;">Este no es un documento oficial no valido para garantias, reclamos ni ninguna otra gestion. Favor solicite su factura.</strong></h4>
         @endif
 
-{{--        <img src="{{asset('images/find_us.png')}}" style="display: block; margin: 0 auto; width: 200px;" />--}}
+{{--        <img src="{{public_path() . '/assets/img/find_us.png'}}" style="display: block; margin: 0 auto; width: 200px;" />--}}
+{{--        <img src="{{base_path(). '/public/assets/img/find_us.png'}}" style="display: block; margin: 0 auto; width: 200px;" />--}}
+{{--        <img src="{{ storage_path('app/public/img/find_us.png') }}" style="display: block; margin: 0 auto; width: 200px;" />--}}
     </div>
+    <div style="page-break-after: always;"></div>
+@endforeach
 </body>
 </html>

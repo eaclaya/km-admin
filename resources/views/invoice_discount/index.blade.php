@@ -12,6 +12,7 @@
 @stop
 
 @section("content")
+    <p><img src="{{ public_path('assets/logo/logo_negro.png') }}" alt=""></p>
     <div class="container">
         <form action="{{route('invoice_discount.set_discount')}}" method="post" enctype="multipart/form-data">
             <div class="input-group">

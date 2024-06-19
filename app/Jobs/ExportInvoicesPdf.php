@@ -57,9 +57,7 @@ class ExportInvoicesPdf implements ShouldQueue
         $file = public_path() . '/' . $nameFile;
         $view_pdf = 'invoice_discount.print';
         $dataArr = $this->generateInvoiceReport($ids);
-        foreach($dataArr as $data){
-            $this->reportProcessServices->getFilesServices()->appendToPdf($data, $file, $view_pdf);
-        }
+        $this->reportProcessServices->getFilesServices()->appendToPdf($dataArr, $file, $view_pdf);
 //        -------------------------
         $this->reportProcessServices->getRepository()->updateReportProcess($reportProcessId);
         return;

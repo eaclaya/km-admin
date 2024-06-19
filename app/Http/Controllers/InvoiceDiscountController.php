@@ -6,19 +6,10 @@ use App\Jobs\ExportInvoicesPdf;
 use App\Jobs\ImportInvoicesDiscount;
 use App\Jobs\ReportExportInvoices;
 use App\Models\CloningControl;
-use App\Models\InvoiceItem;
-use App\Models\Invoice;
-
-use App\Models\InvoiceDiscount;
-use App\Models\Main\Billing;
-use App\Models\Main\Client;
-use App\Models\Main\ClientPoint;
-use App\Models\ReportProcess;
 
 use App\Models\Main\Account;
 use App\Services\ReportProcessServices;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class InvoiceDiscountController extends Controller
 {

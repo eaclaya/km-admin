@@ -15,10 +15,12 @@ class FilesServices
             Storage::makeDirectory($directoryPath);
         }
         $newContentPath = storage_path('app/public/pdf/new-content.pdf');
-        $contentPdf = PDF::loadView($view_pdf, $data);
+        $contentPdf = PDF::loadView($view_pdf, ['dataArr' => $data]);
+        $contentPdf->setOptions(['isRemoteEnabled' => true]);
         $contentPdf->save($newContentPath);
 
         $pdf = new TcpdfFpdi();
+        $pdf->setPrintHeader(false);
         if (file_exists($filePath)) {
             $pageCount = $pdf->setSourceFile($filePath);
             for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
@@ -34,9 +36,9 @@ class FilesServices
             $pdf->useTemplate($templateId);
         }
         $pdf->Output($filePath, 'F');
-        if (file_exists($newContentPath)) {
+        /*if (file_exists($newContentPath)) {
             unlink($newContentPath);
-        }
+        }*/
     }
 
     public function createFileCsv($nameFile, $columns): void
