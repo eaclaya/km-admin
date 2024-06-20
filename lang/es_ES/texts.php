@@ -2169,6 +2169,7 @@ $LANG = array(
     'white_label_license_key' => 'License Key',
     'invalid_white_label_license' => 'The white label license is not valid',
     'created_by' => 'Created by :name',
+    'web_modules' => 'Modules Web',
     'modules' => 'Modules',
     'financial_year_start' => 'First Month of the Year',
     'authentication' => 'Authentication',

@@ -9,6 +9,7 @@
         "barryvdh/laravel-dompdf": "^2.2",
         "jeroennoten/laravel-adminlte": "^3.11",
         "laravel/framework": "^11.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
         "parsecsv/php-parsecsv": "^1.3",

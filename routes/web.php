@@ -11,10 +11,10 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-require __DIR__ . '/modules/daybook.php';
-require __DIR__ . '/modules/invoice_discount.php';
-require __DIR__ . '/modules/clone_models.php';
-require __DIR__ . '/modules/setup_menu.php';
-require __DIR__ . '/modules/permissions.php';
+require __DIR__ . '/web_modules/daybook.php';
+require __DIR__ . '/web_modules/invoice_discount.php';
+require __DIR__ . '/web_modules/clone_models.php';
+require __DIR__ . '/web_modules/setup_menu.php';
+require __DIR__ . '/web_modules/permissions.php';
 
 require __DIR__.'/auth.php';

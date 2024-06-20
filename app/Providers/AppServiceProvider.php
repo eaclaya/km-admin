@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Main\PersonalAccessToken;
 use App\Models\SetupMenu;
 use App\Repositories\ReportProcessRepository;
 use App\Services\AdminlteMenuFilterSource;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -56,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AdminlteMenuFilterSource::class, function ($app) {
             return new AdminlteMenuFilterSource();
         });
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
     }
 
     public function returnItems($item, $ml = 0): array{
