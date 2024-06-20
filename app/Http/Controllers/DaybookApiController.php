@@ -18,7 +18,7 @@ class DaybookApiController extends Controller
     {
         $input = $request->all();
         Log::info('Whatsapp Webhook Init');
-        $this->daybookService->selectAction($input);
+//        $this->daybookService->selectAction($input);
         return true;
     }
 }

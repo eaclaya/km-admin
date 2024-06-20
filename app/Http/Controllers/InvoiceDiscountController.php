@@ -10,6 +10,7 @@ use App\Models\CloningControl;
 use App\Models\Main\Account;
 use App\Services\ReportProcessServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceDiscountController extends Controller
 {
