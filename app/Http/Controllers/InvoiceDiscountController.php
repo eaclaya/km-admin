@@ -66,13 +66,13 @@ class InvoiceDiscountController extends Controller
     public function exportInvoicesCsv(Request $request): \Illuminate\Contracts\View\View
     {
         $data = $request->all();
-        $accounts = Account::where('accounts.exclude', 0)->select('id','name')->get();
         $name = 'export_invoices';
         if(count($data) > 0){
             $currentAccountId = $data['store'];
             $filter = $data['filter'];
 
-            $currentStores = ($currentAccountId == 'all') ? array_keys($accounts->keyBy('id')->toArray()) : [(int)$currentAccountId];
+            $accounts = Account::where('accounts.exclude', 0)->pluck('id')->toArray();
+            $currentStores = ($currentAccountId == 'all') ? array_keys($accounts) : [(int)$currentAccountId];
             $from_date = $data['from_date'];
             $to_date = $data['to_date'];
 
@@ -103,12 +103,19 @@ class InvoiceDiscountController extends Controller
         $dateFromControl = CloningControl::where('model', ENTITY_INVOICE)->where('is_completed',1)->first()->from_date->format('d-m-Y');
         $dateToControl = CloningControl::where('model', ENTITY_INVOICE)->where('is_completed',1)->latest("id")->first()->to_date->format('d-m-Y');
 
+        $bodySelectAccount = [
+            'model' => "App\\Models\\Main\\Account",
+            'filters'=> ['name'],
+            'columnText'=> ['name'],
+            'name' => 'store'
+        ];
+
         return view('invoice_discount.export_invoice',
             [
-                'accounts' => $accounts,
                 'dateFromControl' => $dateFromControl,
                 'dateToControl' => $dateToControl,
-                'name' => $name
+                'name' => $name,
+                'bodySelectAccount' => $bodySelectAccount
             ]);
     }
 

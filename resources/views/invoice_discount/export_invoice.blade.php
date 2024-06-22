@@ -28,12 +28,7 @@
                     </div>
                     <div class="col-md-3">
                         <p>Tiendas</p>
-                        <select id="store" name="store" class="control-form form-control" required>
-                            <option value="all">Todas</option>
-                            @foreach ($accounts as $store)
-                                <option value="{{$store->id}}">{{$store->name}}</option>
-                            @endforeach
-                        </select>
+                        @livewire('components.select2-component', $bodySelectAccount)
                     </div>
                     <div class="col-md-3">
                         <p>CAI</p>

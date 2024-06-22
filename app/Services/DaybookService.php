@@ -2,10 +2,18 @@
 namespace App\Services;
 
 
+use App\Repositories\DaybookRepository;
+
 class DaybookService
 {
-    public function __construct()
+    protected DaybookRepository $daybookRepository;
+    public function __construct(DaybookRepository $daybookRepository)
     {
+        $this->daybookRepository = $daybookRepository;
+    }
 
+    public function initProcess($data)
+    {
+        
     }
 }

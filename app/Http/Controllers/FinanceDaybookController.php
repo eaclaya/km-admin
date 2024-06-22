@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Main\Account;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -15,6 +16,7 @@ use App\Models\FinanceCatalogueClassification;
 use App\Models\FinanceCatalogueItem;
 use App\Models\FinanceDaybookEntry;
 use App\Models\FinanceDaybookEntryItem;
+use function Symfony\Component\String\s;
 
 class FinanceDaybookController extends Controller
 {
@@ -30,8 +32,25 @@ class FinanceDaybookController extends Controller
      */
     public function index()
     {
-//        $entries = FinanceCatalogueItem::orderBy('sort', 'ASC')->whereNull('sub_item_id')->with('subItems')->get();
-        return view('finance_daybook.list', []);
+        $bodySelectAccount = [
+            'model' => "App\\Models\\Main\\Account",
+            'filters'=> ['name'],
+            'columnText'=> ['name'],
+            'name' => 'account'
+        ];
+        $bodySelectEmployee = [
+            'model' => "App\\Models\\Main\\Employee",
+            'filters'=> ['first_name','last_name','enabled'=>1,'id_number','phone'],
+            'columnText'=> ['first_name','last_name','id_number','phone'],
+            'name' => 'employee'
+        ];
+        $bodySelectUsers = [
+            'model' => "App\\Models\\User",
+            'filters'=> ['first_name','last_name','email'],
+            'columnText'=> ['first_name','last_name','email'],
+            'name' => 'user'
+        ];
+        return view('finance_daybook.list', ['bodySelectAccount' => $bodySelectAccount, 'bodySelectEmployee' => $bodySelectEmployee, 'bodySelectUsers' => $bodySelectUsers]);
     }
 
     public function showClassifications()

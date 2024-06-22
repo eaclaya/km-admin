@@ -81,6 +81,9 @@
         .form-check-input {
              position: relative !important;
         }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            margin-top: -8px !important;
+        }
     </style>
 
 </head>

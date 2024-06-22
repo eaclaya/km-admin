@@ -15,6 +15,6 @@ Route::get('get-token', function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('daybook/hook', [DaybookApiController::class, 'hook'])
+    Route::post('daybook/hook', [DaybookApiController::class, 'hook'])
         ->name('daybook.hook');
 });
