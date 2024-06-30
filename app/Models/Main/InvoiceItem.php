@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Main;
 
 use Illuminate\Database\Eloquent\Model;
 
-class InvoiceItem extends Model
+class InvoiceItem extends ModelDBMain
 {
     protected $table = "invoice_items";
 
@@ -16,6 +16,6 @@ class InvoiceItem extends Model
 
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo|null
     {
-        return $this->belongsTo('App\Models\Invoice', 'invoice_id', 'sync_invoice_id');
+        return $this->belongsTo('App\Models\Main\Invoice', 'id', 'invoice_id');
     }
 }

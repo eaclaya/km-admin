@@ -20,5 +20,9 @@ Route::middleware(['auth','checkPermission'])->group(function () {
 
     Route::resource('finance_catalogue', FinanceCatalogueController::class);
 
-    Route::resource('finance_daybook', FinanceDaybookController::class);
+    Route::get('finance_daybook/process', [FinanceDaybookController::class, 'process'])
+        ->name('finance_daybook.process');
+
+    Route::any('finance_daybook/{type?}/{id?}', [FinanceDaybookController::class, 'index'])
+        ->name('finance_daybook.index');
 });

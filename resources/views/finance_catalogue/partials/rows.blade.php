@@ -3,9 +3,9 @@
     $oldersClasificationIds[$item->finance_catalogue_classification_sort] = $item->sort;
     $newColDNone = '';
     foreach ($clasifications as $clasification){
-        if($clasification->id < $item->finance_catalogue_classification_sort){
-            $newColDNone .= '-'.str_pad($oldersClasificationIds[$clasification->id], $clasification->items_qty, "0", STR_PAD_LEFT);
-        }elseif($clasification->id == $item->finance_catalogue_classification_sort){
+        if($clasification->sort < $item->finance_catalogue_classification_sort){
+            $newColDNone .= '-'.str_pad($oldersClasificationIds[$clasification->sort], $clasification->items_qty, "0", STR_PAD_LEFT);
+        }elseif($clasification->sort == $item->finance_catalogue_classification_sort){
             $newColDNone .= '-'.str_pad($item->sort, $clasification->items_qty, "0", STR_PAD_LEFT);
         }
     }
@@ -13,9 +13,9 @@
 <tr style="background-color:{{$color}};" class="{{$newColDNone}}">
     @foreach ($clasifications as $clasification)
         <td>
-            @if($clasification->id < $item->finance_catalogue_classification_sort)
-                {{str_pad($oldersClasificationIds[$clasification->id], $clasification->items_qty, "0", STR_PAD_LEFT)}}
-            @elseif($clasification->id == $item->finance_catalogue_classification_sort)
+            @if($clasification->sort < $item->finance_catalogue_classification_sort)
+                {{str_pad($oldersClasificationIds[$clasification->sort], $clasification->items_qty, "0", STR_PAD_LEFT)}}
+            @elseif($clasification->sort == $item->finance_catalogue_classification_sort)
                 @if(isset($item->subItems) && count($item->subItems) > 0)
                     <i class="far fa-eye {{$newColDNone}}-hide" onclick="dNoneColumns('{{$newColDNone}}','hide')"></i>
                     <i class="far fa-eye-slash {{$newColDNone}}-show" style="display: none" onclick="dNoneColumns('{{$newColDNone}}','show')"></i>

@@ -18,9 +18,10 @@ class DaybookApiController extends Controller
     public function hook(Request $request): bool
     {
         $input = $request->all();
+        $input = ['type' => 'invoice_payment', 'models_id' => ['payment_id' => 273, 'invoice_id' => 380]];
         Log::info('Daybook Webhook Init', [$input]);
-        ProcessDaybookHook::dispatch($this->daybookService, $input);
-//        $this->daybookService->selectAction($input);
+//        ProcessDaybookHook::dispatch($this->daybookService, $input);
+        $this->daybookService->initProcess($input);
         return true;
     }
 }

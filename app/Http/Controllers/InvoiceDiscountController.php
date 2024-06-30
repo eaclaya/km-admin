@@ -23,9 +23,8 @@ class InvoiceDiscountController extends Controller
 
     public function index(Request $request, $account_id = null): \Illuminate\Contracts\View\View
     {
-        $accounts = Account::get();
         $name = 'export_invoices_pdf';
-        return view('invoice_discount.index', ['account_id' => $account_id, 'accounts' => $accounts, 'name' => $name]);
+        return view('invoice_discount.index', ['account_id' => $account_id, 'name' => $name]);
     }
 
     public function setDiscount(Request $request): \Illuminate\Http\RedirectResponse
@@ -100,8 +99,6 @@ class InvoiceDiscountController extends Controller
             };
 
         }
-        $dateFromControl = CloningControl::where('model', ENTITY_INVOICE)->where('is_completed',1)->first()->from_date->format('d-m-Y');
-        $dateToControl = CloningControl::where('model', ENTITY_INVOICE)->where('is_completed',1)->latest("id")->first()->to_date->format('d-m-Y');
 
         $bodySelectAccount = [
             'model' => "App\\Models\\Main\\Account",
@@ -112,8 +109,6 @@ class InvoiceDiscountController extends Controller
 
         return view('invoice_discount.export_invoice',
             [
-                'dateFromControl' => $dateFromControl,
-                'dateToControl' => $dateToControl,
                 'name' => $name,
                 'bodySelectAccount' => $bodySelectAccount
             ]);

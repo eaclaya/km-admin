@@ -47,6 +47,15 @@
         @endif
     @endif
 
+    {{-- Livewire Script --}}
+    @if(config('adminlte.livewire'))
+        @if(intval(app()->version()) >= 7)
+            @livewireScripts
+        @else
+            <livewire:scripts />
+        @endif
+    @endif
+
     {{-- Custom Stylesheets (post AdminLTE) --}}
     @yield('adminlte_css')
 
@@ -106,14 +115,7 @@
     {{-- Extra Configured Plugins Scripts --}}
     @include('adminlte::plugins', ['type' => 'js'])
 
-    {{-- Livewire Script --}}
-    @if(config('adminlte.livewire'))
-        @if(intval(app()->version()) >= 7)
-            @livewireScripts
-        @else
-            <livewire:scripts />
-        @endif
-    @endif
+
 
     {{-- Custom Scripts --}}
     <script src="{{asset('vendor/mark.min.js')}}"></script>

@@ -537,7 +537,7 @@ class Utils
         return Utils::timestampToString($timestamp, false, $format);
     }
 
-    public static function timestampToString($timestamp, $timezone = false, $format)
+    public static function timestampToString($timestamp, $timezone, $format)
     {
         if (!$timestamp) {
             return '';
