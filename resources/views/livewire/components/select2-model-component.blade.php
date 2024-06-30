@@ -1,8 +1,13 @@
 <div wire:ignore>
-    <select style="width: 100%" class="{{$name}}" id="{{$name}}" name="{{$name}}">
+    <select
+        style="width: 100%" class="form-control {{$name}}"
+        id="{{$name}}" name="{{$name}}"
+        @if(isset($x_model) && trim($x_model) !== '')
+            x-model="{{$x_model}}"
+        @endif
+    >
         <!-- Add more options as needed -->
     </select>
-</div>
     <script>
         async function livewireTransport{{$uniqId}}(params) {
             return new Promise((resolve, reject) => {
@@ -19,9 +24,19 @@
             });
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        function runAfterLivewireLoaded{{$uniqId}}(callback) {
+            if (window.Livewire) {
+                callback();
+            } else {
+                document.addEventListener('DOMContentLoaded', callback);
+            }
+        }
+        runAfterLivewireLoaded{{$uniqId}}(() => {
             Livewire.hook('component.init', (component) => {
+                let thisSelect = $('#{{$name}}');
+                let dialog = thisSelect.closest('div[role="dialog"]');
                 $('#{{$name}}').select2({
+                    dropdownParent: dialog.length > 0 ? dialog : null,
                     width: 'resolve',
                     ajax: {
                         delay: 250,
@@ -35,6 +50,12 @@
                             params.page = params.page || 1;
                             let data_results = [];
                             let arr = data.data;
+                            if({{$all}} > 0){
+                                if (params.page === 1) {
+                                    data_results.unshift({'id': 'all', 'text': 'Todos'});
+                                }
+                            }
+
                             for (let index = 0; index < arr.length; index++) {
                                 const element = arr[index];
                                 data_results.push({'id':element['id'], 'text':element['text']});
@@ -47,20 +68,28 @@
                             };
                         },
                         transport: async function (params, success, failure) {
-                            console.dir(success);
                             let request = await livewireTransport{{$uniqId}}(params);
                             success(request.results);
                             return request.results;
                         },
                     }
                 });
-                {{--
                 $('#{{$name}}').on('change', function (e) {
-                    let elementName = $(this).attr('id');
                     let data = $(this).select2("val");
-                    {{--@this.set(elementName, data);
+                    if("{{$wire_model}}" !== ""){
+                        let wire_model = "{{$wire_model}}";
+                        @this.$parent.set(wire_model, data);
+                    }
+                    if({{$hasProperties}} !== 0){
+                        @this.dispatchSelf('sendProperties', {'properties_id':data});
+                    }
                 });
-                --}}
+                setTimeout(() => {
+                    @this.on('clear-select', () => {
+                        $('#{{$name}}').val(null).trigger('change');
+                    });
+                }, 1000);
             });
         });
-</script>
+    </script>
+</div>

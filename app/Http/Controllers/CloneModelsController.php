@@ -4,11 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\CloneInvoiceTableJob;
 use App\Models\CloningControl;
-use App\Models\InvoiceItem;
-use App\Models\Invoice;
-
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class CloneModelsController extends Controller
 {

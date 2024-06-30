@@ -2,21 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Models\Invoice;
 use App\Models\InvoiceDiscount;
-use App\Models\InvoiceItemDiscount;
-use App\Models\ReportProcess;
-
+use App\Models\Main\Invoice;
 use App\Repositories\ReportProcessRepository;
-use Illuminate\Support\Facades\DB;
-
 use Illuminate\Bus\Queueable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
-use Carbon\Carbon;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 
 class ImportInvoicesDiscount implements ShouldQueue
 {
@@ -67,7 +61,7 @@ class ImportInvoicesDiscount implements ShouldQueue
         $csv->offset = $chunk['offset'];
         $csv->auto($filePath);
         $data = collect($csv->data);
-        $invoices = Invoice::query()->whereIn('sync_invoice_id', $data->pluck('invoice_id')->toArray())->with('items')->get()->keyBy('sync_invoice_id');
+        $invoices = Invoice::query()->whereIn('id', $data->pluck('invoice_id')->toArray())->with('items')->get()->keyBy('id');
         $invoicesDiscount = InvoiceDiscount::query()->whereIn('invoice_id', $data->pluck('invoice_id')->toArray())->with('items')->get()->keyBy('invoice_id');
 
         $dataInvoices = [];
@@ -146,8 +140,7 @@ class ImportInvoicesDiscount implements ShouldQueue
             }else{
                 $newItem['cost'] -= $newItem['cost'] * ($percentageChange / 100);
             }
-            $newItem['invoice_items_id'] = $newItem['sync_invoice_items_id'];
-            unset($newItem['sync_invoice_items_id']);
+            $newItem['invoice_items_id'] = $newItem['id'];
             unset($newItem['id']);
             $newItem['created_at'] = isset($newItem['created_at']) ? date('Y-m-d H:i:s', strtotime($newItem['created_at'])) : null;
             $newItem['updated_at'] = isset($newItem['updated_at']) ? date('Y-m-d H:i:s', strtotime($newItem['updated_at'])) : null;
@@ -160,8 +153,7 @@ class ImportInvoicesDiscount implements ShouldQueue
         $invoice = $invoice->toArray();
         $invoice['total'] = $total;
         $invoice['amount'] = $total;
-        $invoice['invoice_id'] = $invoice['sync_invoice_id'];
-        unset($invoice['sync_invoice_id']);
+        $invoice['invoice_id'] = $invoice['id'];
         unset($invoice['id']);
         unset($invoice['items']);
         $invoice['created_at'] = date('Y-m-d H:i:s', strtotime($invoice['created_at']));
@@ -172,7 +164,7 @@ class ImportInvoicesDiscount implements ShouldQueue
     {
         $chunks = array_chunk($dataInvoices, 250);
         foreach ($chunks as $chunk) {
-            DB::connection('mysql')->table('invoices_discount')->insert($chunk);
+            DB::connection('main')->table('invoices_discount')->insert($chunk);
         }
     }
     public function insertInvoiceItems($dataInvoiceItems): void
@@ -181,14 +173,8 @@ class ImportInvoicesDiscount implements ShouldQueue
         foreach ($groupedInvoiceItems as $invoiceId => $items) {
             $chunks = array_chunk($items, 25);
             foreach ($chunks as $chunk) {
-                DB::connection('mysql')->table('invoice_items_discount')->insert($chunk);
+                DB::connection('main')->table('invoice_items_discount')->insert($chunk);
             }
         }
-        /*$iITI = array_chunk($dataInvoiceItems, 25);
-        foreach ($iITI as $chunkIITI) {
-            dd($chunkIITI);
-//                DB::connection('mysql')->table('invoice_items_discount')->insert($chunkIITI);
-        }*/
-
     }
 }

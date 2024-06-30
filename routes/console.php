@@ -10,5 +10,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command(CloneInvoiceTableCommand::class)->everyMinute()
-    ->cron('*/40 * * * *');
+//Schedule::command(CloneInvoiceTableCommand::class)->everyMinute()
+//    ->cron('*/40 * * * *');
