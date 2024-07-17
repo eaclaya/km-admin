@@ -23,7 +23,8 @@
     <h1>
         Catalogo Financiero -
         <a class="btn btn-success btn-sm" href="{{route('finance_catalogue.show_classifications')}}">Clasificaciones</a>
-        <a class="btn btn-success btn-sm" href="{{route('finance_catalogue.export')}}">Exportar</a>
+        <a class="btn btn-outline-primary btn-sm" href="{{route('finance_catalogue.export',['filter' => $filter])}}">Exportar</a>
+        <a class="btn btn-outline-success btn-sm" data-toggle="modal" data-target="#myModalImport" >Importar</a>
     </h1>
 @stop
 
@@ -44,9 +45,6 @@
             </div>
         </div>
         <div class="card-body">
-            {{-- <form method="POST" action="{{route('evaluationprocess.update', $evaluationProcess->id)}}" > --}}
-            {{-- {{ method_field('PUT') }}
-            {{ csrf_field() }} --}}
             <div class="row">
                 <table style="margin: 0 auto;">
                     <thead>
@@ -76,7 +74,6 @@
                     </tbody>
                 </table>
             </div>
-            {{-- </form> --}}
         </div>
     </div>
 
@@ -178,6 +175,30 @@
 			</div>
 		</div>
 	</div>
+    <div id="myModalImport" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Importar</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('finance_catalogue.import')}}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label for="finance_account_name">Nombre de la Cuenta</label>
+                            <input type="file" class="form-control" name="csv_file" id="csv_file" required>
+                            <input type="hidden" name="filter" value="{{$filter}}">
+                        </div>
+                        <button type="submit" class="btn btn-success">Importar</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @stop
 

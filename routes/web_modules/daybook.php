@@ -18,6 +18,9 @@ Route::middleware(['auth','checkPermission'])->group(function () {
     Route::get('finance_catalogue/export', [FinanceCatalogueController::class, 'export'])
         ->name('finance_catalogue.export');
 
+    Route::post('finance_catalogue/import', [FinanceCatalogueController::class, 'import'])
+        ->name('finance_catalogue.import');
+
     Route::resource('finance_catalogue', FinanceCatalogueController::class);
 
     Route::get('finance_daybook/process', [FinanceDaybookController::class, 'process'])
