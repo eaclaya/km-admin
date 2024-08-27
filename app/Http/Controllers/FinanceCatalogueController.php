@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\FilesServices;
 use Illuminate\Http\Request;
 
 use Redirect;
@@ -23,9 +24,11 @@ class FinanceCatalogueController extends Controller
         'expense_category' => 'Categorias de Gastos',
         'expense_subcategory' => 'Sub Categorias de Gastos',
     ];
+    protected FilesServices $filesServices;
 
-    public function __construct()
+    public function __construct(FilesServices $filesServices)
     {
+        $this->filesServices = $filesServices;
     }
 
     /**
@@ -33,7 +36,7 @@ class FinanceCatalogueController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\View\View
     {
         $filter = $request->input('filter');
         $itemsFilter = FinanceCatalogueItem::orderBy('sort', 'ASC')->whereNull('sub_item_id')->get();
@@ -51,15 +54,25 @@ class FinanceCatalogueController extends Controller
         return view('finance_catalogue.list', ['items' => $items, 'clasifications' => $clasifications, 'models' => $this->models, 'filter' => $filter, 'itemsFilter' => $itemsFilter]);
     }
 
-    public function showClassifications()
+    public function showClassifications(): \Illuminate\Contracts\View\View
     {
         $items = FinanceCatalogueClassification::orderBy('sort', 'ASC')->get()->keyBy('id');
         return view('finance_catalogue.list_class', ['items' => $items, 'models' => $this->models]);
     }
 
-    public function export()
+    public function export(Request $request)
 	{
-		$items = FinanceCatalogueItem::orderBy('sort', 'ASC')->whereNull('sub_item_id')->with('subItems')->get();
+        $filter = $request->input('filter');
+
+		$items = FinanceCatalogueItem::orderBy('sort', 'ASC')->whereNull('sub_item_id')->with('subItems');
+        if(isset($filter)){
+            if ($filter !== 'all'){
+                $items = $items->where('id', $filter);
+            }
+        }else{
+            $items = $items->where('id', 1);
+        }
+        $items = $items->get();
         $columns = FinanceCatalogueClassification::orderBy('sort', 'ASC')->get()->keyBy('id');
 
         $data = [];
@@ -78,14 +91,11 @@ class FinanceCatalogueController extends Controller
 		$columns = array_merge($columns, [
             'Clasificación',
             'Nombre de la Cuenta',
-            'Modelo Anclado',
-            'Id Anclado',
         ]);
 //        dd([$columns, $data]);
 
         fwrite($fp, $bom);
-		fputcsv($fp, CSV_SEPARATOR, ';');
-        fputcsv($fp, $columns, ';');
+		fputcsv($fp, $columns, ';');
         foreach($data as $fields){
 			fputcsv($fp, $fields, ';');
 		}
@@ -93,7 +103,8 @@ class FinanceCatalogueController extends Controller
 		return redirect('/'.$fileName);
 	}
 
-    public function reloadDataExport($item, $oldersClasificationIds, $clasifications){
+    public function reloadDataExport($item, $oldersClasificationIds, $clasifications): array
+    {
         $data = [];
         $oldersClasificationIds[$item->finance_catalogue_classification_sort] = $item->sort;
         foreach ($clasifications as $classification){
@@ -108,13 +119,6 @@ class FinanceCatalogueController extends Controller
         $data[] = $clasifications[$item->finance_catalogue_classification_sort]->name;
         $data[] = $item->finance_account_name;
 
-        if(isset($item->model)){
-            $data[] = $item->model;
-            $data[] = $item->getModel()->name;
-        }else{
-            $data[] = '';
-            $data[] = '';
-        }
         $dataReturn = [$data];
         if(isset($item->subItems) && count($item->subItems) > 0){
             foreach ($item->subItems as $subItem){
@@ -155,5 +159,14 @@ class FinanceCatalogueController extends Controller
         $color = $data['color'];
 
         // return response()->json($responces, 200);
+    }
+
+    public function import(Request $request){
+        $request->validate([
+            'csv_file' => 'required|mimes:csv,txt',
+        ]);
+        $file = $request->file('csv_file');
+        [,,$data] = $this->filesServices->readFileCsv($file);
+        dd($data);
     }
 }

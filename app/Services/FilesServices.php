@@ -47,8 +47,27 @@ class FilesServices
         $file = public_path() . "/" . $nameFile;
         $fp = fopen($file, 'a');
         fwrite($fp, $bom);
-        fputcsv($fp, CSV_SEPARATOR, ';');
         fputcsv($fp, $columns, ';');
         fclose($fp);
+    }
+
+    public function readFileCsv($file,$save=false): array
+    {
+        if($save !== false){
+            $originalName = $file->getClientOriginalName();
+            $path = $file->storeAs('csv_files', $originalName);
+            $filePath = storage_path('app/'.$path);
+        }else{
+            $filePath = $file->getRealPath();
+        }
+        $csv = new \ParseCsv\Csv();
+        $csv->encoding('ISO-8859-1','UTF-8');
+        $csv->auto($filePath);
+        $rows = count($csv->data);
+        return [
+            $rows,
+            ($save !== false)?$filePath:null,
+            $csv->data
+        ];
     }
 }

@@ -33,14 +33,7 @@ class InvoiceDiscountController extends Controller
             'csv_file' => 'required|mimes:csv,txt',
         ]);
         $file = $request->file('csv_file');
-        $originalName = $file->getClientOriginalName();
-        $path = $file->storeAs('csv_files', $originalName);
-        $filePath = storage_path('app/'.$path);
-        $csv = new \ParseCsv\Csv();
-        $csv->encoding('ISO-8859-1','UTF-8');
-        $csv->limit = 50;
-        $csv->auto($filePath);
-        $rows = count($csv->data);
+        [$rows, $filePath] = $this->reportProcessServices->getFilesServices()->readFileCsv($file, true);
         $chunkLimit = 400;
 
         $data = [

@@ -73,7 +73,6 @@ class FinanceDaybookController extends Controller
 
         dd($columns);
 
-		fputcsv($fp, CSV_SEPARATOR, ';');
         fputcsv($fp, $columns, ';');
         foreach($displayData as &$account){
             $fields = [];
@@ -128,8 +127,15 @@ class FinanceDaybookController extends Controller
     }
 
     public function process(Request $request){
-        $data = $request->all();
-        $name = 'daybook_import_db';
+
+        $type = 'payments';
+        $account = Account::pluck('id')->toArray();
+        $date = '2017-08-10';
+        $this->daybookService->initProcess($type, $account, $date);
+        dd('listo');
+        $name = 'create_daybook';
+        /*$data = $request->all();
+
         if(count($data) > 0){
             $accounts = Account::select('id','name')->get()->keyBy('id');
             $currentAccountId = $data['store'];
