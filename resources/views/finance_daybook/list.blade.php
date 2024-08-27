@@ -30,7 +30,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    @livewire('components.daybook.daybook-entry-view-component')
+                    @livewire('Components.Daybook.daybook-entry-view-component')
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -46,7 +46,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body" style="overflow-x: auto;">
-                    @livewire('components.daybook.form-created-daybook-component')
+                    @livewire('Components.Daybook.form-created-daybook-component')
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

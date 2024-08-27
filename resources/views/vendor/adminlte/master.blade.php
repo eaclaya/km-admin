@@ -142,6 +142,16 @@
                 }, 2000);
             }
         });
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('request', ({ fail }) => {
+                fail(({ status, preventDefault }) => {
+                    if (status === 419) {
+                        confirm('Por seguridad, Su sesion actual a expirado, por favor recargue la pagina.')
+                        preventDefault()
+                    }
+                })
+            })
+        })
     </script>
     @yield('adminlte_js')
 

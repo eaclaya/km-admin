@@ -30,7 +30,7 @@ class FinanceDaybookController extends Controller
     ];
 
     protected $types = [
-        'invoices' => 'Facturas'
+        'invoice' => 'Factura'
     ];
 
     protected ReportProcessServices $reportProcessServices;
@@ -127,6 +127,7 @@ class FinanceDaybookController extends Controller
     }
 
     public function process(Request $request){
+
         $type = 'payments';
         $account = Account::pluck('id')->toArray();
         $date = '2017-08-10';
@@ -134,34 +135,41 @@ class FinanceDaybookController extends Controller
         dd('listo');
         $name = 'create_daybook';
         /*$data = $request->all();
+
         if(count($data) > 0){
+            $accounts = Account::select('id','name')->get()->keyBy('id');
             $currentAccountId = $data['store'];
-            $accounts = Account::where('accounts.exclude', 0)->pluck('id')->toArray();
-            $currentStores = ($currentAccountId == 'all') ? array_keys($accounts) : [(int)$currentAccountId];
-            $type = $data['type'];
+            $currentStores = ($currentAccountId == 'all') ? $accounts->pluck('id')->toArray() : [(int)$currentAccountId];
+            $accountName = ($currentAccountId == 'all') ? 'all' : $accounts[$currentAccountId]->name;
             $date = $data['date'];
-
-            $rows = count($currentStores);
             $chunkLimit = 4;
-            $data = [
-                'name' => $name,
-                'rows' => $rows,
-                'chunkLimit' => $chunkLimit
-            ];
+            $rows = count($currentStores);
 
-            $reportProcess = $this->reportProcessServices->processReportCsv($data);
-            $reportProcessId = $reportProcess->id;
-
-            if($rows == 1){
-                dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $reportProcessId, $currentStores, $date, $type))->delay(60));
-            }else{
-                $count = 1;
-                foreach (array_chunk($currentStores, $chunkLimit) as $chunkStores){
-                    dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $reportProcessId, $chunkStores, $date, $type))->delay(60 * $count));
-                    $count = $count+1;
+            $types = ($data['type'] == 'all') ? array_keys($this->types) : [$data['type']];
+            $count = 1;
+            foreach($types as $type){
+                $data = [
+                    'name' => $name,
+                    'rows' => $rows,
+                    'type' => $type,
+                    'date' => $date,
+                    'chunkLimit' => $chunkLimit,
+                    'accountName' => $accountName
+                ];
+                $reportProcess = $this->reportProcessServices->processImportDB($data);
+//                $reportProcessId = $reportProcess->id;
+                dd('llegue aqui');
+    //            $this->daybookService->initProcess($type, $account, $date);
+                if($rows == 1){
+                    dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $this->daybookService, $reportProcessId, $currentStores, $date, $type))->delay(30));
+                }else{
+                    foreach (array_chunk($currentStores, $chunkLimit) as $chunkStores){
+                        dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $this->daybookService, $reportProcessId, $chunkStores, $date, $type))->delay(30 * $count));
+                        $count = $count+1;
+                    };
                 };
-            };
-        }*/
+            }
+        }
         $bodySelectAccount = [
             'model' => "App\\Models\\Main\\Account",
             'filters'=> ['name'],

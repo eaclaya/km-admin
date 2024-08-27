@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ReportProcess;
 use App\Repositories\ReportProcessRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class ReportProcessServices
 {
@@ -16,36 +17,46 @@ class ReportProcessServices
         $this->reportProcessRepo = $reportProcessRepo;
         $this->filesServices = $filesServices;
     }
+    /*  --------------------    */
     public function processReportCsv($data): ReportProcess
     {
-        $name = $data['name'];
-        $columns = $data['columns'];
-        $rows = $data['rows'];
-        $chunkLimit = $data['chunkLimit'];
+        $name = Arr::get($data,'name');
+        $columns = Arr::get($data,'columns');
+        $rows = Arr::get($data,'rows');
+        $chunkLimit = Arr::get($data,'chunkLimit');
 
         $nameFile = $this->getNameDataTime($name,'csv');
         $this->filesServices->createFileCsv($nameFile, $columns);
         return $this->reportProcessRepo->createReportProcess($nameFile, $name, $rows, $chunkLimit);
     }
-    public function processImportCsv($data): ReportProcess
-    {
-        $nameFile = $data['name_file'];
-        $name = $data['name'];
-        $rows = $data['rows'];
-        $chunkLimit = $data['chunkLimit'];
-        return $this->reportProcessRepo->createReportProcess($nameFile, $name, $rows, $chunkLimit);
-    }
-    /*  --------------------    */
     public function processReportPdf($data): ReportProcess
     {
-        $rows = $data['rows'];
-        $name = $data['name'];
-        $chunkLimit = $data['chunkLimit'];
+        $rows = Arr::get($data,'rows');
+        $name = Arr::get($data,'name');
+        $chunkLimit = Arr::get($data,'chunkLimit');
         $nameFile = $this->getNameDataTime($name,'pdf');
 
         return $this->reportProcessRepo->createReportProcess($nameFile, $name, $rows, $chunkLimit);
     }
 
+    /*  --------------------    */
+    public function processImportCsv($data): ReportProcess
+    {
+        $nameFile = Arr::get($data,'name_file');
+        $name = Arr::get($data,'name');
+        $rows = Arr::get($data,'rows');
+        $chunkLimit = Arr::get($data,'chunkLimit');
+        return $this->reportProcessRepo->createReportProcess($nameFile, $name, $rows, $chunkLimit);
+    }
+    public function processImportDB($data): ReportProcess|false
+    {
+        $name = Arr::get($data,'name');
+        $rows = Arr::get($data,'rows');
+        $chunkLimit = Arr::get($data,'chunkLimit');
+        $nameFile = $this->getNameData($data);
+        return false;
+//        return $this->reportProcessRepo->createReportProcess($nameFile, $name, $rows, $chunkLimit);
+    }
     /*  --------------------    */
     public function getNameDataTime($name,$format): string
     {
@@ -56,6 +67,25 @@ class ReportProcessServices
             $currentTime .= '_'.$time;
         }
         return  $name.'_'.$currentDate[0].$currentTime.'.'.$format;
+    }
+    public function getNameData($data): string
+    {
+        $type = $price = Arr::get($data, 'type');
+        $accountName = Arr::get($data,'accountName');
+        $date = Arr::get($data,'date');
+        $nameFile = Arr::get($data,'name');
+        if (isset($type)) {
+            $nameFile .= '_'.$type;
+        }
+        if(isset($accountName)){
+            $nameFile .= '_'.$accountName;
+        }
+        if(isset($date)){
+            $nameFile .= '_'.$date;
+        }else{
+            $nameFile .= '_'.Carbon::now()->toDateString();
+        }
+        return $nameFile;
     }
     public function getRepository(): ReportProcessRepository
     {

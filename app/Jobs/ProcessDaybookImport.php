@@ -8,6 +8,7 @@ use App\Models\Main\Account;
 use App\Models\Main\Invoice;
 use App\Models\Main\OrganizationCompany;
 use App\Repositories\ReportProcessRepository;
+use App\Services\DaybookService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -21,6 +22,7 @@ class ProcessDaybookImport implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected ReportProcessRepository $reportProcessRepo;
+    protected DaybookService $daybookService;
     protected int $reportProcessId;
     protected array $currentStores;
     protected $date;
@@ -30,13 +32,14 @@ class ProcessDaybookImport implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(ReportProcessRepository $reportProcessRepo, int $reportProcessId, array $currentStores, $date, string $type)
+    public function __construct(ReportProcessRepository $reportProcessRepo, DaybookService $daybookService, int $reportProcessId, array $currentStores, $date, string $type)
     {
         $this->reportProcessId = $reportProcessId;
         $this->currentStores = $currentStores;
         $this->date = $date;
         $this->type = $type;
         $this->reportProcessRepo = $reportProcessRepo;
+        $this->daybookService = $daybookService;
     }
 
     /**
@@ -51,7 +54,7 @@ class ProcessDaybookImport implements ShouldQueue
         $date = $this->date;
         $type = $this->type;
 
-        $this->processDaybookImport($currentStores, $date, $type);
+        $this->daybookService->initProcess($type, $currentStores, $date);
 
         $this->reportProcessRepo->updateReportProcess($reportProcessId);
         return;

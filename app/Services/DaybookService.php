@@ -40,8 +40,6 @@ class DaybookService
             ->where('invoice_type_id', INVOICE_TYPE_STANDARD)
             ->with(['payments'])
             ->get();
-//        buscar factura para las de credito y buscar los pagos para las de contado
-//        en los pagos tengo que saber si son a credito, si son a credito tiene otra estructura
 //        chequear el metodo del pago para chocar el contra de la partida
         [$creditInvoices, $nonCreditInvoices] = $invoices->partition(function ($invoice) {
             return $invoice->is_credit;
