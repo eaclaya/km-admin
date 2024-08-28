@@ -90,20 +90,14 @@
 							<label for="finance_account_name">Nombre de la Cuenta</label>
 							<input type="text" class="form-control" id="finance_account_name" name="finance_account_name" required>
 						</div>
-						{{-- <div class="form-group">
-							<label for="finance_catalogue_classification_sort">Clasificación</label>
-							<select class="form-control" id="finance_catalogue_classification_sort" name="finance_catalogue_classification_sort" required>
-								@foreach ($clasifications as $clasification)
-									<option value="{{$clasification->id}}">{{$clasification->name}}</option>
-								@endforeach
-							</select>
-						</div> --}}
+                        <br>
 						<div class="form-group">
 							<label for="sort">Posicion</label>
 							<input type="number" name="sort" id="sort" min="0" max="">
 						</div>
+                        <br>
 						<div class="form-group">
-							<label for="model">Modelo (Tabla de la base de datos)</label>
+							<label for="model">Modelo (Tabla de la base de datos)</label><br>
 							<select class="form-control" name="model" id="model" onchange="changeModel(this,'edit')" style="width: 50%">
 								<option ></option>
 								@foreach ($models as $model => $name)
@@ -113,7 +107,7 @@
 						</div>
 						<br>
 						<div class="form-group">
-							<label for="model">Identificador del Modelo</label>
+							<label for="model_id">Identificador del Modelo</label><br>
 							<select class="form-control" name="model_id" id="model_id" style="width: 50%">
 								<option ></option>
 							</select>
@@ -240,6 +234,7 @@
             const model = data_string[4];
             const model_id = data_string[5];
             const limitSort = data_string[6];
+            const is_generated = data_string[7];
 
             url = '{{url()->current()}}' + '/' + item_id + '/update';
             $('#form_update').attr('action', url);
