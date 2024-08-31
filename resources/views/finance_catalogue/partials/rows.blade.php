@@ -36,7 +36,7 @@
         @endif
     </td>
     <td>
-        <a class="btn btn-info btn-sm" onclick="showEdit('{{$item->id}}*-*{{$item->finance_account_name}}*-*{{$item->finance_catalogue_classification_sort}}*-*{{$item->sort}}*-*{{$item->model}}*-*{{$item->model_id}}*-*{{intval($limitClassifications)}}')">
+        <a class="btn btn-info btn-sm" onclick="showEdit('{{$item->id}}*-*{{$item->finance_account_name}}*-*{{$item->finance_catalogue_classification_sort}}*-*{{$item->sort}}*-*{{$item->model}}*-*{{$item->model_id}}*-*{{intval($limitClassifications)}}*-*{{(isset($item->is_generated)&&$item->is_generated>0)?$item->is_generated:0}}')">
             <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar
         </a>
         <a class="btn btn-success btn-sm" onclick="showCreate('{{$item->id}}*-*{{intval($item->finance_catalogue_classification_sort) + 1}}*-*{{(isset($item->subItems) && count($item->subItems) > 0) ? count($item->subItems) + 1 : 1}}')">
