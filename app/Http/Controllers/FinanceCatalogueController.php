@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Main\OrganizationCompany;
 use App\Services\FilesServices;
+use App\Services\FinanceCatalogueService;
 use Illuminate\Http\Request;
 
 use Redirect;
@@ -25,10 +27,12 @@ class FinanceCatalogueController extends Controller
         'expense_subcategory' => 'Sub Categorias de Gastos',
     ];
     protected FilesServices $filesServices;
+    protected FinanceCatalogueService $financeCatalogueService;
 
-    public function __construct(FilesServices $filesServices)
+    public function __construct(FilesServices $filesServices, FinanceCatalogueService $financeCatalogueService)
     {
         $this->filesServices = $filesServices;
+        $this->financeCatalogueService = $financeCatalogueService;
     }
 
     /**
@@ -168,5 +172,26 @@ class FinanceCatalogueController extends Controller
         $file = $request->file('csv_file');
         [,,$data] = $this->filesServices->readFileCsv($file);
         dd($data);
+    }
+
+    public function setGenerate(Request $request){
+        $data = $request->all();
+        $item = FinanceCatalogueItem::find($data['item_id']);
+        if(isset($item)){
+            $item->is_generated = $data['generate'];
+            $item->save();
+        }
+        return response()->json(['result' =>'ok'], 200);
+    }
+
+    public function generateItems(Request $request){
+        $data = $request->all();
+        $item = FinanceCatalogueItem::find($data['item_id']);
+        if(isset($item)){
+            $item->is_generated = $data['is_generated'];
+            $item->save();
+            $this->financeCatalogueService->initGenerate($item);
+        }
+        return response()->json(['result' =>'ok'], 200);
     }
 }

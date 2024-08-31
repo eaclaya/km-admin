@@ -111,13 +111,25 @@
 								@endforeach
 							</select>
 						</div>
-						<br>
+                        <br>
 						<div class="form-group">
 							<label for="model">Identificador del Modelo</label>
 							<select class="form-control" name="model_id" id="model_id" style="width: 50%">
 								<option ></option>
 							</select>
 						</div>
+                        <br>
+                        <div class="form-group">
+                            <label for="is_generated">Generador</label><br>
+                            <select class="form-control" name="is_generated" id="is_generated" onchange="changeGenerate(this)" style="width: 50%">
+                                <option value="0"> No Generador </option>
+                                <option value="1">Generador de Empresas y tiendas</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="item_id" id="item_id" value="">
+                        <div class="form-group" id="div_generate">
+                            <button type="button" class="btn btn-primary" id="btn_generate" onclick="generate(this,'edit')">Generar</button>
+                        </div>
 					</form>
 				</div>
 				<div class="modal-footer">
@@ -246,6 +258,23 @@
 
             $('#finance_account_name').val(finance_account_name);
             $('#finance_catalogue_classification_sort').val(finance_catalogue_classification_sort);
+
+            $('#item_id').val(item_id);
+
+            if(is_generated && is_generated > 0){
+                $('#is_generated').val(is_generated);
+                $("#is_generated").select2({
+                    width: 'resolve'
+                }).trigger('change');
+                $('#div_generate').show();
+            }else{
+                $('#is_generated').val('0');
+                $("#is_generated").select2({
+                    width: 'resolve'
+                }).trigger('change');
+                $('#div_generate').hide();
+            }
+
             $('#sort').val(sort);
             $('#sort').attr('max', limitSort);
 
@@ -338,6 +367,55 @@
                     data: responceAjax,
                     width: 'resolve'
                 }).trigger('change');
+            }
+        }
+
+        async function changeGenerate(element) {
+            const generate = parseInt(element.value);
+            const item_id = $('#item_id').val();
+
+            const params = {
+                'generate' : generate,
+                'item_id' : item_id
+            };
+
+            if (generate > 0) {
+                $('#div_generate').show();
+            }else{
+                $('#div_generate').hide();
+            }
+            await setGenerate(params);
+            return true;
+        }
+
+        async function setGenerate(params) {
+            let respuesta = await $.ajax({
+                type: 'GET',
+                url: '{!! route('finance_catalogue.set_generate') !!}',
+                data: params,
+            });
+            if (respuesta.msg === 'erro' || respuesta.response === 'reset_url') {
+                alert('A ocurrido un error');
+            }
+            return respuesta;
+        }
+
+        async function generate(){
+            const item_id = $('#item_id').val();
+            const is_generated = $('#is_generated').val();
+            params = {
+                'item_id' : item_id,
+                'is_generated' : is_generated
+            }
+            let respuesta = await $.ajax({
+                type: 'GET',
+                url: '{!! route('finance_catalogue.generate_items') !!}',
+                data: params,
+            });
+            if (respuesta.msg === 'erro' || respuesta.response === 'reset_url') {
+                alert('A ocurrido un error');
+            }else{
+                location.reload();
             }
         }
     </script>

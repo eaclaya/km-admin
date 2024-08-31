@@ -186,6 +186,6 @@ class FinanceDaybookController extends Controller
             'name' => $name,
             'bodySelectAccount' => $bodySelectAccount,
             'bodySelectType' => $bodySelectType
-        ]);
+        ]);*/
     }
 }
