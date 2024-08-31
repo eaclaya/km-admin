@@ -12,18 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('finance_catalogue_item', function (Blueprint $table) {
-            $table->string('classNumber', 100)->nullable();
+            $table->string('class_number', 100)->nullable();
             $table->integer('is_generated')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('finance_catalogue_item', function (Blueprint $table) {
-            $table->dropColumn('classNumber');
+            $table->dropColumn('class_number');
             $table->dropColumn('is_generated');
         });
     }

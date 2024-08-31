@@ -22,6 +22,8 @@ class FinanceCatalogueItem extends Model
         'finance_catalogue_classification_sort',
         'model',
         'model_id',
+        'class_number',
+        'is_generated'
     ];
 
     public function getModel(): mixed
@@ -31,24 +33,38 @@ class FinanceCatalogueItem extends Model
 
     public function subItems(): mixed
     {
-        return $this->hasMany('App\Models\FinanceCatalogueItem', 'sub_item_id', 'id');
+        return $this->hasMany('App\Models\FinanceCatalogueItem', 'sub_item_id', 'id')->orderBy('sort');
     }
 
-    public function getClassificationNumberAttribute(): mixed
+    public function subItemsWithModel(): mixed
     {
-        $clasifications = FinanceCatalogueClassification::orderByDesc('sort')->pluck('items_qty','sort')->toArray();
-        $number = $this->getNumbers($clasifications,$this);
-        return implode('-', array_reverse($number));
+        return $this->hasMany('App\Models\FinanceCatalogueItem', 'sub_item_id', 'id')
+            ->whereNotNull('model');
     }
 
-    public function getNumbers($clasifications,$supraItem): array
+    public function subItemsWithNotModel(): mixed
     {
-        $classification = isset($clasifications[$supraItem->finance_catalogue_classification_sort]) ? $clasifications[$supraItem->finance_catalogue_classification_sort] : 1;
+        return $this->hasMany('App\Models\FinanceCatalogueItem', 'sub_item_id', 'id')
+            ->whereNull('model');
+    }
+
+    public function setNumberAttribute(): mixed
+    {
+        $classifications = FinanceCatalogueClassification::orderByDesc('sort')->pluck('items_qty','sort')->toArray();
+        $number = $this->getNumbers($classifications,$this);
+        $this->class_number = implode('-', array_reverse($number));
+        $this->save();
+        return true;
+    }
+
+    public function getNumbers($classifications,$supraItem): array
+    {
+        $classification = isset($classifications[$supraItem->finance_catalogue_classification_sort]) ? $classifications[$supraItem->finance_catalogue_classification_sort] : 1;
         $number = [str_pad($supraItem->sort, $classification, "0", STR_PAD_LEFT)];
 
         if(isset($supraItem->sub_item_id) && $supraItem->sub_item_id > 0){
             $upSupraItem = FinanceCatalogueItem::where('id', $supraItem->sub_item_id)->select(['sub_item_id','sort','finance_catalogue_classification_sort'])->first();
-            $number = array_merge($number, $this->getNumbers($clasifications,$upSupraItem));
+            $number = array_merge($number, $this->getNumbers($classifications,$upSupraItem));
         }
 
         return $number;

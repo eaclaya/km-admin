@@ -15,6 +15,13 @@ Route::middleware(['auth','checkPermission'])->group(function () {
         ->name('finance_catalogue.set_classifications');
     Route::get('finance_catalogue/get_models', [FinanceCatalogueController::class, 'getModels'])
         ->name('finance_catalogue.get_models');
+
+    Route::get('finance_catalogue/set_generate', [FinanceCatalogueController::class, 'setGenerate'])
+        ->name('finance_catalogue.set_generate');
+
+    Route::get('finance_catalogue/generate_items', [FinanceCatalogueController::class, 'generateItems'])
+        ->name('finance_catalogue.generate_items');
+
     Route::get('finance_catalogue/export', [FinanceCatalogueController::class, 'export'])
         ->name('finance_catalogue.export');
 

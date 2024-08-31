@@ -13,9 +13,6 @@ Route::middleware(['auth'])->group(function () {
     Route::any('invoice_discount/export_invoice', [InvoiceDiscountController::class, 'exportInvoicesCsv'])
         ->name('invoice_discount.export_invoice');
 
-    /*Route::get('invoice_discount/export_invoice', [InvoiceDiscountController::class, 'exportInvoicesCsv'])
-        ->name('invoice_discount.export_invoice');*/
-
     Route::get('reports/finish_report', [InvoiceDiscountController::class, 'finishReport'])
         ->name('reports.finish_report');
 
