@@ -106,12 +106,8 @@ class ImportInvoicesDiscount implements ShouldQueue
         }
         dump('salgo del foreach');
         if(count($dataInvoices) > 0){
-            dump('insert_Invoices');
-            dump($dataInvoices);
             $this->insertInvoices($dataInvoices);
             if(count($dataInvoiceItems) > 0) {
-                dump('insert_Invoices_items');
-                dump($dataInvoiceItems);
                 $this->insertInvoiceItems($dataInvoiceItems);
             }
         }
