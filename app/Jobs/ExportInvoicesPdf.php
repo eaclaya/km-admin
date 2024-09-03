@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\InvoiceDiscount;
-use App\models\Main\Billing;
+use App\Models\Main\Billing;
 use App\Models\Main\Client;
 use App\Models\Main\ClientPoint;
 use App\Models\Main\Account;
