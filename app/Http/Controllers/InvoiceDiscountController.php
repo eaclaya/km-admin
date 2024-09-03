@@ -140,8 +140,7 @@ class InvoiceDiscountController extends Controller
                     $count = $count+1;
                 };
             };
-
+            return response()->json(['success' => 'Report has been successfully generated.'],200);
         }
-        return redirect()->route('invoice_discount.index')->with('success', 'Report has been generated successfully.');
     }
 }

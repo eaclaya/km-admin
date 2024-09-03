@@ -23,7 +23,9 @@ class InvoiceDiscountTable extends DataTableComponent
 
     public function exportSelected(): void
     {
-        redirect()->route('invoice_discount.export_invoice_pdf',['ids' => $this->getSelected()]);
+        $selectedIds = $this->getSelected();
+        $this->dispatch('sentIds', ['ids' => $selectedIds]);
+        // redirect()->route('invoice_discount.export_invoice_pdf',['ids' => $this->getSelected()]);
     }
     public function builder(): Builder
     {
