@@ -116,7 +116,6 @@ class InvoiceDiscountController extends Controller
     public function exportInvoicesPdf(Request $request): \Illuminate\Http\RedirectResponse
     {
         $ids = $request->input('ids');
-
         if(!is_null($ids)){
             $name = 'export_invoices_pdf';
 

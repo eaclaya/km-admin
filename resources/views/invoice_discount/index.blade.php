@@ -52,14 +52,13 @@
     <script>
         $(document).ready(function() {
             Livewire.on('sentIds', (ids) => {
-                // Aquí puedes enviar los IDs a tu controlador mediante AJAX
                 $.ajax({
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     type: 'POST',
                     url: '{{ route('invoice_discount.export_invoice_pdf') }}',
-                    data: { ids: ids },
+                    data: { ids: ids[0].ids },
                     success: function(response) {
                         console.log(response);
                         alert('Se han convertido las facturas a pdf');
