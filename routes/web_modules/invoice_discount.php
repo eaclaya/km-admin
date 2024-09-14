@@ -4,7 +4,7 @@ use App\Http\Controllers\InvoiceDiscountController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('invoice_discount/export_invoice_pdf', [InvoiceDiscountController::class, 'exportInvoicesPdf'])
+    Route::post('invoice_discount/export_invoice_pdf', [InvoiceDiscountController::class, 'exportInvoicesPdf'])
         ->name('invoice_discount.export_invoice_pdf');
 
     Route::post('invoice_discount/set_discount', [InvoiceDiscountController::class, 'setDiscount'])

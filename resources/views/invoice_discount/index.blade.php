@@ -49,5 +49,22 @@
 @stop
 
 @section("js")
-    {{-- Add here extra javascript --}}
+    <script>
+        $(document).ready(function() {
+            Livewire.on('sentIds', (ids) => {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    type: 'POST',
+                    url: '{{ route('invoice_discount.export_invoice_pdf') }}',
+                    data: { ids: ids[0].ids },
+                    success: function(response) {
+                        console.log(response);
+                        alert('Se han convertido las facturas a pdf');
+                    }
+                });
+            });
+        })
+    </script>
 @stop
