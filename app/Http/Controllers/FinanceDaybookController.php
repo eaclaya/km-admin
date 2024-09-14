@@ -30,7 +30,8 @@ class FinanceDaybookController extends Controller
     ];
 
     protected $types = [
-        'invoice' => 'Factura'
+        'invoices' => 'Factura',
+        'payments' => 'Pago'
     ];
 
     protected ReportProcessServices $reportProcessServices;
@@ -131,10 +132,9 @@ class FinanceDaybookController extends Controller
         $type = 'payments';
         $account = Account::pluck('id')->toArray();
         $date = '2017-08-10';
-        $this->daybookService->initProcess($type, $account, $date);
-        dd('listo');
+        //$this->daybookService->initProcess($type, $account, $date);
         $name = 'create_daybook';
-        /*$data = $request->all();
+        $data = $request->all();
 
         if(count($data) > 0){
             $accounts = Account::select('id','name')->get()->keyBy('id');
@@ -148,7 +148,7 @@ class FinanceDaybookController extends Controller
             $types = ($data['type'] == 'all') ? array_keys($this->types) : [$data['type']];
             $count = 1;
             foreach($types as $type){
-                $data = [
+                /* $data = [
                     'name' => $name,
                     'rows' => $rows,
                     'type' => $type,
@@ -157,17 +157,17 @@ class FinanceDaybookController extends Controller
                     'accountName' => $accountName
                 ];
                 $reportProcess = $this->reportProcessServices->processImportDB($data);
-//                $reportProcessId = $reportProcess->id;
-                dd('llegue aqui');
-    //            $this->daybookService->initProcess($type, $account, $date);
-                if($rows == 1){
+                $reportProcessId = $reportProcess->id; */
+                //dd('llegue aqui');
+                $this->daybookService->initProcess($type, $account, $date);
+                /* if($rows == 1){
                     dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $this->daybookService, $reportProcessId, $currentStores, $date, $type))->delay(30));
                 }else{
                     foreach (array_chunk($currentStores, $chunkLimit) as $chunkStores){
                         dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $this->daybookService, $reportProcessId, $chunkStores, $date, $type))->delay(30 * $count));
                         $count = $count+1;
                     };
-                };
+                }; */
             }
         }
         $bodySelectAccount = [
@@ -186,6 +186,6 @@ class FinanceDaybookController extends Controller
             'name' => $name,
             'bodySelectAccount' => $bodySelectAccount,
             'bodySelectType' => $bodySelectType
-        ]);*/
+        ]);
     }
 }

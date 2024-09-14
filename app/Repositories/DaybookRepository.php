@@ -57,7 +57,6 @@ class DaybookRepository
         $subset = Arr::only($entry, [
             'account_id',
             'organization_company_id',
-            'description',
             'created_at',
             'model',
             'model_id'
