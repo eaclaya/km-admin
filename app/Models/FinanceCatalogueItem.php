@@ -54,7 +54,7 @@ class FinanceCatalogueItem extends Model
         $number = $this->getNumbers($classifications,$this);
         $this->class_number = implode('-', array_reverse($number));
         $this->save();
-        return true;
+        return $this->class_number;
     }
 
     public function getNumbers($classifications,$supraItem): array
@@ -66,7 +66,14 @@ class FinanceCatalogueItem extends Model
             $upSupraItem = FinanceCatalogueItem::where('id', $supraItem->sub_item_id)->select(['sub_item_id','sort','finance_catalogue_classification_sort'])->first();
             $number = array_merge($number, $this->getNumbers($classifications,$upSupraItem));
         }
-
         return $number;
+    }
+
+    public function getNumberAttribute(){
+        if (isset($this->class_number) && trim($this->class_number) !== '') {
+            return $this->class_number;
+        }else{
+            return $this->setNumberAttribute();
+        }
     }
 }

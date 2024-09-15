@@ -17,7 +17,7 @@
                 <tr>
                     <td>{{$item->entry->id}}</td>
                     <td>{{$item->created_at}}</td>
-                    <td>{{$item->catalogueItem->classificationNumber}}</td>
+                    <td>{{isset($item->catalogueItem) ? $item->catalogueItem->number : 'error en carga de catalogo'}}</td>
                     <td>{{$item->description}}</td>
                     <td >
                         @if($item->partial > 0)
@@ -73,7 +73,7 @@
                 <tr>
                     <td>{{$item->entry->id}}</td>
                     <td>{{$item->created_at}}</td>
-                    <td>{{$item->catalogueItem->classificationNumber}}</td>
+                    <td>{{isset($item->catalogueItem) ? $item->catalogueItem->number : 'error en carga de catalogo'}}</td>
                     <td>{{$item->description}}</td>
                     <td >
                         @if($item->partial > 0)
