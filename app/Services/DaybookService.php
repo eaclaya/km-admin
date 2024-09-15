@@ -27,16 +27,17 @@ class DaybookService
     public function initProcess($type, $currentStores, $date)
     {
         if ($type === 'invoices') {
-            return true;
-            // $this->processInvoices($currentStores, $date);
+            $this->processInvoices($currentStores, $date);
+            $this->processPayments($currentStores, $date);
         }
         if ($type === 'payments') {
-            $this->processPayments($currentStores, $date);
+            return true;
         }
     }
 
     public function processInvoices($currentStores, $date)
     {
+        return true;
         $invoices = Invoice::query()
             ->whereIn('account_id', $currentStores)
             ->whereDate('created_at', $date)
@@ -231,6 +232,7 @@ class DaybookService
 
     public function processPayments($currentStores, $date)
     {
+        // Ventas a Debito en Efectivo
         $payments = Payment::query()
             ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
             ->whereIn('payments.account_id', $currentStores)
@@ -245,8 +247,8 @@ class DaybookService
                 'invoices.user_id',
                 'invoices.real_user_id',
                 'payments.amount',
-                'created_at',
-                'updated_at'
+                'payments.created_at',
+                'payments.updated_at'
             )
             ->get();
 
@@ -273,7 +275,7 @@ class DaybookService
             $entry = [
                 'account_id' => $account_id,
                 'organization_company_id' => $company_id,
-                'description' => 'Ventas por Factura a Credito',
+                'description' => 'Ventas a Debito en Efectivo',
                 'user_id' => $payment->user_id,
                 'real_user_id' => $payment->real_user_id,
                 'partial' => $payment->amount,

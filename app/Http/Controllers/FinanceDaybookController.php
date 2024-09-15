@@ -130,20 +130,20 @@ class FinanceDaybookController extends Controller
     public function process(Request $request){
 
         $type = 'payments';
-        $account = Account::pluck('id')->toArray();
         $date = '2017-08-10';
         //$this->daybookService->initProcess($type, $account, $date);
         $name = 'create_daybook';
         $data = $request->all();
 
         if(count($data) > 0){
-            $accounts = Account::select('id','name')->get()->keyBy('id');
+            $accounts = Account::where('exclude', 0)->select('id','name')->get()->keyBy('id');
             $currentAccountId = $data['store'];
             $currentStores = ($currentAccountId == 'all') ? $accounts->pluck('id')->toArray() : [(int)$currentAccountId];
-            $accountName = ($currentAccountId == 'all') ? 'all' : $accounts[$currentAccountId]->name;
+
+            //$accountName = ($currentAccountId == 'all') ? 'all' : $accounts[$currentAccountId]->name;
             $date = $data['date'];
-            $chunkLimit = 4;
-            $rows = count($currentStores);
+            /* $chunkLimit = 4;
+            $rows = count($currentStores); */
 
             $types = ($data['type'] == 'all') ? array_keys($this->types) : [$data['type']];
             $count = 1;
@@ -159,7 +159,7 @@ class FinanceDaybookController extends Controller
                 $reportProcess = $this->reportProcessServices->processImportDB($data);
                 $reportProcessId = $reportProcess->id; */
                 //dd('llegue aqui');
-                $this->daybookService->initProcess($type, $account, $date);
+                $this->daybookService->initProcess($type, $currentStores, $date);
                 /* if($rows == 1){
                     dispatch((new ProcessDaybookImport($this->reportProcessServices->getRepository(), $this->daybookService, $reportProcessId, $currentStores, $date, $type))->delay(30));
                 }else{
