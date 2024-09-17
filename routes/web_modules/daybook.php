@@ -15,10 +15,24 @@ Route::middleware(['auth','checkPermission'])->group(function () {
         ->name('finance_catalogue.set_classifications');
     Route::get('finance_catalogue/get_models', [FinanceCatalogueController::class, 'getModels'])
         ->name('finance_catalogue.get_models');
+
+    Route::get('finance_catalogue/set_generate', [FinanceCatalogueController::class, 'setGenerate'])
+        ->name('finance_catalogue.set_generate');
+
+    Route::get('finance_catalogue/generate_items', [FinanceCatalogueController::class, 'generateItems'])
+        ->name('finance_catalogue.generate_items');
+
     Route::get('finance_catalogue/export', [FinanceCatalogueController::class, 'export'])
         ->name('finance_catalogue.export');
 
+    Route::post('finance_catalogue/import', [FinanceCatalogueController::class, 'import'])
+        ->name('finance_catalogue.import');
+
     Route::resource('finance_catalogue', FinanceCatalogueController::class);
 
-    Route::resource('finance_daybook', FinanceDaybookController::class);
+    Route::any('finance_daybook/process', [FinanceDaybookController::class, 'process'])
+        ->name('finance_daybook.process');
+
+    Route::any('finance_daybook/{type?}/{id?}', [FinanceDaybookController::class, 'index'])
+        ->name('finance_daybook.index');
 });

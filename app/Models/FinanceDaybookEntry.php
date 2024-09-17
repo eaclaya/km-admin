@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Main\Account;
+use App\Models\Main\OrganizationCompany;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 
 class FinanceDaybookEntry extends Model
 {
@@ -25,37 +27,39 @@ class FinanceDaybookEntry extends Model
         'real_user_id',
         'partial',
         'debit',
-        'havings'
+        'havings',
+        'model',
+        'model_id',
+        'created_at',
+        'updated_at',
     ];
 
-    public function createNew($input = null): FinanceDaybookEntry
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
+    public function items()
     {
-        $user = isset($input['user']) ? $input['user'] : ((Auth::check()) ? Auth::user() : null);
-        $model = new FinanceDaybookEntry();
-        $model->account_id = !is_null($user) ? $user->account_id : null;
-        $model->organization_company_id = !is_null($user) ? $user->account->organization_company_id : null;
-        $model->sort_account = $this->getNextSortAccount($user);
-        $model->sort_company = $this->getNextSortCompany($user);
-        $model->description = isset($input['description']) ? trim($input['description']) : '';
-        $model->user_id = $user->id;
-        $model->real_user_id = $user->realUser()->id;
-        $model->partial = isset($input['partial']) ? floatval($input['partial']) : 0;
-        $model->debit = isset($input['debit']) ? floatval($input['debit']) : 0;
-        $model->havings = isset($input['havings']) ? floatval($input['havings']) : 0;
-        return $model;
+        return $this->hasMany('App\Models\FinanceDaybookEntryItem', 'finance_daybook_entry_id', 'id');
     }
-    public function getNextSortAccount($user){
-        $sort_account = null;
-        if(!is_null($user)){
-            $sort_account = FinanceDaybookEntry::orderBy('sort_account', 'desc')->where('account_id', $user->account_id)->first();
+
+    public function getAccountNameAttribute(): string
+    {
+        $account_id = $this->account_id;
+        $account = Account::on('main')->where('id',$account_id)->select('name')->first();
+        if(!$account){
+            return '';
         }
-        return $sort_account;
+        return $account->name;
     }
-    public function getNextSortCompany($user){
-        $sort_company = null;
-        if(!is_null($user)){
-            $sort_company = FinanceDaybookEntry::orderBy('sort_company', 'desc')->where('organization_company_id', $user->account->organization_company_id)->first();
+    public function getCompanyNameAttribute(): string
+    {
+        $company_id = $this->organization_company_id;
+        $company = OrganizationCompany::on('main')->where('id',$company_id)->select('name')->first();
+        if(!$company){
+            return '';
         }
-        return $sort_company;
+        return $company->name;
     }
 }

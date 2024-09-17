@@ -60,7 +60,6 @@ class SetupMenuController extends Controller
             $setupMenu = SetupMenu::findOrFail($id);
             $setupMenu->update($data);
         }
-
         return redirect()->route('setup_menu.index')->with('success', 'SetupMenu created successfully');
     }
 

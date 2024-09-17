@@ -10,11 +10,6 @@
     <div class="container">
         <hr>
         <div class="row">
-            <p>
-                Se a clonado dentro del sistema las facturas desde la fecha: {{$dateFromControl}} hasta la fecha: {{$dateToControl}}
-            </p>
-        </div>
-        <div class="row">
             <div class="col-md-12">
                 <form class="filter-form row" method="POST" action="{{route('invoice_discount.export_invoice')}}">
                     @csrf
@@ -28,12 +23,7 @@
                     </div>
                     <div class="col-md-3">
                         <p>Tiendas</p>
-                        <select id="store" name="store" class="control-form form-control" required>
-                            <option value="all">Todas</option>
-                            @foreach ($accounts as $store)
-                                <option value="{{$store->id}}">{{$store->name}}</option>
-                            @endforeach
-                        </select>
+                        @livewire('components.select2-model-component', $bodySelectAccount)
                     </div>
                     <div class="col-md-3">
                         <p>CAI</p>

@@ -47,6 +47,15 @@
         @endif
     @endif
 
+    {{-- Livewire Script --}}
+    @if(config('adminlte.livewire'))
+        @if(intval(app()->version()) >= 7)
+            @livewireScripts
+        @else
+            <livewire:scripts />
+        @endif
+    @endif
+
     {{-- Custom Stylesheets (post AdminLTE) --}}
     @yield('adminlte_css')
 
@@ -81,6 +90,9 @@
         .form-check-input {
              position: relative !important;
         }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            margin-top: -8px !important;
+        }
     </style>
 
 </head>
@@ -103,14 +115,7 @@
     {{-- Extra Configured Plugins Scripts --}}
     @include('adminlte::plugins', ['type' => 'js'])
 
-    {{-- Livewire Script --}}
-    @if(config('adminlte.livewire'))
-        @if(intval(app()->version()) >= 7)
-            @livewireScripts
-        @else
-            <livewire:scripts />
-        @endif
-    @endif
+
 
     {{-- Custom Scripts --}}
     <script src="{{asset('vendor/mark.min.js')}}"></script>
@@ -137,6 +142,16 @@
                 }, 2000);
             }
         });
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('request', ({ fail }) => {
+                fail(({ status, preventDefault }) => {
+                    if (status === 419) {
+                        confirm('Por seguridad, Su sesion actual a expirado, por favor recargue la pagina.')
+                        preventDefault()
+                    }
+                })
+            })
+        })
     </script>
     @yield('adminlte_js')
 

@@ -2,21 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Models\Invoice;
 use App\Models\InvoiceDiscount;
-use App\Models\InvoiceItemDiscount;
-use App\Models\ReportProcess;
-
+use App\Models\Main\Invoice;
 use App\Repositories\ReportProcessRepository;
-use Illuminate\Support\Facades\DB;
-
 use Illuminate\Bus\Queueable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
-use Carbon\Carbon;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 
 class ImportInvoicesDiscount implements ShouldQueue
 {
@@ -67,34 +61,34 @@ class ImportInvoicesDiscount implements ShouldQueue
         $csv->offset = $chunk['offset'];
         $csv->auto($filePath);
         $data = collect($csv->data);
-        $invoices = Invoice::query()->whereIn('sync_invoice_id', $data->pluck('invoice_id')->toArray())->with('items')->get()->keyBy('sync_invoice_id');
-        $invoicesDiscount = InvoiceDiscount::query()->whereIn('invoice_id', $data->pluck('invoice_id')->toArray())->with('items')->get()->keyBy('invoice_id');
-
+        $invoices = Invoice::query()->whereIn('invoice_number', $data->pluck('invoice_number')->toArray())->with('items')->get()->keyBy('invoice_number');
+        $invoicesDiscount = InvoiceDiscount::query()->whereIn('invoice_number', $data->pluck('invoice_number')->toArray())->with('items')->get()->keyBy('invoice_number');
+        
         $dataInvoices = [];
         $dataInvoiceItems = [];
         dump('inicio el foreach');
         foreach ($data as $discount) {
-            $currentsInvoices = isset($invoices[$discount['invoice_id']]) ? $invoices[$discount['invoice_id']] : null;
+            $currentsInvoices = isset($invoices[$discount['invoice_number']]) ? $invoices[$discount['invoice_number']] : null;
             if(is_null($currentsInvoices)){
                continue;
             }
-            $issetDiscount = isset($invoicesDiscount[$discount['invoice_id']]) ? $invoicesDiscount[$discount['invoice_id']] : null;
+            $issetDiscount = isset($invoicesDiscount[$discount['invoice_number']]) ? $invoicesDiscount[$discount['invoice_number']] : null;
             if(is_null($issetDiscount)){
-                if($this->checkInvoiceDifference($currentsInvoices->amount, $discount['total'])){
+                if($this->checkInvoiceDifference($currentsInvoices->amount, $discount['subtotal'])){
                     continue;
                 }
-                $calculation = $this->typeCalculationAndPercentage($currentsInvoices->amount, $discount['total']);
+                $calculation = $this->typeCalculationAndPercentage($currentsInvoices->amount, $discount['subtotal']);
                 $isSuma = $calculation['isSuma'];
                 $percentageChange = $calculation['percentageChange'];
                 $discountedItems = $this->getDiscountedItems($currentsInvoices->items, $isSuma, $percentageChange);
-                $invoice = $this->convertInvoicesToArray($currentsInvoices, $discount['total']);
+                $invoice = $this->convertInvoicesToArray($currentsInvoices, $discount['subtotal']);
                 $dataInvoices[] = $invoice;
                 $dataInvoiceItems = array_merge($dataInvoiceItems, $discountedItems);
             }else{
-                if($this->checkInvoiceDifference($issetDiscount->amount, $discount['total'])){
+                if($this->checkInvoiceDifference($issetDiscount->amount, $discount['subtotal'])){
                     continue;
                 }
-                $calculation = $this->typeCalculationAndPercentage($issetDiscount->amount, $discount['total']);
+                $calculation = $this->typeCalculationAndPercentage($issetDiscount->amount, $discount['subtotal']);
                 $isSuma = $calculation['isSuma'];
                 $percentageChange = $calculation['percentageChange'];
                 foreach($issetDiscount->items as &$item){
@@ -105,8 +99,8 @@ class ImportInvoicesDiscount implements ShouldQueue
                     }
                     $item->save();
                 }
-                $issetDiscount->total = $discount['total'];
-                $issetDiscount->amount = $discount['total'];
+                $issetDiscount->total = $discount['subtotal'];
+                $issetDiscount->amount = $discount['subtotal'];
                 $issetDiscount->save();
             }
         }
@@ -146,8 +140,7 @@ class ImportInvoicesDiscount implements ShouldQueue
             }else{
                 $newItem['cost'] -= $newItem['cost'] * ($percentageChange / 100);
             }
-            $newItem['invoice_items_id'] = $newItem['sync_invoice_items_id'];
-            unset($newItem['sync_invoice_items_id']);
+            $newItem['invoice_items_id'] = $newItem['id'];
             unset($newItem['id']);
             $newItem['created_at'] = isset($newItem['created_at']) ? date('Y-m-d H:i:s', strtotime($newItem['created_at'])) : null;
             $newItem['updated_at'] = isset($newItem['updated_at']) ? date('Y-m-d H:i:s', strtotime($newItem['updated_at'])) : null;
@@ -160,8 +153,7 @@ class ImportInvoicesDiscount implements ShouldQueue
         $invoice = $invoice->toArray();
         $invoice['total'] = $total;
         $invoice['amount'] = $total;
-        $invoice['invoice_id'] = $invoice['sync_invoice_id'];
-        unset($invoice['sync_invoice_id']);
+        $invoice['invoice_id'] = $invoice['id'];
         unset($invoice['id']);
         unset($invoice['items']);
         $invoice['created_at'] = date('Y-m-d H:i:s', strtotime($invoice['created_at']));
@@ -184,11 +176,5 @@ class ImportInvoicesDiscount implements ShouldQueue
                 DB::connection('mysql')->table('invoice_items_discount')->insert($chunk);
             }
         }
-        /*$iITI = array_chunk($dataInvoiceItems, 25);
-        foreach ($iITI as $chunkIITI) {
-            dd($chunkIITI);
-//                DB::connection('mysql')->table('invoice_items_discount')->insert($chunkIITI);
-        }*/
-
     }
 }

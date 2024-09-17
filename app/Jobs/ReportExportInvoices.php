@@ -2,23 +2,17 @@
 
 namespace App\Jobs;
 
+use App\Models\Main\Account;
 use App\models\Main\Billing;
 use App\Models\Main\Client;
-use App\Models\Invoice;
+use App\Models\Main\Invoice;
 use App\Models\Main\OrganizationCompany;
-use App\Models\Main\Account;
-use App\Models\ReportProcess;
-
 use App\Repositories\ReportProcessRepository;
-use Illuminate\Support\Facades\DB;
-
 use Illuminate\Bus\Queueable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
-use Carbon\Carbon;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ReportExportInvoices implements ShouldQueue
 {
@@ -71,7 +65,7 @@ class ReportExportInvoices implements ShouldQueue
     private function generateInvoiceReport($startDate, $endDate, $stores, $file, $filter): void
     {
         $invoices = Invoice::
-            select(['sync_invoice_id', 'account_id', 'invoice_number', 'invoice_date', 'amount','billing_id','client_id'])
+            select(['id', 'account_id', 'invoice_number', 'invoice_date', 'amount','billing_id','client_id'])
             ->whereIn('account_id', $stores)
             ->where('invoice_type_id', 1)
             ->where('invoice_date', '>=', $startDate)
@@ -95,7 +89,7 @@ class ReportExportInvoices implements ShouldQueue
                 continue;
             }
             $displayData = [
-                $invoice->sync_invoice_id,
+                $invoice->id,
                 isset($companyOrg[$accounts[$invoice->account_id]->organization_company_id]) ? $companyOrg[$accounts[$invoice->account_id]->organization_company_id] : '',
                 isset($accounts[$invoice->account_id]) ? $accounts[$invoice->account_id]->name : '',
                 isset($clients[$invoice->client_id]) ? $clients[$invoice->client_id]->name : '',

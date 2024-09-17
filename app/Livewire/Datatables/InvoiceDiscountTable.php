@@ -5,10 +5,12 @@ namespace App\Livewire\Datatables;
 use App\Models\CloningControl;
 use App\Models\InvoiceDiscount;
 use App\Models\Main\Account;
+use App\Services\ReportProcessServices;
 use \Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\LinkColumn;
+use Rappasoft\LaravelLivewireTables\Views\Filters\DateFilter;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 class InvoiceDiscountTable extends DataTableComponent
@@ -19,10 +21,11 @@ class InvoiceDiscountTable extends DataTableComponent
         'exportSelected' => 'Imprimir',
     ];
 
-    public function exportSelected()
+    public function exportSelected(): void
     {
-        dd($this->getSelected());
-        return redirect()->route('invoice_discount.export_invoice', ['ids' => $this->selectedKeys]);
+        $selectedIds = $this->getSelected();
+        $this->dispatch('sentIds', ['ids' => $selectedIds]);
+        // redirect()->route('invoice_discount.export_invoice_pdf',['ids' => $this->getSelected()]);
     }
     public function builder(): Builder
     {
@@ -43,22 +46,21 @@ class InvoiceDiscountTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('invoice_id');
+        $this->setFilterLayoutSlideDown();
     }
-
-    /*public function filters(): array
+    public function filters(): array
     {
         return [
-            CloningControl::make('supra_menu_id')
-                ->options([
-                    ' ' => 'All',
-                    'yes' => 'Yes',
-                    'no' => 'No',
-                ])->filter(function(Builder $builder, string $value) {
-                    $builder->where('supra_menu_id', 'like', '%'.$value.'%');
+            DateFilter::make('Desde')
+                ->filter(function(Builder $builder, string $value) {
+                    $builder->where('invoice_date', '>=', $value);
+                }),
+            DateFilter::make('Hasta')
+                ->filter(function(Builder $builder, string $value) {
+                    $builder->where('invoice_date', '<=', $value);
                 }),
         ];
-    }*/
-
+    }
     public function columns(): array
     {
         return [

@@ -38,6 +38,13 @@ class ReportProcessTable extends DataTableComponent
     {
         $this->dispatch('refreshDatatable');
     }
+    public function finishReport($id): void
+    {
+        $reportProcess = ReportProcess::find($id);
+        $reportProcess->status = 1;
+        $reportProcess->save();
+        $this->reloadTable();
+    }
 
     public function columns(): array
     {
@@ -63,20 +70,17 @@ class ReportProcessTable extends DataTableComponent
                     }
                 })
                 ->location(function($row) {
-                    if ($row->status == 0) {
-                        return route('reports.finish_report',['id'=> $row->id]);
-                    }else{
-                        return '#';
-                    }
+                    return '#';
                 })->attributes(function($row) {
                     if ($row->status == 0) {
                         return [
-                            'class' => 'btn btn-success btn-sm'
+                            'class' => 'btn btn-success btn-sm',
+                            'wire:click.prevent' => "finishReport($row->id)"
                         ];
                     }else{
                         return [
                             'class' => 'btn btn-success btn-sm disabled',
-                            'disabled' => 'disabled'
+                            'disabled' => 'disabled',
                         ];
                     }
                 }),
@@ -110,7 +114,13 @@ class ReportProcessTable extends DataTableComponent
                     </div>';
         }
         if($porcentCompleting < 100){
-            $html .= '<br><a wire:click.prevent="reloadTable" class="btn btn-success btn-sm">Recargar</a>';
+            $html .= '<br>
+                        <a wire:click.prevent="reloadTable" class="btn btn-success btn-sm">
+                            Recargar
+                            <div wire:loading wire:target="reloadTable">
+                                ...
+                            </div>
+                        </a>';
         }
         return $html;
     }

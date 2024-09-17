@@ -23,7 +23,8 @@
     <h1>
         Catalogo Financiero -
         <a class="btn btn-success btn-sm" href="{{route('finance_catalogue.show_classifications')}}">Clasificaciones</a>
-        <a class="btn btn-success btn-sm" href="{{route('finance_catalogue.export')}}">Exportar</a>
+        <a class="btn btn-outline-primary btn-sm" href="{{route('finance_catalogue.export',['filter' => $filter])}}">Exportar</a>
+        <a class="btn btn-outline-success btn-sm" data-toggle="modal" data-target="#myModalImport" >Importar</a>
     </h1>
 @stop
 
@@ -44,9 +45,6 @@
             </div>
         </div>
         <div class="card-body">
-            {{-- <form method="POST" action="{{route('evaluationprocess.update', $evaluationProcess->id)}}" > --}}
-            {{-- {{ method_field('PUT') }}
-            {{ csrf_field() }} --}}
             <div class="row">
                 <table style="margin: 0 auto;">
                     <thead>
@@ -76,7 +74,6 @@
                     </tbody>
                 </table>
             </div>
-            {{-- </form> --}}
         </div>
     </div>
 
@@ -93,20 +90,14 @@
 							<label for="finance_account_name">Nombre de la Cuenta</label>
 							<input type="text" class="form-control" id="finance_account_name" name="finance_account_name" required>
 						</div>
-						{{-- <div class="form-group">
-							<label for="finance_catalogue_classification_sort">Clasificación</label>
-							<select class="form-control" id="finance_catalogue_classification_sort" name="finance_catalogue_classification_sort" required>
-								@foreach ($clasifications as $clasification)
-									<option value="{{$clasification->id}}">{{$clasification->name}}</option>
-								@endforeach
-							</select>
-						</div> --}}
+                        <br>
 						<div class="form-group">
 							<label for="sort">Posicion</label>
 							<input type="number" name="sort" id="sort" min="0" max="">
 						</div>
+                        <br>
 						<div class="form-group">
-							<label for="model">Modelo (Tabla de la base de datos)</label>
+							<label for="model">Modelo (Tabla de la base de datos)</label><br>
 							<select class="form-control" name="model" id="model" onchange="changeModel(this,'edit')" style="width: 50%">
 								<option ></option>
 								@foreach ($models as $model => $name)
@@ -114,13 +105,25 @@
 								@endforeach
 							</select>
 						</div>
-						<br>
+                        <br>
 						<div class="form-group">
-							<label for="model">Identificador del Modelo</label>
+							<label for="model_id">Identificador del Modelo</label><br>
 							<select class="form-control" name="model_id" id="model_id" style="width: 50%">
 								<option ></option>
 							</select>
 						</div>
+                        <br>
+                        <div class="form-group">
+                            <label for="is_generated">Generador</label><br>
+                            <select class="form-control" name="is_generated" id="is_generated" onchange="changeGenerate(this)" style="width: 50%">
+                                <option value="0"> No Generador </option>
+                                <option value="1">Generador de Empresas y tiendas</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="item_id" id="item_id" value="">
+                        <div class="form-group" id="div_generate">
+                            <button type="button" class="btn btn-primary" id="btn_generate" onclick="generate(this,'edit')">Generar</button>
+                        </div>
 					</form>
 				</div>
 				<div class="modal-footer">
@@ -178,6 +181,30 @@
 			</div>
 		</div>
 	</div>
+    <div id="myModalImport" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Importar</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('finance_catalogue.import')}}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label for="finance_account_name">Nombre de la Cuenta</label>
+                            <input type="file" class="form-control" name="csv_file" id="csv_file" required>
+                            <input type="hidden" name="filter" value="{{$filter}}">
+                        </div>
+                        <button type="submit" class="btn btn-success">Importar</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @stop
 
@@ -219,12 +246,30 @@
             const model = data_string[4];
             const model_id = data_string[5];
             const limitSort = data_string[6];
+            const is_generated = data_string[7];
 
             url = '{{url()->current()}}' + '/' + item_id + '/update';
             $('#form_update').attr('action', url);
 
             $('#finance_account_name').val(finance_account_name);
             $('#finance_catalogue_classification_sort').val(finance_catalogue_classification_sort);
+
+            $('#item_id').val(item_id);
+
+            if(is_generated && is_generated > 0){
+                $('#is_generated').val(is_generated);
+                $("#is_generated").select2({
+                    width: 'resolve'
+                }).trigger('change');
+                $('#div_generate').show();
+            }else{
+                $('#is_generated').val('0');
+                $("#is_generated").select2({
+                    width: 'resolve'
+                }).trigger('change');
+                $('#div_generate').hide();
+            }
+
             $('#sort').val(sort);
             $('#sort').attr('max', limitSort);
 
@@ -317,6 +362,55 @@
                     data: responceAjax,
                     width: 'resolve'
                 }).trigger('change');
+            }
+        }
+
+        async function changeGenerate(element) {
+            const generate = parseInt(element.value);
+            const item_id = $('#item_id').val();
+
+            const params = {
+                'generate' : generate,
+                'item_id' : item_id
+            };
+
+            if (generate > 0) {
+                $('#div_generate').show();
+            }else{
+                $('#div_generate').hide();
+            }
+            await setGenerate(params);
+            return true;
+        }
+
+        async function setGenerate(params) {
+            let respuesta = await $.ajax({
+                type: 'GET',
+                url: '{!! route('finance_catalogue.set_generate') !!}',
+                data: params,
+            });
+            if (respuesta.msg === 'erro' || respuesta.response === 'reset_url') {
+                alert('A ocurrido un error');
+            }
+            return respuesta;
+        }
+
+        async function generate(){
+            const item_id = $('#item_id').val();
+            const is_generated = $('#is_generated').val();
+            params = {
+                'item_id' : item_id,
+                'is_generated' : is_generated
+            }
+            let respuesta = await $.ajax({
+                type: 'GET',
+                url: '{!! route('finance_catalogue.generate_items') !!}',
+                data: params,
+            });
+            if (respuesta.msg === 'erro' || respuesta.response === 'reset_url') {
+                alert('A ocurrido un error');
+            }else{
+                location.reload();
             }
         }
     </script>

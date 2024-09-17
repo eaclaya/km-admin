@@ -27,4 +27,13 @@ class FinanceDaybookEntryItem extends Model
         'debit',
         'havings'
     ];
+
+    public function entry()
+    {
+        return $this->belongsTo('App\Models\FinanceDaybookEntry', 'finance_daybook_entry_id', 'id');
+    }
+    public function catalogueItem()
+    {
+        return $this->belongsTo('App\Models\FinanceCatalogueItem', 'finance_catalogue_item_id', 'id');
+    }
 }
