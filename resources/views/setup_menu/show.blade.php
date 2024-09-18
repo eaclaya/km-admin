@@ -139,7 +139,7 @@
     </div>
 
 
-    <script src="{{asset('js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{asset('js/jquery.dataTables.min.js') }}"></script>
     <script>
         @if(isset($evaluationProcess))
             $(document).ready( function () {

@@ -7,7 +7,7 @@
 @section('content_header')
     <h1>
         Libro Diario -
-        <a class="btn btn-primary btn-sm" href="{{route('finance_daybook.process')}}"> Procesos </a>
+        <a class="btn btn-primary btn-sm" href="{{route('finance_daybook.process') }}"> Procesos </a>
         <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#myModalCreated"> Crear </a>
     </h1>
 @stop

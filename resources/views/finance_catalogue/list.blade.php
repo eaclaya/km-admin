@@ -22,7 +22,7 @@
 @section('content_header')
     <h1>
         Catalogo Financiero -
-        <a class="btn btn-success btn-sm" href="{{route('finance_catalogue.show_classifications')}}">Clasificaciones</a>
+        <a class="btn btn-success btn-sm" href="{{route('finance_catalogue.show_classifications') }}">Clasificaciones</a>
         <a class="btn btn-outline-primary btn-sm" href="{{route('finance_catalogue.export',['filter' => $filter])}}">Exportar</a>
         <a class="btn btn-outline-success btn-sm" data-toggle="modal" data-target="#myModalImport" >Importar</a>
     </h1>
