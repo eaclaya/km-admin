@@ -13,7 +13,7 @@
 @section('content')
     <div class="container">
         <div class="container">
-            <form class="filter-form row" method="POST" action="{{route('finance_daybook.process')}}">
+            <form class="filter-form row" method="POST" action="{{route('finance_daybook.process') }}">
                 @csrf
                 <div class="col-md-3">
                     <p>Fecha</p>

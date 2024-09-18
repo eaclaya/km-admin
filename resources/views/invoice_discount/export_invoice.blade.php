@@ -11,7 +11,7 @@
         <hr>
         <div class="row">
             <div class="col-md-12">
-                <form class="filter-form row" method="POST" action="{{route('invoice_discount.export_invoice')}}">
+                <form class="filter-form row" method="POST" action="{{route('invoice_discount.export_invoice') }}">
                     @csrf
                     <div class="col-md-3">
                         <p>Fecha inicio</p>

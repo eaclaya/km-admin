@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Session;
 
 class User extends Authenticatable
 {
@@ -76,6 +77,23 @@ class User extends Authenticatable
     public function adminlte_desc()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function realUser()
+    {
+        if (! Session::has('current_real_user_auth')) {
+            $realUserId = Session::get('real_userid');
+            if ($realUserId > 0) {
+                $user = User::with('role')->find($realUserId);
+                Session::flash('current_real_user_auth',$user);
+                return $user;
+            }
+            Session::flash('current_real_user_auth', $this);
+            return $this;
+        }else{
+            return Session::get('current_real_user_auth');
+        }
+    
     }
 
 }

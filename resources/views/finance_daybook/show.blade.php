@@ -1,4 +1,10 @@
-@extends('header')
+@extends('adminlte::page')
+
+@section('title', 'Reporte')
+
+@section('content_header')
+    <h1>Reportes Avanzados</h1>
+@stop
 
 @section('content')
     @parent
@@ -140,7 +146,7 @@
     </div>
     
 
-    <script src="{{asset('js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{asset('js/jquery.dataTables.min.js') }}"></script>
     <script>
         @if(isset($evaluationProcess))
             $(document).ready( function () {
