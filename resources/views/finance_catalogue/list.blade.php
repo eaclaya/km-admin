@@ -118,6 +118,7 @@
                             <select class="form-control" name="is_generated" id="is_generated" onchange="changeGenerate(this)" style="width: 50%">
                                 <option value="0"> No Generador </option>
                                 <option value="1">Generador de Empresas y tiendas</option>
+                                <option value="2">Generador de Bancos</option>
                             </select>
                         </div>
                         <input type="hidden" name="item_id" id="item_id" value="">

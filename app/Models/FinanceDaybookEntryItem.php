@@ -25,7 +25,8 @@ class FinanceDaybookEntryItem extends Model
         'model_id',
         'partial',
         'debit',
-        'havings'
+        'havings',
+        'is_primary'
     ];
 
     public function entry()

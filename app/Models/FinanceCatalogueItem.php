@@ -28,6 +28,9 @@ class FinanceCatalogueItem extends Model
 
     public function getModel(): mixed
     {
+        if($this->model == 'finance_banks_accounts'){
+            return DB::connection('main')->table($this->model)->select('id','account_number as name')->where('id', $this->model_id)->first();
+        }
         return DB::connection('main')->table($this->model)->select('id','name')->where('id', $this->model_id)->first();
     }
 

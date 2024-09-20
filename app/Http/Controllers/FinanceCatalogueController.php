@@ -25,6 +25,8 @@ class FinanceCatalogueController extends Controller
         'organization_company' => 'Empresas',
         'expense_category' => 'Categorias de Gastos',
         'expense_subcategory' => 'Sub Categorias de Gastos',
+        'finance_banks' => 'Bancos',
+        'finance_banks_accounts' => 'Cuentas Bancarias',
     ];
     protected FilesServices $filesServices;
     protected FinanceCatalogueService $financeCatalogueService;
@@ -96,7 +98,7 @@ class FinanceCatalogueController extends Controller
             'Clasificación',
             'Nombre de la Cuenta',
         ]);
-//        dd([$columns, $data]);
+        //        dd([$columns, $data]);
 
         fwrite($fp, $bom);
 		fputcsv($fp, $columns, ';');
