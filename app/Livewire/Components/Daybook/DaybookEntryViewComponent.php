@@ -24,17 +24,14 @@ class DaybookEntryViewComponent extends Component
     #[On('daybook-entry-view-reload')]
     public function daybookReload($id){
         $items = FinanceDaybookEntry::find($id)->items;
-        [$secondaries, $primaries] = $items->partition(function ($item) {
-            return $item->is_primary == 0;
+        [$secondaries, $primaries] = $items->partition(function (&$item) {
+            $item->catalogue_number = isset($item->catalogueItem) ? $item->catalogueItem->number : 'error de catalogo';
+            return $item->is_primary > 2;
         });
-        if ($secondaries->isNotEmpty()) {
-            /* $firstItem = $secondaries->first();
-            $lastItem = $secondaries->last();
-            $firstItem->debit = $firstItem->partial;
-            $firstItem->partial = 0;
-            $lastItem->havings = $lastItem->partial;
-            $lastItem->partial = 0; */
-        }
+
+        $secondaries = $secondaries->groupBy('is_primary')->toArray();
+        $primaries = $primaries->groupBy('is_primary')->toArray();
+
         $this->mount($primaries, $secondaries);
     }
 }

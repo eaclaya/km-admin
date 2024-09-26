@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class FinanceDaybookEntryItem extends Model
 {
@@ -36,5 +36,8 @@ class FinanceDaybookEntryItem extends Model
     public function catalogueItem()
     {
         return $this->belongsTo('App\Models\FinanceCatalogueItem', 'finance_catalogue_item_id', 'id');
+    }
+    public function getCreatedAtAttribute($value){
+        return Carbon::parse($value)->format('d-m-Y H:i:s');
     }
 }

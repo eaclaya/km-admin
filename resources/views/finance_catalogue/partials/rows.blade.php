@@ -32,7 +32,7 @@
     <td>
         {{$item->finance_account_name}}
         @if(isset($item->model) && isset($item->model_id))
-            <i class="fa fa-anchor text-danger" aria-hidden="true" data-toggle="popover" title="Anclado a:" data-content="{{$models[$item->model]}} - {{$item->getModel()->name}}"></i>
+            <i class="fa fa-anchor text-danger" aria-hidden="true" data-toggle="popover" title="Anclado a:" data-content="{{$models[$item->model]}} - {{ isset($item->getModel()->name) ? $item->getModel()->name : 'error de carga'}}"></i>
         @endif
     </td>
     <td>

@@ -23,4 +23,8 @@ class Payment extends ModelDBMain
             ->value('total_cost');
         return isset($totalCost) ? $totalCost : 0;
     }
+
+    public function isFinish(){
+        return ($this->balance - $this->amount) == 0;
+    }
 }
