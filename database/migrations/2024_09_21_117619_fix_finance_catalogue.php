@@ -19,17 +19,6 @@ return new class extends Migration
             'finance_catalogue_classification_sort' => 4,
             'sort' => 4
         ]);
-
-        $subItem = DB::table('finance_catalogue_item')->where('finance_account_name', 'Cuentas por pagar C/P')->first();
-        $subItemId = $subItem->id;
-        $clasifications = $subItem->finance_catalogue_classification_sort + 1;
-
-        DB::table('finance_catalogue_item')->insert([
-            'finance_account_name' => 'Anticipo de Cliente',
-            'sub_item_id' => $subItemId,
-            'finance_catalogue_classification_sort' => $clasifications,
-            'sort' => 10
-        ]);
     }
 
     /**
