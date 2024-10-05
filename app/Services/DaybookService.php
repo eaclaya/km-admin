@@ -250,6 +250,14 @@ class DaybookService
                 'invoices.account_id',
                 'invoices.user_id',
                 'invoices.real_user_id',
+
+                'invoices.discount_percent',
+                'invoices.discount_points',
+                'invoices.discount_vouchers',
+                'invoices.discount',
+                'invoices.amount',
+                'invoices.total_cost',
+
                 'payments.amount',
                 'payments.balance',
                 'payments.created_at',
@@ -294,13 +302,12 @@ class DaybookService
 
         foreach ($payments as $payment){
 
-            $productCostTotal = $payment->invoicesTotalCost();
-
             $entry = [];
             $items = [];
 
             $account_id = isset($payment->account_id) ? $payment->account_id : 0;
             $company_id = isset($accounts[$account_id]) ? $accounts[$account_id] : 0;
+
             $created_at = (!$payment->created_at->isValid() || $payment->created_at->year <= 0) ? Carbon::createFromFormat('Y-m-d H:i:s', '1970-01-01 00:00:00')->format('Y-m-d H:i:s') : $payment->created_at->toDateTimeString();
             $updated_at = (!$payment->updated_at->isValid() || $payment->updated_at->year <= 0) ? $created_at : $payment->updated_at->toDateTimeString();
 
@@ -410,7 +417,7 @@ class DaybookService
                             'model' => ENTITY_PAYMENT,
                             'model_id' => $payment->id,
                             'partial' => 0,
-                            'debit' => $productCostTotal,
+                            'debit' => $payment->total_cost,
                             'havings' => 0,
                             'is_primary' => 3
                         ],
@@ -423,7 +430,7 @@ class DaybookService
                             'model' => ENTITY_PAYMENT,
                             'model_id' => $payment->id,
                             'partial' => 0,
-                            'debit' => $productCostTotal,
+                            'debit' => $payment->total_cost,
                             'havings' => 0,
                             'is_primary' => 3
                         ],
@@ -436,7 +443,7 @@ class DaybookService
                             'model' => ENTITY_PAYMENT,
                             'model_id' => $payment->id,
                             'partial' => 0,
-                            'debit' => $productCostTotal,
+                            'debit' => $payment->total_cost,
                             'havings' => 0,
                             'is_primary' => 3
                         ],
@@ -451,7 +458,7 @@ class DaybookService
                             'model_id' => $payment->id,
                             'partial' => 0,
                             'debit' => 0,
-                            'havings' => $productCostTotal,
+                            'havings' => $payment->total_cost,
                             'is_primary' => 4
                         ],
                         // Almacen Empresa
@@ -464,7 +471,7 @@ class DaybookService
                             'model_id' => $payment->id,
                             'partial' => 0,
                             'debit' => 0,
-                            'havings' => $productCostTotal,
+                            'havings' => $payment->total_cost,
                             'is_primary' => 4
                         ],
                         // Almacen tienda
@@ -477,7 +484,7 @@ class DaybookService
                             'model_id' => $payment->id,
                             'partial' => 0,
                             'debit' => 0,
-                            'havings' => $productCostTotal,
+                            'havings' => $payment->total_cost,
                             'is_primary' => 4
                         ],
                         //------ aqui viene el inventario
