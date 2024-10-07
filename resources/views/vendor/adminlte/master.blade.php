@@ -118,7 +118,7 @@
 
 
     {{-- Custom Scripts --}}
-    <script src="{{asset('vendor/mark.min.js')}}"></script>
+    <script src="{{asset('vendor/mark.min.js') }}"></script>
     <script>
         $('form[action="#nav-search"]').on('submit', function(event) {
             event.preventDefault(); // Prevenir el envío normal del formulario

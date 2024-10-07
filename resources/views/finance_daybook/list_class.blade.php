@@ -1,6 +1,12 @@
-@extends('header')
+@extends('adminlte::page')
 
-@section('head')
+@section('title', 'Reporte')
+
+@section('content_header')
+    <h1>Reportes Avanzados</h1>
+@stop
+
+
   @parent
   <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
    <style>

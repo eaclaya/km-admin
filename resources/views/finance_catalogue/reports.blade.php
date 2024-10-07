@@ -10,6 +10,7 @@
         <div class="row">
             <div class="col-md-12">
                 <form class="filter-form" method="POST" action="{{route('checklist.reports')}}">
+              @csrf
                     <div class="col-md-2">
                             <p>Fecha inicio</p>
                             <input type="date" class="form-control" name="from_date" />
@@ -76,7 +77,7 @@
     </div>
 
 
-    <script src="{{asset('js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{asset('js/jquery.dataTables.min.js') }}"></script>
     <script>
         $(document).ready( function () {
             $('table').DataTable({
