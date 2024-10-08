@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
-use App\Models\Account;
+use App\Models\Main\Account;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,10 +12,10 @@ use Illuminate\Contracts\Bus\SelfHandling;
 use Carbon\Carbon;
 use DB;
 
-use App\Models\Employee;
-use App\Models\Invoice;
-use App\Models\ProductTracking;
-use App\Models\ReportProcess;
+use App\Models\Main\Employee;
+use App\Models\Main\Invoice;
+use App\Models\Main\ProductTracking;
+use App\Models\Main\ReportProcess;
 
 class ReportCommissionOldProducts extends Job implements ShouldQueue, SelfHandling
 {

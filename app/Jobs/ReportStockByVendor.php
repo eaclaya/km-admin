@@ -12,11 +12,11 @@ use Carbon\Carbon;
 use DB;
 use Utils;
 
-use App\Models\Product;
-use App\Models\CountTotalProductKey;
-use App\Models\CountTotalRelationId;
-use App\Models\ReportProcess;
-use App\Models\Account;
+use App\Models\Main\Product;
+use App\Models\Main\CountTotalProductKey;
+use App\Models\Main\CountTotalRelationId;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\Account;
 
 class ReportStockByVendor extends Job implements ShouldQueue, SelfHandling
 {

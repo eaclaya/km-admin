@@ -9,12 +9,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Carbon\Carbon;
 use DB;
-use App\Models\ReportProcess;
-use App\Models\CompanyZones;
-use App\Models\EmployeeGoal;
-use App\Models\EmployeeProfile;
-use App\Models\Goal;
-use App\Models\Route;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\CompanyZones;
+use App\Models\Main\EmployeeGoal;
+use App\Models\Main\EmployeeProfile;
+use App\Models\Main\Goal;
+use App\Models\Main\Route;
 
 class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
 {

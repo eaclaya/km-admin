@@ -135,6 +135,7 @@ const ACCOUNT_SYSTEM_SETTINGS = 'system_settings';
 const ACCOUNT_PAYMENT_TERMS = 'payment_terms';
 const ACCOUNT_AREAS_AND_ZONES = 'areas_and_zones';
 const ACCOUNT_ORGANIZATION_COMPANY = 'organization_company';
+const ACCOUNT_SET_TOKEN = 'set_token';
 
 const ACTION_RESTORE = 'restore';
 const ACTION_ARCHIVE = 'archive';

@@ -12,8 +12,8 @@ use Carbon\Carbon;
 use DB;
 use Utils;
 
-use App\Models\ReportProcess;
-use App\Models\WhatsappConfigAccount;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\WhatsappConfigAccount;
 
 
 
