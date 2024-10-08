@@ -24,8 +24,46 @@ use App\Jobs\ReportExportClients;
 use App\Jobs\ReportExportInvoices;
 use App\Jobs\ReportCommissionOldProducts;
 use App\Jobs\ReportStockInStores;
+use App\Models\Main\Account;
+use App\Models\Main\AuthenticationToken;
+use App\Models\Main\Billing;
+use App\Models\Main\CartItem;
+use App\Models\Main\CashCount;
+use App\Models\Main\Category;
+use App\Models\Main\Client;
+use App\Models\Main\CompanyAreas;
 use App\Models\ReportProcess;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+
+use App\Models\Main\Employee;
+use App\Models\Main\Expense;
+use App\Models\Main\ExpenseCategory;
+use App\Models\Main\ExpenseSubcategory;
+use App\Models\Main\FinanceAccount;
+use App\Models\Main\ImportTracking;
+use App\Models\Main\IncomeCategory;
+use App\Models\Main\Invoice;
+use App\Models\Main\InvoiceHistory;
+use App\Models\Main\InvoiceItem;
+use App\Models\Main\PaymentType;
+use App\Models\Main\Payroll;
+use App\Models\Main\Product;
+use App\Models\Main\ProductRequest;
+use App\Models\Main\ProductTracking;
+use App\Models\Main\Refund;
+use App\Models\Main\Rotation;
+use App\Models\Main\Route;
+use App\Models\Main\Stock;
+use App\Models\Main\StoreCredit;
+use App\Models\Main\SubCategory;
+use App\Models\Main\Supply;
+use App\Models\Main\SupplyComment;
+use App\Models\Main\Task;
+use App\Models\Main\TracesRequest;
+use App\Models\Main\Transfer;
+use App\Models\Main\TransferItem;
+use App\Models\Main\User;
+use App\Models\Main\Vendor;
 
 class AdvancereportsController extends Controller
 {
@@ -108,7 +146,6 @@ class AdvancereportsController extends Controller
     public function clientsByDate(Request $request)
     {
         $data = $request->all();
-        $stores = Account::all();
         $result = null;
         if (count($data) > 0) {
             $from_date = $data['from_date'];
