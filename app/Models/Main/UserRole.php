@@ -1,16 +1,14 @@
-<?php namespace App\Models\Main;
+<?php
 
-use Eloquent;
+namespace App\Models\Main;
 
-/**
- * Class UserAccount
- */
+use Illuminate\Database\Eloquent\Model;
+
 class UserRole extends ModelDBMain
 {
+    protected $connection = 'main';
+    protected $table = 'user_roles';
 
-    protected $connection = 'main';    /**
-     * @var bool
-     */
     public function permissions(){
         return $this->hasMany('App\Models\Main\UserPermission', 'role_id', 'id');
     }

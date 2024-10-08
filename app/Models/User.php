@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Session;
+use App\Models\Main\Account;
 
 class User extends Authenticatable
 {
@@ -93,7 +94,13 @@ class User extends Authenticatable
         }else{
             return Session::get('current_real_user_auth');
         }
-    
+    }
+    public function account(){
+        return $this->belongsTo(Account::class, 'account_id', 'id');
     }
 
+    public function role()
+    {
+        return $this->belongsTo('App\Models\Main\UserRole');
+    }
 }

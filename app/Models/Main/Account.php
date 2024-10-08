@@ -1,4 +1,6 @@
-<?php namespace App\Models\Main;
+<?php
+
+namespace App\Models\Main;
 
 use Eloquent;
 use Utils;
@@ -27,6 +29,8 @@ class Account extends ModelDBMain
 {
 
     protected $connection = 'main';
+
+    protected $table = 'accounts';
 
     use SoftDeletes;
     use PresentsInvoice;
@@ -340,7 +344,7 @@ class Account extends ModelDBMain
     {
         return $this->belongsTo('App\Models\Main\CompanyZones', 'company_zones_id', 'id');
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -431,14 +435,14 @@ class Account extends ModelDBMain
      */
     public function getDisplayName()
     {
-   
+
         if ($this->name) {
             return $this->name;
         }
 
         //$this->load('users');
         $user = $this->users()->first();
-        
+
         return $user->getDisplayName();
     }
 
@@ -558,7 +562,7 @@ class Account extends ModelDBMain
     }
 
 
-    
+
 
     /**
      * @return mixed
@@ -913,7 +917,7 @@ class Account extends ModelDBMain
         $invoice->start_date = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
         $invoice->client_id = $clientId;
-        
+
         $billing = \App\Models\Main\Billing::where('is_invoice', 1)->where('account_id', Auth::user()->account_id)->orderBy('billing_id', 'desc')->first();
         if($billing)
         {
@@ -940,7 +944,7 @@ class Account extends ModelDBMain
             $invoice->client = Client::createNew();
             $invoice->client->public_id = 0;
         }
-        
+
         return $invoice;
     }
 
@@ -1051,7 +1055,7 @@ class Account extends ModelDBMain
      */
     public function getCounter($invoice_type_id)
     {
-        
+
         return $invoice_type_id == INVOICE_TYPE_QUOTE && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 
@@ -1071,10 +1075,10 @@ class Account extends ModelDBMain
 	$billing = Billing::where('is_invoice', 1)->where('account_id', Auth::user()->account_id)->orderBy('billing_id', 'desc')->first();
 	if($billing  && $billing->cai != "")
 	   	return true;
-	
+
 	else
 		return false;
-	
+
    }
 
      public function getNextSupplyNumber(){
@@ -1170,7 +1174,7 @@ class Account extends ModelDBMain
     {
         $billing = Billing::where('is_invoice', 1)->where('account_id', Auth::user()->account_id)->orderBy('billing_id', 'desc')->take(1)->first();
         $lastInvoice = Invoice::where('billing_id', $billing['billing_id'])->orderBy('id', 'desc')->orderBy('created_at', 'desc')->first();
-        
+
         if(!$billing)
         {
             return $counter;
@@ -1179,7 +1183,7 @@ class Account extends ModelDBMain
 	{
 	    $lastInvoiceNumberArray = explode('-',$lastInvoice['invoice_number']);
 	    $lastInvoiceNumber = intval($lastInvoice['invoice_number']);
-            //$lastInvoiceNumber = intval($lastInvoiceNumberArray[count($lastInvoiceNumberArray) - 1]); 
+            //$lastInvoiceNumber = intval($lastInvoiceNumberArray[count($lastInvoiceNumberArray) - 1]);
             $nextInvoiceNumber = $lastInvoiceNumber + 1;
 	    if($_SERVER['REMOTE_ADDR'] == '131.161.55.4'){ mail('erick@mottandbow.com', 'KM MOTO LAST INVOICE', $lastInvoiceNumberArray[count($lastInvoiceNumberArray) - 1]); }
             $array = explode("-", $billing->to_invoice);
@@ -1200,10 +1204,10 @@ class Account extends ModelDBMain
         {
             $array = explode("-", $billing->from_invoice);
             $newInvoiceNumber = intval($array[count($array) - 1]);
-            
-            return $newInvoiceNumber;    
+
+            return $newInvoiceNumber;
         }
-        
+
     }
 
     /**
@@ -2332,7 +2336,7 @@ class Account extends ModelDBMain
     }
 
     public function stock_in_stores($account_id) {
-        
+
         $products = Product::where('account_id', $account_id)
             ->where('qty', '>', 0)
             ->selectRaw('SUM(wholesale_price * qty) as total_price, SUM(qty) as total_qty')

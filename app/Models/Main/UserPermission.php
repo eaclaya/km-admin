@@ -1,14 +1,15 @@
-<?php namespace App\Models\Main;
+<?php
 
-use Eloquent;
+namespace App\Models\Main;
 
-/**
- * Class UserAccount
- */
+use Illuminate\Database\Eloquent\Model;
+
 class UserPermission extends ModelDBMain
 {
+    protected $connection = 'main';
+    protected $table = 'user_permissions';
 
-    protected $connection = 'main';    public function resource(){
+    public function resource(){
         return $this->belongsTo('App\Models\Main\UserResource', 'resource_id', 'id');
     }
 }

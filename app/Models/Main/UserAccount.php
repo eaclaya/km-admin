@@ -1,6 +1,6 @@
-<?php namespace App\Models\Main;
+<?php
 
-use Eloquent;
+namespace App\Models\Main;
 
 /**
  * Class UserAccount
@@ -8,7 +8,11 @@ use Eloquent;
 class UserAccount extends ModelDBMain
 {
 
-    protected $connection = 'main';    /**
+    protected $connection = 'main';
+
+    protected $table = 'user_accounts';
+
+    /**
      * @var bool
      */
     public $timestamps = false;
