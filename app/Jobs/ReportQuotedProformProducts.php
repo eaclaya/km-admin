@@ -62,7 +62,7 @@ class ReportQuotedProformProducts extends Job implements ShouldQueue, SelfHandli
                 ->get()->keyBy('id')->toArray();
             $accountExclude = array_keys($accountExclude);
 
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
                 ->join('clients', 'clients.id', '=', 'invoices.client_id')
@@ -79,7 +79,7 @@ class ReportQuotedProformProducts extends Job implements ShouldQueue, SelfHandli
             $relatedProducts = CountTotalRelationId::select('relation_id', 'qty')
                 ->get()->keyBy('relation_id');
 
-            $sales = DB::table('invoice_items')
+            $sales = DB::connection('main')->table('invoice_items')
                             ->whereDate('invoice_items.created_at', '>=', $from_date)
                             ->whereDate('invoice_items.created_at', '<', $to_date)
                             ->where('invoice_items.invoice_type_id', 1)

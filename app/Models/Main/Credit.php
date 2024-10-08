@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\CreditWasCreated;
-use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Credit
@@ -12,7 +11,6 @@ class Credit extends ModelDBMain
 
     protected $connection = 'main';
     use SoftDeletes;
-    use PresentableTrait;
 
     /**
      * @var array

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ReportProcess extends ModelDBMain
+class ReportProcess extends Model
 {
 
     protected $connection = 'main';

@@ -8,7 +8,8 @@ use Eloquent;
 class UserResource extends ModelDBMain
 {
 
-    protected $connection = 'main';    /**
+    protected $connection = 'main';    
+    /**
      * @var bool
      */
 }

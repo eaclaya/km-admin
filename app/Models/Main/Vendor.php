@@ -5,7 +5,7 @@ use DB;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasUpdated;
 use App\Events\VendorWasDeleted;
-use Laracasts\Presenter\PresentableTrait;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -15,7 +15,7 @@ class Vendor extends ModelDBMain
 {
 
     protected $connection = 'main';
-    use PresentableTrait;
+
     use SoftDeletes;
 
     /**

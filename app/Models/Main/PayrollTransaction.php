@@ -2,7 +2,7 @@
 
 use Utils;
 use DB;
-use Laracasts\Presenter\PresentableTrait;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**

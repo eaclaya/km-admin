@@ -1,6 +1,6 @@
 <?php namespace App\Models\Main;
 
-use Laracasts\Presenter\PresentableTrait;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Main\InvoiceItem;
 use Auth;
@@ -12,7 +12,7 @@ class Product extends ModelDBMain
 {
 
     protected $connection = 'main';
-    use PresentableTrait;
+
     use SoftDeletes;
     /**
      * @var array

@@ -7,7 +7,7 @@ use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasVoided;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentFailed;
-use Laracasts\Presenter\PresentableTrait;
+
 
 use Session;
 
@@ -22,7 +22,7 @@ class Payment extends ModelDBMain
 {
 
     protected $connection = 'main';
-    use PresentableTrait;
+
     use SoftDeletes;
     protected $table = 'payments';
 

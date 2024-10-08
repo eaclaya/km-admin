@@ -61,7 +61,7 @@ class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
 
         $exception = null;
         try {
-            $refundsData = DB::table('refunds')
+            $refundsData = DB::connection('main')->table('refunds')
                 ->whereIn('refunds.account_id', $stores)
                 ->whereDate('refunds.refund_date', '>=', $from_date)
                 ->whereDate('refunds.refund_date', '<=', $to_date)
@@ -74,7 +74,7 @@ class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
                 $refunds[$refund->employee_id] = $refund->total_refunded_sum;
             }
             
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->join('employees', 'employees.id', '=', 'invoices.employee_id')
                     ->select(
@@ -97,7 +97,7 @@ class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
             foreach($invoices as $invoice){
                 $result[$invoice->employee_id] = $invoice;
             
-                $item = DB::table('invoice_items')
+                $item = DB::connection('main')->table('invoice_items')
                     ->join('products', 'invoice_items.product_id', '=', 'products.id')
                     ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')

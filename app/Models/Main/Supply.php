@@ -3,14 +3,14 @@
 use Utils;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+
 
 /**
  * Class Supply
  */
 class Supply extends EntityModel implements BalanceAffecting
 {
-    use PresentableTrait;
+
     use OwnedByClientTrait;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;

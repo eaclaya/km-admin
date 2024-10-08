@@ -1,7 +1,7 @@
 <?php namespace App\Models\Main;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+
 
 /**
  * Class ExpenseCategory
@@ -12,7 +12,7 @@ class IncomeCategory extends ModelDBMain
     protected $connection = 'main';
     // Expense Categories
     use SoftDeletes;
-    use PresentableTrait;
+
 
     /**
      * @var array

@@ -2,8 +2,6 @@
 
 use Utils;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
-
 
 /**
  * Class Board
@@ -13,7 +11,6 @@ class Board extends ModelDBMain
 
     protected $connection = 'main';
     use SoftDeletes;
-    use PresentableTrait;
 
     /**
      * @var array

@@ -23,7 +23,7 @@
                 @endif
             </div>
 
-            @if (!isset($roles['export_inventory_general']))
+            @if (isset($roles['export_inventory_general']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.export_inventory_general') }}">
@@ -50,7 +50,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['deleted_invoices']))
+            @if (isset($roles['deleted_invoices']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.invoices_deleted') }}">
@@ -60,7 +60,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['export_inventory']))
+            @if (isset($roles['export_inventory']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.export_inventory') }}">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['carts']))
+            @if (isset($roles['carts']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.carts') }}">
@@ -80,7 +80,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['export_clients']))
+            @if (isset($roles['export_clients']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.export_clients') }}">
@@ -90,7 +90,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_client']))
+            @if (isset($roles['sales_by_client']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_client') }}">
@@ -100,7 +100,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['compare_client_sales']))
+            @if (isset($roles['compare_client_sales']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.compare_client_sales') }}">
@@ -110,7 +110,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['monthly_client_sales']))
+            @if (isset($roles['monthly_client_sales']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.monthly_client_sales') }}">
@@ -120,7 +120,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['monthly_salaries']))
+            @if (isset($roles['monthly_salaries']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.monthly_salaries') }}">
@@ -130,7 +130,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['related_product_sales']))
+            @if (isset($roles['related_product_sales']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.related_product_sales') }}">
@@ -140,7 +140,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_date']))
+            @if (isset($roles['sales_by_date']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_date') }}">
@@ -166,7 +166,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_utility_by_date']))
+            @if (isset($roles['sales_utility_by_date']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_utility_by_date') }}">
@@ -176,7 +176,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['refunds']))
+            @if (isset($roles['refunds']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.refunds') }}">
@@ -186,7 +186,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['refund_settings']))
+            @if (isset($roles['refund_settings']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.refund_settings') }}">
@@ -196,7 +196,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_per_client']))
+            @if (isset($roles['sales_per_client']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_per_client') }}">
@@ -206,7 +206,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['devices']))
+            @if (isset($roles['devices']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.devices') }}">
@@ -217,7 +217,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['sales_by_time_period']))
+            @if (isset($roles['sales_by_time_period']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_time_period') }}">
@@ -227,7 +227,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_category']))
+            @if (isset($roles['sales_by_category']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_category') }}">
@@ -253,7 +253,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_client_type']))
+            @if (isset($roles['sales_by_client_type']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_client_type') }}">
@@ -263,7 +263,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['receivables_by_route']))
+            @if (isset($roles['receivables_by_route']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.receivables_by_route') }}">
@@ -273,7 +273,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_vendor']))
+            @if (isset($roles['sales_by_vendor']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_vendor') }}">
@@ -283,7 +283,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_seller']))
+            @if (isset($roles['sales_by_seller']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_seller') }}">
@@ -294,7 +294,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['sales_by_sac']))
+            @if (isset($roles['sales_by_sac']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_sac') }}">
@@ -370,7 +370,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['net_sales_by_seller']))
+            @if (isset($roles['net_sales_by_seller']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.net_sales_by_seller') }}">
@@ -380,7 +380,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_mechanic']))
+            @if (isset($roles['sales_by_mechanic']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_mechanic') }}">
@@ -390,7 +390,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['invoices_draft']))
+            @if (isset($roles['invoices_draft']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.invoices_draft') }}">
@@ -400,7 +400,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['invoices_converted']))
+            @if (isset($roles['invoices_converted']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.invoices_converted') }}">
@@ -410,7 +410,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['billing']))
+            @if (isset($roles['billing']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.billing') }}">
@@ -420,7 +420,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['report_account_settings']))
+            @if (isset($roles['report_account_settings']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.account_settings') }}">
@@ -430,7 +430,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['payments_by_seller']))
+            @if (isset($roles['payments_by_seller']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.payments_by_seller') }}">
@@ -440,7 +440,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['saleitems_by_vendor']))
+            @if (isset($roles['saleitems_by_vendor']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.saleitems_by_vendor') }}">
@@ -450,7 +450,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['stock_by_vendor']))
+            @if (isset($roles['stock_by_vendor']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.products_by_vendor') }}">
@@ -460,7 +460,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['sales_by_product']))
+            @if (isset($roles['sales_by_product']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sales_by_product') }}">
@@ -470,7 +470,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['stock_by_product']))
+            @if (isset($roles['stock_by_product']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.stock_by_product') }}">
@@ -480,7 +480,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['stock_by_vendor']))
+            @if (isset($roles['stock_by_vendor']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.stock_by_vendor') }}">
@@ -490,7 +490,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['supplies']))
+            @if (isset($roles['supplies']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.supplies') }}">
@@ -500,7 +500,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['orders']))
+            @if (isset($roles['orders']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.orders') }}">
@@ -510,7 +510,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['order_items']))
+            @if (isset($roles['order_items']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.order_items') }}">
@@ -520,7 +520,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['customer_purchases_frequency']))
+            @if (isset($roles['customer_purchases_frequency']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.customer_purchases_frequency') }}">
@@ -530,7 +530,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['customers_inactive']))
+            @if (isset($roles['customers_inactive']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.customers_inactive') }}">
@@ -540,7 +540,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['clients_by_date']))
+            @if (isset($roles['clients_by_date']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.clients_by_date') }}">
@@ -550,7 +550,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['invoice_points']))
+            @if (isset($roles['invoice_points']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.invoice_points') }}">
@@ -560,7 +560,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['customers_points']))
+            @if (isset($roles['customers_points']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.customers_points') }}">
@@ -570,7 +570,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['markers']))
+            @if (isset($roles['markers']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('clients.markers') }}">
@@ -580,7 +580,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['visits']))
+            @if (isset($roles['visits']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.visits') }}">
@@ -590,7 +590,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['users_activity']))
+            @if (isset($roles['users_activity']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('usersmanagement.users_activity') }}">
@@ -600,7 +600,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['products_underwholesaleprice']))
+            @if (isset($roles['products_underwholesaleprice']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.products_underwholesaleprice') }}">
@@ -610,7 +610,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['products_undernormalprice']))
+            @if (isset($roles['products_undernormalprice']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.products_undernormalprice') }}">
@@ -620,7 +620,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['packing_to_invoice']))
+            @if (isset($roles['packing_to_invoice']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.packing_to_invoice') }}">
@@ -630,7 +630,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['products_in_packing']))
+            @if (isset($roles['products_in_packing']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('packings.products_in_packing') }}">
@@ -648,7 +648,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['transfers_in_packing']))
+            @if (isset($roles['transfers_in_packing']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('packings.transfers_in_packing') }}">
@@ -658,7 +658,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['transfers_pending']))
+            @if (isset($roles['transfers_pending']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.transfers') }}">
@@ -668,7 +668,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['transfer_items_pending']))
+            @if (isset($roles['transfer_items_pending']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.transfer_items_pending') }}">
@@ -694,7 +694,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['imports_pending']))
+            @if (isset($roles['imports_pending']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.imports_pending') }}">
@@ -704,7 +704,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['transferitems_remain']))
+            @if (isset($roles['transferitems_remain']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.transferitems_remain') }}">
@@ -714,7 +714,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['goal_configuration']))
+            @if (isset($roles['goal_configuration']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('goal.goal_configuration') }}">
@@ -724,7 +724,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['client_notes']))
+            @if (isset($roles['client_notes']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.client_notes') }}">
@@ -734,7 +734,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['tasks_by_employee']))
+            @if (isset($roles['tasks_by_employee']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.tasks_by_employee') }}">
@@ -744,7 +744,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['stock_entries']))
+            @if (isset($roles['stock_entries']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.stock_entries') }}">
@@ -754,7 +754,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['most_selled_products']))
+            @if (isset($roles['most_selled_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.most_selled_products') }}">
@@ -764,7 +764,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['less_selled_products']))
+            @if (isset($roles['less_selled_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.less_selled_products') }}">
@@ -774,7 +774,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['unselled_products']))
+            @if (isset($roles['unselled_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.unselled_products') }}">
@@ -784,7 +784,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['most_requested_products']))
+            @if (isset($roles['most_requested_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.most_requested_products') }}">
@@ -795,7 +795,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['sale_transfer_products']))
+            @if (isset($roles['sale_transfer_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.sale_transfer_products') }}">
@@ -805,7 +805,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['store_report']))
+            @if (isset($roles['store_report']))
                {{--  <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('goal.store_report') }}">
@@ -823,7 +823,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['seller_report']))
+            @if (isset($roles['seller_report']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('goal.seller_report') }}">
@@ -834,7 +834,7 @@
                 </div> --}}
             @endif
 
-            @if (!isset($roles['input_entries']))
+            @if (isset($roles['input_entries']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.input_entries') }}">
@@ -844,7 +844,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['invoice_history']))
+            @if (isset($roles['invoice_history']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('invoices.invoice_history') }}">
@@ -854,7 +854,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['import_history']))
+            @if (isset($roles['import_history']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('imports.import_history') }}">
@@ -864,7 +864,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['cv_requests']))
+            @if (isset($roles['cv_requests']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('curriculums.cv_requests') }}">
@@ -874,7 +874,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['wholesaler_requests']))
+            @if (isset($roles['wholesaler_requests']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('wholesalers.wholesaler_requests') }}">
@@ -884,7 +884,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['available_cash']))
+            @if (isset($roles['available_cash']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.available_cash') }}">
@@ -894,7 +894,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['cash_count_net_sales']))
+            @if (isset($roles['cash_count_net_sales']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.cash_count_net_sales') }}">
@@ -904,7 +904,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['expenses_by_category']))
+            @if (isset($roles['expenses_by_category']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.expenses_by_category') }}">
@@ -914,7 +914,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['quoted_products']))
+            @if (isset($roles['quoted_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.quoted_products') }}">
@@ -932,7 +932,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['no_updated_products']))
+            @if (isset($roles['no_updated_products']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.no_updated_products') }}">
@@ -943,7 +943,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['tutorials']))
+            @if (isset($roles['tutorials']))
                 <div class="col-md-3 hide">
                     <div class="card">
                         <a href="{{ route('advancereports.tutorials') }}">
@@ -962,7 +962,7 @@
                     </a>
                 </div>
             </div> --}}
-            @if (!isset($roles['export_invoices']))
+            @if (isset($roles['export_invoices']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.export_invoices') }}">
@@ -972,7 +972,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['export_inventory']))
+            @if (isset($roles['export_inventory']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.export_inventory_not_location') }}">
@@ -982,7 +982,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['tracking_history']))
+            @if (isset($roles['tracking_history']))
                 {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('tracking_history.index') }}">
@@ -992,7 +992,7 @@
                     </div>
                 </div> --}}
             @endif
-            @if (!isset($roles['traces_request']))
+            @if (isset($roles['traces_request']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.traces_request') }}">
@@ -1003,7 +1003,7 @@
                 </div>
             @endif
 
-            @if (!isset($roles['report_per_diem']))
+            @if (isset($roles['report_per_diem']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.per_diem') }}">
@@ -1013,7 +1013,7 @@
                     </div>
                 </div>
             @endif
-            @if (!isset($roles['old_price_report']))
+            @if (isset($roles['old_price_report']))
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.old_price_product_date') }}">

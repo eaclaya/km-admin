@@ -58,7 +58,7 @@ class ReportSalesBySeller extends Job implements ShouldQueue, SelfHandling
         $exception = null;
         try {
             $zones = CompanyZones::pluck('name','id');
-            $invoices = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
                 ->join('employees', 'invoices.employee_id', '=', 'employees.id')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('accounts', 'invoices.account_id', '=', 'accounts.id')

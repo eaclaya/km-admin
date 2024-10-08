@@ -78,9 +78,9 @@ class AdvancereportsController extends Controller
 
     public function index()
     {
-	    $_roles = DB::table('user_roles')->join('user_permissions', 'user_permissions.role_id', '=' ,'user_roles.id')
+	    $_roles = DB::connection('main')->table('user_roles')->join('user_permissions', 'user_permissions.role_id', '=' ,'user_roles.id')
 			->select('user_roles.id','user_permissions.resource_code')
-			->where('user_roles.id', Auth::user()->realUser()->role_id)
+			->where('user_roles.id', Auth::user()->realUser()->role_id??0)
 			->get();
         $roles = [];
         foreach($_roles as $item){
@@ -111,7 +111,7 @@ class AdvancereportsController extends Controller
             $date = new \DateTime();
             $to_date = $date->modify("-$offset day")->format('Y-m-d');
             $last_year = $date->modify('-2 year')->format('Y-m-d');
-            $invoices = DB::table('clients')->join('invoices', 'clients.id', '=', 'invoices.client_id')
+            $invoices = DB::connection('main')->table('clients')->join('invoices', 'clients.id', '=', 'invoices.client_id')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->select('clients.id', 'clients.company_name', 'clients.name', 'clients.seller_id', 'clients.work_phone', 'clients.phone', 'clients.points', 'accounts.name as account', 'invoices.invoice_date', 'invoices.id as invoices')
                     ->whereDate('invoices.invoice_date', '>=', $last_year)
@@ -187,7 +187,7 @@ class AdvancereportsController extends Controller
         $accounts = Account::select('id', 'name')->get();
         if($isExport && $startDate && $endDate){
             $columns = ['Tipo', 'Tienda', 'Total', 'Balance', 'Pagado'];
-            $items = DB::table('invoices')->join('accounts', 'accounts.id', '=', 'invoices.account_id')
+            $items = DB::connection('main')->table('invoices')->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                 ->join('clients', 'clients.id', '=', 'invoices.client_id')
                 ->select(DB::raw('SUM(invoices.amount) as amount'), DB::raw('SUM(invoices.balance) as balance'), 'clients.type', 'accounts.name')
                 ->whereDate('invoices.invoice_date', '>=', $startDate)->whereDate('invoices.invoice_date', '<', $endDate)
@@ -226,7 +226,7 @@ class AdvancereportsController extends Controller
             $store = isset($data['store']) ? $data['store'] : null;
             $invoices = [];
             if($store){
-                $invoices = DB::table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
+                $invoices = DB::connection('main')->table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
 					->join('products', 'products.id', '=', 'invoice_items.product_id')
 					->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 					->join('categories', 'categories.category_id', '=', 'products.category_id')
@@ -235,7 +235,7 @@ class AdvancereportsController extends Controller
 					->where('invoices.invoice_type_id', 1)->whereDate('invoices.created_at', '>=', $from_date)
 					->whereDate('invoices.created_at', '<=', $to_date)->where('invoices.account_id', $store)->get();
             }else{
-                $invoices = DB::table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
+                $invoices = DB::connection('main')->table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                     ->join('products', 'products.id', '=', 'invoice_items.product_id')
                     ->join('categories', 'categories.category_id', '=', 'products.category_id')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -274,7 +274,7 @@ class AdvancereportsController extends Controller
             $store = isset($data['store']) ? $data['store'] : null;
             $expenses = [];
             if($store){
-                $expenses = DB::table('expenses')->join('accounts', 'expenses.account_id', '=', 'accounts.id')
+                $expenses = DB::connection('main')->table('expenses')->join('accounts', 'expenses.account_id', '=', 'accounts.id')
                         ->join('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
                         ->join('expense_subcategories', 'expense_subcategories.id', '=', 'expenses.expense_subcategory_id')
                         ->selectRaw('expenses.expense_date, accounts.name as account_name, expense_categories.name as category_name, expense_subcategories.name as subcategory_name, sum(expenses.amount) as amount')
@@ -286,7 +286,7 @@ class AdvancereportsController extends Controller
                         ->groupBy('expense_subcategories.id')
                         ->get();
             }else{
-                $expenses = DB::table('expenses')->join('accounts', 'expenses.account_id', '=', 'accounts.id')
+                $expenses = DB::connection('main')->table('expenses')->join('accounts', 'expenses.account_id', '=', 'accounts.id')
                         ->join('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
                         ->join('expense_subcategories', 'expense_subcategories.id', '=', 'expenses.expense_subcategory_id')
                         ->selectRaw('expenses.expense_date, accounts.name as account_name, expense_categories.name as category_name, expense_subcategories.name as subcategory_name, sum(expenses.amount) as amount')
@@ -327,7 +327,7 @@ class AdvancereportsController extends Controller
             $route_name = isset($data['route_name']) ? $data['route_name'] : null;
             $invoices = [];
             if($route_name){
-                $invoices = DB::table('invoices')
+                $invoices = DB::connection('main')->table('invoices')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->select('invoices.invoice_number', 'invoices.invoice_date', 'invoices.end_date','invoices.amount', 'invoices.balance', 'clients.route_name', 'clients.name', 'invoices.client_id', 'invoices.credit_days')
@@ -335,7 +335,7 @@ class AdvancereportsController extends Controller
                     ->where('invoices.invoice_type_id', 1)->whereDate('invoices.invoice_date', '>=', $from_date)
                     ->whereDate('invoices.invoice_date', '<=', $to_date)->where('clients.route_name', $route_name)->get();
             }else{
-                $invoices = DB::table('invoices')
+                $invoices = DB::connection('main')->table('invoices')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->select('invoices.invoice_number', 'invoices.invoice_date', 'invoices.end_date','invoices.amount', 'invoices.balance', 'clients.route_name', 'clients.name', 'invoices.client_id', 'invoices.credit_days')
@@ -380,7 +380,7 @@ class AdvancereportsController extends Controller
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
             $date_history = "${from_date} - ${to_date}";
-            $invoices = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
 				->join('accounts', 'accounts.id', '=', 'clients.account_id')
                 ->select(DB::raw('SUM(invoices.total_cost) AS total_cost'), DB::raw('SUM(invoices.amount) AS amount'), 'clients.name', 'clients.address1', 'clients.work_phone', 'clients.phone', 'invoices.client_id', 'clients.company_name', 'clients.seller_id', 'clients.points', 'clients.task_date', 'accounts.name as account_name')
 				->where('invoices.account_id', '<>', 6)->where('invoice_type_id', 1)
@@ -391,7 +391,7 @@ class AdvancereportsController extends Controller
             $from_date = $data['start_date'];
             $to_date = $data['end_date'];
             $date_actual = "${from_date} - ${to_date}";
-            $items = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $items = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
                 ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                 ->select(DB::raw('SUM(invoices.total_cost) AS total_cost'), DB::raw('SUM(invoices.amount) AS amount'), 'clients.name', 'clients.address1', 'clients.work_phone', 'clients.phone', 'invoices.client_id', 'clients.company_name', 'clients.seller_id', 'clients.points', 'clients.task_date', 'accounts.name as account_name')
                 ->where('invoices.account_id', '<>', 6)->where('invoice_type_id', 1)
@@ -446,7 +446,7 @@ class AdvancereportsController extends Controller
         if(count($data) > 0){
             $from_date = $data['from_date'];
             $to_date = $data['to_date'];
-            $items = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $items = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
                             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                             ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                             ->join('products', 'invoice_items.product_id', '=', 'products.id')
@@ -459,7 +459,7 @@ class AdvancereportsController extends Controller
                 $items->where('invoices.account_id', $request->account_id);
             }
 		    $items = $items->groupBy('invoice_items.product_key')->get();
-            $result = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $result = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
                             ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                             ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                             ->join('products', 'invoice_items.product_id', '=', 'products.id')
@@ -515,7 +515,7 @@ class AdvancereportsController extends Controller
             $items = [];
             for($i = 0; $i <= $monthAgo; $i++){
 		        $to_date = $data['month_ago'] == "null" ? $data['to_date'] :  date('Y-m-t', strtotime($from_date));
-                $invoices = DB::table('invoices')
+                $invoices = DB::connection('main')->table('invoices')
                     ->join('clients', 'invoices.client_id', '=', 'clients.id')
                     ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                     ->select(
@@ -584,7 +584,7 @@ class AdvancereportsController extends Controller
             $items = [];
             for($i = 0; $i <= $monthAgo; $i++){
                 $to_date = date('Y-m-t', strtotime($from_date));
-                $payroll = DB::table('payroll')->join('employees', 'payroll.employee_id', '=', 'employees.id')
+                $payroll = DB::connection('main')->table('payroll')->join('employees', 'payroll.employee_id', '=', 'employees.id')
                               ->join('accounts', 'accounts.id', '=', 'employees.account_id')
                               ->select(DB::raw('SUM(payroll.amount + payroll.deductions + payroll.advance + payroll.loan) AS total_paid'), 'payroll.name', 'employees.profile', 'accounts.name as account_name', 'payroll.employee_id')
                               ->where('accounts.exclude', 0)
@@ -634,7 +634,7 @@ class AdvancereportsController extends Controller
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
             $type = isset($data['type']) ? $data['type'] : 'Mayorista';
-            $invoices = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
 				->join('accounts', 'invoices.account_id', '=', 'accounts.id')
 				->select(DB::raw('SUM(invoices.total_cost) AS total_cost'), DB::raw('SUM(invoices.amount) AS amount'), DB::raw('SUM(IF(invoices.is_credit, invoices.amount, 0)) as credit'), DB::raw('SUM(IF(invoices.is_credit, 0, invoices.amount)) as total'),  DB::raw('GROUP_CONCAT(invoices.invoice_number) as invoices'), 'clients.name', 'clients.address1', 'clients.work_phone', 'clients.phone', 'clients.id', 'clients.type', 'clients.seller_id', 'accounts.name as account_name')
 				->where('accounts.exclude', 0)->where('clients.type', $type)->where('invoice_type_id', 1)
@@ -671,7 +671,7 @@ class AdvancereportsController extends Controller
             $from_date = $data['from_date'];
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
-            $invoices = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
                             ->join('accounts', 'invoices.account_id', '=', 'accounts.id')
                             ->select(DB::raw('SUM(invoices.amount) AS amount'), DB::raw('SUM(IF(invoices.is_credit, invoices.amount, 0)) as credit'), DB::raw('SUM(IF(invoices.is_credit, 0, invoices.amount)) as total'), DB::raw('COUNT(*) as count'), 'accounts.name as account')
                             ->where('accounts.exclude', 0)->where('invoice_type_id', 1)
@@ -885,7 +885,7 @@ class AdvancereportsController extends Controller
         $from_date = $data['from_date'];
         $to_date = $data['to_date'];
         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
-        $items = DB::table('invoices')->join('mechanics', 'invoices.mechanic_id', '=', 'mechanics.id')
+        $items = DB::connection('main')->table('invoices')->join('mechanics', 'invoices.mechanic_id', '=', 'mechanics.id')
             ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
             ->join('accounts', 'invoices.account_id', '=', 'accounts.id')
             ->select('mechanics.first_name', 'mechanics.last_name', 'invoices.amount', 'invoice_items.product_key', 'invoice_items.notes', 'invoices.invoice_date', 'invoices.invoice_number', 'accounts.name as account', 'invoices.balance', 'invoices.invoice_status_id', 'invoices.id', 'invoices.in_transit', 'invoices.is_credit', DB::raw('invoice_items.cost * invoice_items.qty as total'))
@@ -1001,7 +1001,7 @@ class AdvancereportsController extends Controller
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
             $start = date('Y-m-d', strtotime('-6 months'));
-            $invoices = DB::table('payments')
+            $invoices = DB::connection('main')->table('payments')
 				->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
 				->join('clients', 'invoices.client_id', '=', 'clients.id')
                 ->join('employees', 'invoices.employee_id', '=', 'employees.id')
@@ -1077,7 +1077,7 @@ class AdvancereportsController extends Controller
             
             $invoices = [];
 
-            $invoices = DB::table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
+            $invoices = DB::connection('main')->table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
                 ->join('vendors', 'vendors.id', '=', 'products.vendor_id')
                 ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -1191,7 +1191,7 @@ class AdvancereportsController extends Controller
                 ];
             }
             $group = isset($data['group']) ? $data['group'] : null;
-            $invoices = DB::table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
+            $invoices = DB::connection('main')->table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
                     ->select(
                         DB::raw('SUM(invoices.replacement_amount) as total'), DB::raw('SUM(total_refunded) as total_refunded'),
                         DB::raw('SUM(invoices.oil) as oil'), DB::raw('SUM(IF(invoices.client_type = "Mayorista", invoices.oil_amount, 0)) as oil_wholesaler'),
@@ -1201,7 +1201,7 @@ class AdvancereportsController extends Controller
                     )->where('accounts.exclude', 0)->where('invoice_type_id', 1)
                     ->whereDate('invoices.invoice_date', '>=', $from_date)->whereDate('invoices.invoice_date', '<', $to_date)
                     ->groupBy('invoices.account_id','invoices.invoice_date')->get();
-            $refundItems = DB::table('refunds')->select(
+            $refundItems = DB::connection('main')->table('refunds')->select(
                     DB::raw('SUM(oil_amount + replacement_amount) as total_refunded'), 'account_id', 'refund_date')
                     ->whereDate('refund_date', '>=', $from_date)->whereDate('refund_date', '<', $to_date)
                     ->groupBy('account_id','refund_date')->get();
@@ -1279,7 +1279,7 @@ class AdvancereportsController extends Controller
                 'sale_cost' => 0,
                 'result' => 0
             ];
-            $invoices = DB::table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
+            $invoices = DB::connection('main')->table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
                 ->select(
                     DB::raw('SUM(invoices.replacement_amount) as total'), DB::raw('SUM(total_refunded) as total_refunded'),
                     DB::raw('SUM(invoices.oil) as oil'), DB::raw('SUM(IF(invoices.client_type = "Mayorista", invoices.oil_amount, 0)) as oil_wholesaler'),
@@ -1291,7 +1291,7 @@ class AdvancereportsController extends Controller
                 ->whereDate('invoices.invoice_date', '>=', $from_date)->whereDate('invoices.invoice_date', '<', $to_date)
                 ->groupBy('invoices.account_id', DB::raw('DATE_FORMAT(invoices.invoice_date, "%Y-%m")'))->get();
 
-            $refundItems = DB::table('refunds')
+            $refundItems = DB::connection('main')->table('refunds')
                 ->select(
                     DB::raw('SUM(oil_amount + replacement_amount) as total_refunded'), 'account_id',
                     DB::raw('DATE_FORMAT(refund_date, "%Y-%m") as refund_month')
@@ -1375,12 +1375,12 @@ class AdvancereportsController extends Controller
                 ];
             }
             $group = isset($data['group']) ? $data['group'] : null;
-            $invoices = DB::table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
+            $invoices = DB::connection('main')->table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
                     ->select(DB::raw('SUM(invoices.replacement_amount) as total'), DB::raw('SUM(total_refunded) as total_refunded'), DB::raw('SUM(invoices.oil) as oil'), DB::raw('SUM(IF(invoices.client_type = "Mayorista", invoices.oil_amount, 0)) as oil_wholesaler'), DB::raw('SUM(invoices.oil_amount) as oil_amount'), DB::raw('SUM(invoices.replacement_amount) as replacement_amount'), DB::raw('SUM(invoices.total_cost) as total_cost'), DB::raw('SUM(invoices.amount) as sale_amount'),'accounts.name as account', 'accounts.id as account_id', 'invoices.invoice_date')
                      ->where('accounts.exclude', 0)->where('invoice_type_id', 1)
                     ->whereDate('invoices.invoice_date', '>=', $from_date)->whereDate('invoices.invoice_date', '<', $to_date)
                     ->groupBy('invoices.account_id','invoices.invoice_date')->get();
-            $refundItems = DB::table('refunds')->select(DB::raw('SUM(oil_amount + replacement_amount) as total_refunded'), 'account_id', 'refund_date')
+            $refundItems = DB::connection('main')->table('refunds')->select(DB::raw('SUM(oil_amount + replacement_amount) as total_refunded'), 'account_id', 'refund_date')
                     ->whereDate('refund_date', '>=', $from_date)->whereDate('refund_date', '<', $to_date)
                     ->groupBy('account_id','refund_date')->get();
             $refunds = [];
@@ -1518,7 +1518,7 @@ class AdvancereportsController extends Controller
                 'to_date' => $to_date,
             ];
 
-            $currentProducts = DB::table('products')
+            $currentProducts = DB::connection('main')->table('products')
                 ->where('vendor_id', $vendor_id)
                 ->select('product_key','relation_id')
                 ->groupBy('product_key')
@@ -1572,7 +1572,7 @@ class AdvancereportsController extends Controller
             $categories = Category::select(['category_id','name'])->get()->keyBy('category_id');
             $products = Product::where('account_id', 17)->select(['product_key', 'qty'])->get()->keyBy('product_key');
 
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
 				->join('products', 'products.id', '=', 'invoice_items.product_id')
 				->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -1654,7 +1654,7 @@ class AdvancereportsController extends Controller
             $from_date = $data['from_date'];
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
-		    $packings = DB::table('packings')
+		    $packings = DB::connection('main')->table('packings')
                         ->where(function($query){
 							$query->whereNotNull('invoice_id')
 								->orWhereNotNull('transfer_id');
@@ -1689,7 +1689,7 @@ class AdvancereportsController extends Controller
                 $from_date = $data['from_date'];
                 $to_date = $data['to_date'];
                 $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
-                $packings = DB::table('packings')->whereNotNull('transfer_id')
+                $packings = DB::connection('main')->table('packings')->whereNotNull('transfer_id')
                                 ->where('packings.account_id', Auth::user()->account_id)
                                 ->whereDate('packings.created_at', '>=', $from_date)->whereDate('packings.created_at', '<', $to_date)
                                 ->get();
@@ -1726,7 +1726,7 @@ class AdvancereportsController extends Controller
             $from_date = date('Y-m-d', strtotime('-12 months'));
             $items = [];
             if($store > 0){
-                $items = DB::table('products')->join('invoice_items', 'invoice_items.product_id', '=', 'products.id')
+                $items = DB::connection('main')->table('products')->join('invoice_items', 'invoice_items.product_id', '=', 'products.id')
                     ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->select('accounts.name', 'products.product_key', 'products.notes', 'products.qty', 'products.price', 'products.wholesale_price', 'products.special_price', 'invoices.invoice_date')
@@ -1738,7 +1738,7 @@ class AdvancereportsController extends Controller
                 }
                 $items = $items->orderBy('invoices.id', 'DESC')->get();
             }else{
-                $items = DB::table('products')->join('accounts', 'accounts.id', '=', 'products.account_id')->select( 'products.product_key', 'products.notes', 'products.qty', 'products.price', 'products.wholesale_price', 'products.special_price', 'accounts.name')->where('products.product_key', $product_key)->where('accounts.exclude', 0)->get();
+                $items = DB::connection('main')->table('products')->join('accounts', 'accounts.id', '=', 'products.account_id')->select( 'products.product_key', 'products.notes', 'products.qty', 'products.price', 'products.wholesale_price', 'products.special_price', 'accounts.name')->where('products.product_key', $product_key)->where('accounts.exclude', 0)->get();
             }
             $fp = fopen('inventario.csv', 'w');
             $columns = ['Codigo', 'Descripcion', 'Cantidad', 'Precio Detalle', 'Precio Mayorista', 'Precio Especial', 'Tienda', 'Ultima Factura'];
@@ -1835,7 +1835,7 @@ class AdvancereportsController extends Controller
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
             $result = [];
-            $invoices = DB::table('invoices')->join('clients', 'clients.id', '=', 'invoices.client_id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'clients.id', '=', 'invoices.client_id')
 				->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
 				->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 				->join('products', 'products.id', '=', 'invoice_items.product_id')
@@ -1877,7 +1877,7 @@ class AdvancereportsController extends Controller
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
             $result = [];
-            $invoices = DB::table('invoices')->join('clients', 'clients.id', '=', 'invoices.client_id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'clients.id', '=', 'invoices.client_id')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
@@ -2065,7 +2065,7 @@ class AdvancereportsController extends Controller
     public function exportInventory(Request $request){
         $data = $request->all();
         if(count($data) > 0){
-            $productCount = DB::table('products')
+            $productCount = DB::connection('main')->table('products')
                 ->leftJoin('categories', 'categories.category_id', '=', 'products.category_id')
                 ->leftJoin('brands', 'brands.brand_id', '=', 'products.brand_id')
                 ->select('products.*', 'categories.name as category_name', 'brands.name as brand_name')
@@ -2210,7 +2210,7 @@ class AdvancereportsController extends Controller
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
             $products = Product::select('id', 'product_key', 'qty')->where('account_id', 17)->get()->keyBy('product_key');
-            $items = DB::table('invoices')
+            $items = DB::connection('main')->table('invoices')
 				->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
 				->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 				->join('users', 'users.id', '=', 'invoices.user_id')
@@ -2249,7 +2249,7 @@ class AdvancereportsController extends Controller
             $from_date = $data['from_date'];
 		    $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
-            $visits = DB::table('clients')->join('visits', 'visits.client_id', '=', 'clients.id')
+            $visits = DB::connection('main')->table('clients')->join('visits', 'visits.client_id', '=', 'clients.id')
                 ->join('employees', 'employees.id', '=', 'clients.seller_id')
                 ->select('clients.name as client', 'employees.first_name', 'employees.last_name', 'visits.latitude', 'visits.longitude', 'visits.created_at')
                 ->whereDate('visits.created_at', '>=', $from_date)->whereDate('visits.created_at', '<=', $to_date)->get();
@@ -2377,7 +2377,7 @@ class AdvancereportsController extends Controller
             $subCategories = SubCategory::select('id', 'name')->get()->keyBy('id');
             $rotations = Rotation::select('id', 'name')->get()->keyBy('id');
 
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
               ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
               ->join('products', 'products.id', '=', 'invoice_items.product_id')
               ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -2392,7 +2392,7 @@ class AdvancereportsController extends Controller
               ->where('invoices.invoice_type_id', 1)
               ->where('invoices.account_id', Auth::user()->account_id)->get();
             
-            $transfers = DB::table('transfers')
+            $transfers = DB::connection('main')->table('transfers')
               ->join('transfer_items', 'transfer_items.transfer_id', '=', 'transfers.id')
               ->join('products', 'products.product_key', '=', 'transfer_items.product_key')
               ->select(
@@ -2422,7 +2422,7 @@ class AdvancereportsController extends Controller
               ->groupBy('relation_id')->get()->keyBy('relation_id');
 
             $relationIds = array_keys($relatedProducts->toArray());
-            $salesRelations = DB::table('invoices')
+            $salesRelations = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
                 ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -2437,7 +2437,7 @@ class AdvancereportsController extends Controller
                 ->get();
             $salesRelations = collect($salesRelations)->keyBy('relation_id');
 
-            $salesProducts = DB::table('invoices')
+            $salesProducts = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                 ->select('invoice_items.product_key', DB::raw('SUM(invoice_items.qty) as total'))
@@ -2524,7 +2524,7 @@ class AdvancereportsController extends Controller
     public function invoicesDraft(Request $request) {
         $result = [];
         $data = $request->all();
-	    $invoices = DB::table('invoices')->join('clients', 'clients.id', '=', 'invoices.client_id')
+	    $invoices = DB::connection('main')->table('invoices')->join('clients', 'clients.id', '=', 'invoices.client_id')
 			->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 			->select('invoices.invoice_number', 'invoices.invoice_date', 'accounts.name as account', 'clients.name as client', 'invoices.employee_id', 'invoices.amount')
 			->where('invoices.invoice_type_id', 1)->where('invoices.invoice_status_id', 1)
@@ -2563,7 +2563,7 @@ class AdvancereportsController extends Controller
             $from_account_id = (isset($data['from_store']) && $data['from_store'] !== 'all') ? (int)$data['from_store'] : null;
             $to_account_id = (isset($data['to_store']) && $data['to_store'] !== 'all') ? (int)$data['to_store'] : null;
 
-            $transfers = DB::table('transfers');
+            $transfers = DB::connection('main')->table('transfers');
             if(!is_null($from_account_id)){
                 $transfers = $transfers->where('from_account_id', $from_account_id);
             }
@@ -2585,12 +2585,12 @@ class AdvancereportsController extends Controller
                     });
                 })->get();
 
-            $transferItems = DB::table('transfer_items')
+            $transferItems = DB::connection('main')->table('transfer_items')
                 ->whereIn('transfer_id', collect($transfers)->pluck('id')->toArray())
                 ->select('transfer_id','product_key','qty')
                 ->get();
 
-            $products = DB::table('products')->where('account_id',17)
+            $products = DB::connection('main')->table('products')->where('account_id',17)
                 ->whereIn('product_key', collect($transferItems)->pluck('product_key')->toArray())
                 ->select('id','product_key','price','wholesale_price','cost','special_price')
                 ->get();
@@ -2654,7 +2654,7 @@ class AdvancereportsController extends Controller
                         $_transfer['sales_special_price'] += $product->special_price * $item->qty;
                         $_transfer['sales_price'] += $product->price * $item->qty;
                     }else{
-                        $product = DB::table('products')->where('product_key', $item->product_key)->where('account_id', $transfer->to_account_id)->orWhere('account_id', $transfer->from_account_id)->first();
+                        $product = DB::connection('main')->table('products')->where('product_key', $item->product_key)->where('account_id', $transfer->to_account_id)->orWhere('account_id', $transfer->from_account_id)->first();
                         if($user->_can('cost')) {
                             $_transfer['sales_cost'] += $product->cost * $item->qty;
                         }
@@ -2844,7 +2844,7 @@ class AdvancereportsController extends Controller
             $rotations = Rotation::select('id', 'name')->get()->keyBy('id');
 
             $account_id = isset($data['account_id']) ? $data['account_id'] : null;
-            $items = DB::table('invoices')
+            $items = DB::connection('main')->table('invoices')
               ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
               ->join('products', 'products.id', '=', 'invoice_items.product_id')
               ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -2928,7 +2928,7 @@ class AdvancereportsController extends Controller
             $from_date = $data['from_date'];
             $to_date = $data['to_date'];
             $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
-            $invoices = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+            $invoices = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
 				->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 				->select('invoices.invoice_number', 'invoices.invoice_date', 'invoices.amount', 'invoices.discount_points', 'invoices.discount', 'clients.name as client', 'accounts.name as account')
 				->where('accounts.exclude', 0)->where('invoice_type_id', 1)->where('discount', '>', 0)
@@ -3134,7 +3134,7 @@ class AdvancereportsController extends Controller
 
     public function exportInventoryNotLocations(){
         $vendors = Vendor::all()->keyBy('id');
-        $products = DB::table('products')
+        $products = DB::connection('main')->table('products')
             ->leftJoin('categories', 'categories.category_id', '=', 'products.category_id')
             ->leftJoin('brands', 'brands.brand_id', '=', 'products.brand_id')
             ->select('products.*', 'categories.name as category_name', 'brands.name as brand_name')
@@ -3361,7 +3361,7 @@ class AdvancereportsController extends Controller
           $_relatedProducts = Product::select('relation_id', DB::raw('SUM(qty) as qty'))->whereNotNull('relation_id')->where('account_id', 17)->groupBy('relation_id')->get()->keyBy('relation_id');
           $vendors = Vendor::scope()->select('id', 'name')->get()->keyBy('id');
           $_products = Product::select('product_key', DB::raw('SUM(qty) as qty'))->whereNotIn('account_id', [6,19])->groupBy('product_key')->get()->keyBy('product_key');
-          $sales = DB::table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
+          $sales = DB::connection('main')->table('invoices')->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
               ->join('products', 'products.id', '=', 'invoice_items.product_id')
               ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
               ->select('products.product_key', DB::raw('SUM(invoice_items.qty) as total'))
@@ -3412,7 +3412,7 @@ class AdvancereportsController extends Controller
 	  $to_date = $data['to_date'];
 	  $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
 	  $account_id = isset($data['account_id']) ? $data['account_id'] : null;
-	  $items = DB::table('invoices')->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+	  $items = DB::connection('main')->table('invoices')->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
 		  ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 		  ->select('invoice_items.product_key', 'invoice_items.notes', DB::raw('SUM(invoice_items.qty) as qty'), DB::raw('SUM(invoice_items.qty * invoice_items.cost) as amount'))
 		      ->where('accounts.exclude', 0)
@@ -3458,7 +3458,7 @@ class AdvancereportsController extends Controller
         $products = $products->get()->keyBy('id');
 
         $from_date = date('Y-m-d', strtotime(date('Y-m-d'). " - $month_ago months"));
-	$items = DB::table('invoices')->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+	$items = DB::connection('main')->table('invoices')->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
 			->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 			->select('invoice_items.product_key', 'invoice_items.notes', 'invoice_items.account_id', 'invoice_items.product_id')
 			->where('accounts.exclude', 0)
@@ -3662,7 +3662,7 @@ class AdvancereportsController extends Controller
                 $to_date = $data['to_date'];
                 $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
 		$store = isset($data['store']) ? $data['store'] : null;
-		$query = DB::table('products_tracking')
+		$query = DB::connection('main')->table('products_tracking')
 			->join('accounts', 'accounts.id', '=', 'products_tracking.original_account_id')
 			->select('products_tracking.*', 'accounts.name')
 			->where(DB::raw('original_quantity_before'), DB::raw('original_quantity_after'))
@@ -3699,7 +3699,7 @@ class AdvancereportsController extends Controller
         $stores = Account::all();
         $result = [];
         if(isset($data['expoor_clients']) && $data['expoor_clients'] == 1){
-                $result = DB::table('clients')
+                $result = DB::connection('main')->table('clients')
                                 ->where('clients.amount_vouchers_kms', '>', 0)
                                 ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                                 ->select('clients.id', 'clients.name', 'clients.vouchers_discount', 
@@ -3714,7 +3714,7 @@ class AdvancereportsController extends Controller
                         $to_date = $data['to_date'];
                         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
                         $store = isset($data['store']) ? $data['store'] : null;
-                        $query = DB::table('client_vouchers as cv')
+                        $query = DB::connection('main')->table('client_vouchers as cv')
                                 ->join('clients', 'clients.id', '=', 'cv.client_id')
                                 ->join('accounts', 'accounts.id', '=', 'cv.account_id')
                                 ->select('cv.*', 'clients.name as clients_name', 'accounts.name as accounts_name')
@@ -3745,7 +3745,7 @@ class AdvancereportsController extends Controller
                         $to_date = $data['to_date'];
                         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
                         $store = isset($data['store']) ? $data['store'] : null;
-                        $query = DB::table('expenses as ex')
+                        $query = DB::connection('main')->table('expenses as ex')
                                 ->leftJoin('expense_categories as ec', 'ec.id', '=', 'ex.expense_category_id')
                                 ->leftJoin('expense_subcategories as es', 'es.id', '=', 'ex.expense_subcategory_id')
                                 ->leftJoin('finance_accounts as fa', 'fa.id', '=', 'ex.finance_account_id')
@@ -3852,7 +3852,7 @@ class AdvancereportsController extends Controller
                         $to_date = $data['to_date'];
                         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
                         $store = isset($data['store']) ? $data['store'] : null;
-                        $query = DB::table('money_transfers as mt')
+                        $query = DB::connection('main')->table('money_transfers as mt')
                                 ->leftJoin('finance_accounts as fa', 'fa.id', '=', 'mt.from_finance_id')
                                 ->leftJoin('finance_accounts as fat', 'fat.id', '=', 'mt.to_finance_id')
                                 ->join('users', 'users.id', '=', 'mt.user_id')
@@ -3901,7 +3901,7 @@ class AdvancereportsController extends Controller
                         $to_date = $data['to_date'];
                         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
                         $store = isset($data['store']) ? $data['store'] : null;
-                        $query = DB::table('money_transfers as mt')
+                        $query = DB::connection('main')->table('money_transfers as mt')
                                 ->leftJoin('finance_accounts as fa', 'fa.id', '=', 'mt.from_finance_id')
                                 ->leftJoin('finance_accounts as fat', 'fat.id', '=', 'mt.to_finance_id')
                                 ->join('users', 'users.id', '=', 'mt.user_id')
@@ -3929,7 +3929,7 @@ class AdvancereportsController extends Controller
                         } //ok
                         $result = $query->get();
                         
-                        $query2 = DB::table('payments as py')
+                        $query2 = DB::connection('main')->table('payments as py')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'py.payment_type_id')
                                 ->join('users', 'users.id', '=', 'py.user_id')
                                 ->leftJoin('invoices as inv', 'inv.id', '=', 'py.invoice_id')
@@ -3957,7 +3957,7 @@ class AdvancereportsController extends Controller
 
                         $result2 = $query2->get();
 
-                        $query3 = DB::table('money_incomes as mi')
+                        $query3 = DB::connection('main')->table('money_incomes as mi')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'mi.payment_type_id')
                                 ->join('users', 'users.id', '=', 'mi.user_id')
                                 ->leftJoin('income_categories as ic', 'ic.id', '=', 'mi.income_category_id')
@@ -3986,7 +3986,7 @@ class AdvancereportsController extends Controller
 
                         $result3 = $query3->get();
 
-                        $query4 = DB::table('store_credits as sc')
+                        $query4 = DB::connection('main')->table('store_credits as sc')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'sc.payment_type_id')
                                 ->join('users', 'users.id', '=', 'sc.user_id')
                                 ->leftJoin('accounts', 'accounts.id', '=', 'sc.account_id')
@@ -4035,7 +4035,7 @@ class AdvancereportsController extends Controller
                         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
                         $store = isset($data['store']) ? $data['store'] : null;
                         
-                        $query = DB::table('payments as py')
+                        $query = DB::connection('main')->table('payments as py')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'py.payment_type_id')
                                 ->join('users', 'users.id', '=', 'py.user_id')
                                 ->leftJoin('invoices as inv', 'inv.id', '=', 'py.invoice_id')
@@ -4080,7 +4080,7 @@ class AdvancereportsController extends Controller
                         $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
                         $store = isset($data['store']) ? $data['store'] : null;
                         
-                        $query = DB::table('money_incomes as mi')
+                        $query = DB::connection('main')->table('money_incomes as mi')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'mi.payment_type_id')
                                 ->join('users', 'users.id', '=', 'mi.user_id')
                                 ->leftJoin('income_categories as ic', 'ic.id', '=', 'mi.income_category_id')
@@ -4132,7 +4132,7 @@ class AdvancereportsController extends Controller
                         $type = $data['reporte'];
 
                         if($type == "contado"){
-                                $query = DB::table('invoices as inv')
+                                $query = DB::connection('main')->table('invoices as inv')
                                         ->leftJoin('payments as py', 'inv.id', '=', 'py.invoice_id')
                                         ->leftJoin('payment_types as pt', 'pt.id', '=', 'py.payment_type_id')
                                         ->join('accounts', 'accounts.id', '=', 'inv.account_id')
@@ -4165,7 +4165,7 @@ class AdvancereportsController extends Controller
                         }
 
                         elseif($type == "credito"){
-                                $query = DB::table('invoices as inv')
+                                $query = DB::connection('main')->table('invoices as inv')
                                         ->join('accounts', 'accounts.id', '=', 'inv.account_id')
                                         ->join('users', 'users.id', '=', 'inv.user_id')
                                         ->leftJoin('cash_count as cc', 'cc.cash_count_date', '=', 'inv.date_changed_credit')
@@ -4194,7 +4194,7 @@ class AdvancereportsController extends Controller
                         }
 
                         elseif($type == "abono"){
-                                $query = DB::table('money_incomes as mi')
+                                $query = DB::connection('main')->table('money_incomes as mi')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'mi.payment_type_id')
                                 ->join('users', 'users.id', '=', 'mi.user_id')
                                 ->leftJoin('income_categories as ic', 'ic.id', '=', 'mi.income_category_id')
@@ -4224,7 +4224,7 @@ class AdvancereportsController extends Controller
                         }
 
                         elseif($type == "otros"){
-                                $query = DB::table('money_incomes as mi')
+                                $query = DB::connection('main')->table('money_incomes as mi')
                                 ->leftJoin('payment_types as pt', 'pt.id', '=', 'mi.payment_type_id')
                                 ->join('users', 'users.id', '=', 'mi.user_id')
                                 ->leftJoin('income_categories as ic', 'ic.id', '=', 'mi.income_category_id')
@@ -4264,7 +4264,7 @@ class AdvancereportsController extends Controller
                             }
                         }
                         else{
-                                $query = DB::table('invoices as inv')
+                                $query = DB::connection('main')->table('invoices as inv')
                                         ->join('accounts', 'accounts.id', '=', 'inv.account_id')
                                         ->join('users', 'users.id', '=', 'inv.user_id')
                                         ->leftJoin('cash_count as cc', 'cc.cash_count_date', '=', 'inv.date_changed_credit')
@@ -4309,7 +4309,7 @@ class AdvancereportsController extends Controller
                 $to_date = $data['to_date'];
                 $to_date = date('Y-m-d', strtotime($to_date. ' + 1 days'));
 
-		$invoices = DB::table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
+		$invoices = DB::connection('main')->table('invoices')->join('clients', 'invoices.client_id', '=', 'clients.id')
 				->join('accounts', 'invoices.account_id', '=', 'accounts.id')
 				->select('invoices.total_cost AS total_cost', 'invoices.amount AS amount', 
                                 DB::raw('invoices.invoice_number as invoice'), 
@@ -4354,7 +4354,7 @@ class AdvancereportsController extends Controller
                 $to_date = $data['to_date'];
 
                 $visits= '';
-                $visits = DB::table('routes')
+                $visits = DB::connection('main')->table('routes')
                         ->whereNull('deleted')
                         ->join('clients as c', 'c.account_id', '=', 'routes.account_id')
                         ->join('users as us', 'us.id', '=', 'routes.user_id')
@@ -4378,7 +4378,7 @@ class AdvancereportsController extends Controller
 		foreach($visits as $visit){
                         $porcentaje = ($visit->num_visits / $visit->num_clients) * 100;                     
                             
-                        $visits_outside_day = DB::table('visits')
+                        $visits_outside_day = DB::connection('main')->table('visits')
                                 ->join('clients as c', 'c.id', '=', 'visits.client_id')
                                 ->join('routes as r', 'r.account_id', '=', 'c.account_id')
                                 ->where('r.id', $visit->id)
@@ -4460,7 +4460,7 @@ class AdvancereportsController extends Controller
     public function clientsPassed(Request $request){
         $data = $request->all();
         $result = null;
-        $routes = DB::table('routes')->whereNull('deleted')->get();
+        $routes = DB::connection('main')->table('routes')->whereNull('deleted')->get();
 
         if(count($data) > 0){
                 $from_date = $data['from_date'];
@@ -4468,7 +4468,7 @@ class AdvancereportsController extends Controller
                 $route_id = $data['route_id'];
 
 
-                $query = DB::table('clients')
+                $query = DB::connection('main')->table('clients')
                         ->join('route_clients as rc', 'rc.client_id', '=', 'clients.id')
                         ->join('invoices as in', 'in.client_id', '=', 'clients.id')
                         ->join('accounts as ac', 'ac.id', '=', 'clients.account_id')
@@ -4529,7 +4529,7 @@ class AdvancereportsController extends Controller
                 $to_date = $data['to_date'];
 
                 // Obtener la lista de IDs de clientes con visitas
-                $visits = DB::table('route_clients as rc')
+                $visits = DB::connection('main')->table('route_clients as rc')
                 ->join('clients as c', 'c.id', '=', 'rc.client_id')
                 ->join('accounts as ac', 'ac.id', '=', 'c.account_id')
                 ->join('visits', 'visits.client_id', '=', 'c.id')
@@ -4538,7 +4538,7 @@ class AdvancereportsController extends Controller
                 ->pluck('c.id');
 
                 // Obtener clientes que no tienen visitas
-                $clients = DB::table('route_clients as rc')
+                $clients = DB::connection('main')->table('route_clients as rc')
                 ->join('clients as c', 'c.id', '=', 'rc.client_id')
                 ->join('accounts as ac', 'ac.id', '=', 'c.account_id')
                 ->whereNotIn('c.id', $visits)
@@ -4580,12 +4580,12 @@ class AdvancereportsController extends Controller
     public function promisesPay(Request $request){
         $data = $request->all();
         $result = null;
-        $routes = DB::table('routes')->whereNull('deleted')->get();
+        $routes = DB::connection('main')->table('routes')->whereNull('deleted')->get();
 
         if(count($data) > 0){
                 $route_id = $data['route_id'];
 
-                        $query = DB::table('clients_blocked_history as cbh')
+                        $query = DB::connection('main')->table('clients_blocked_history as cbh')
                                 ->join('clients as c', 'c.id', '=', 'cbh.client_id')
                                 ->leftJoin('employees as em', 'em.id', '=', 'c.seller_id')
                                 ->leftJoin('users as u', 'u.id', '=', 'cbh.unlocked_by')
@@ -4640,11 +4640,11 @@ class AdvancereportsController extends Controller
     public function per_diem(Request $request){
         $data = $request->all();
         $result = null;
-        $employees = DB::table('employees')->where('enabled', 1)->get();
+        $employees = DB::connection('main')->table('employees')->where('enabled', 1)->get();
          
         if(count($data) > 0){
 
-                        $query = DB::table('travel_expenses as te')
+                        $query = DB::connection('main')->table('travel_expenses as te')
                                 ->leftJoin('employees as em', 'em.id', '=', 'te.employee_id')
                                 ->leftJoin('users as u', 'u.id', '=', 'te.user_id')
                                 ->leftJoin('users as u_a', 'u_a.id', '=', 'te.id_aproved')
@@ -4742,12 +4742,12 @@ class AdvancereportsController extends Controller
     public function categoryClients(Request $request){
         $data = $request->all();
         $results = null;
-        $routes = DB::table('routes')->whereNull('deleted')->get();
+        $routes = DB::connection('main')->table('routes')->whereNull('deleted')->get();
 
         if(count($data) > 0){
                 $route_id = $data['route_id'];
 
-                $query = DB::table('clients')
+                $query = DB::connection('main')->table('clients')
                 ->join('routes as r', 'r.account_id', '=', 'clients.account_id')
                 ->join('invoices as in', 'in.client_id', '=', 'clients.id')
                 ->join('accounts as ac', 'ac.id', '=', 'clients.account_id')
@@ -4812,7 +4812,7 @@ class AdvancereportsController extends Controller
         if(count($data) > 0){
                 $route_id = $data['route_id'];
 
-                $query = DB::table('clients')
+                $query = DB::connection('main')->table('clients')
                 ->join('routes as r', 'r.account_id', '=', 'clients.account_id')
                 ->join('accounts as ac', 'ac.id', '=', 'clients.account_id')
                 ->whereNull('clients.deleted_at')
@@ -4904,7 +4904,7 @@ class AdvancereportsController extends Controller
                     $store = isset($data['store']) ? $data['store'] : null;
                     $products = [];
                     if($store){
-                            $products = DB::table('products')
+                            $products = DB::connection('main')->table('products')
                             ->join('vendors', 'vendors.id', '=', 'products.vendor_id')
                             ->join('accounts', 'accounts.id', '=', 'products.account_id')
                             ->select('products.product_key', 'products.qty', 'products.cost', 'vendors.name', 'products.vendor_id')
@@ -4912,7 +4912,7 @@ class AdvancereportsController extends Controller
                             ->where('products.account_id', $store)
                             ->get();
                     }else{
-                            $products = DB::table('products')
+                            $products = DB::connection('main')->table('products')
                             ->join('vendors', 'vendors.id', '=', 'products.vendor_id')
                             ->join('accounts', 'accounts.id', '=', 'products.account_id')
                             ->select('products.product_key', 'products.qty', 'products.cost', 'vendors.name', 'products.vendor_id')
@@ -5080,7 +5080,7 @@ class AdvancereportsController extends Controller
                 })->get();
 
             $paymentTypeId = PaymentType::where('name', 'Credito Por Devolución')->first()->id;
-            $creditRefunds = DB::table('payments')
+            $creditRefunds = DB::connection('main')->table('payments')
                 ->where('payment_type_id', $paymentTypeId)
                 ->whereIn('cash_count_id', $cashcounts->pluck('id')->toArray())
                 ->select(
@@ -5129,7 +5129,7 @@ class AdvancereportsController extends Controller
             $current_date = $date->format('Y-m-d');
 
             $transfers = collect(
-                DB::table('transfers')
+                DB::connection('main')->table('transfers')
                     ->where(function ($query) use ($store_id) {
                         $query->where('from_account_id', $store_id)
                             ->orWhere('to_account_id', $store_id);
@@ -5146,7 +5146,7 @@ class AdvancereportsController extends Controller
             );
 
             $itemsTransfers = collect(
-                DB::table('transfer_items')
+                DB::connection('main')->table('transfer_items')
                     ->whereIn('transfer_id', $transfers->pluck('id')->toArray())
                     ->where('complete', 1)
                     ->select(['transfer_id', 'product_id', 'product_key', 'notes', 'qty'])
@@ -5154,7 +5154,7 @@ class AdvancereportsController extends Controller
             );
             $transfers = $transfers->keyBy('id');
             $products = collect(
-                DB::table('products')
+                DB::connection('main')->table('products')
                     ->whereIn('id',$itemsTransfers->pluck('product_id')->toArray())
                     ->orWhere(function ($query) use ($store_id,$itemsTransfers){
                         $query->where('account_id',$store_id)
@@ -5243,12 +5243,12 @@ class AdvancereportsController extends Controller
             $store_id = (isset($data['store']) && (int)$data['store'] > 0) ? (int)$data['store'] : null;
             $end = Carbon::parse($from_date)->endOfMonth()->format('Y-m-d');
 
-            $products = DB::table('products')
+            $products = DB::connection('main')->table('products')
                 ->where('account_id',$store_id)
                 ->select(['product_key', 'notes', 'qty', 'price', 'wholesale_price', 'special_price'])
                 ->get();
             $productKeys = collect($products)->pluck('product_key')->toArray();
-            $stockEntries = DB::table('stock_entries')->where('account_id', $store_id)
+            $stockEntries = DB::connection('main')->table('stock_entries')->where('account_id', $store_id)
                 ->whereIn('product_key', $productKeys)
                 ->whereDate('created_at', '<=', $end)
                 ->whereNotNull('wholesale_price_after')
@@ -5266,7 +5266,7 @@ class AdvancereportsController extends Controller
                 ->get();
             $stockEntries = collect($stockEntries)->keyBy('product_key')->toArray();
 
-            $tracking = DB::table('products_tracking')
+            $tracking = DB::connection('main')->table('products_tracking')
                 ->where(function ($query) use ($store_id) {
                     $query->where('original_account_id', $store_id)
                         ->orWhere('final_account_id', $store_id);
@@ -5527,7 +5527,7 @@ class AdvancereportsController extends Controller
             $account_id = $data['account_id']?[$data['account_id']]:$accounts->pluck('id')->toArray();
             $from_date = $data['from_date'];
             $to_date = $data['to_date'];
-            $items = DB::table('invoices')
+            $items = DB::connection('main')->table('invoices')
 				->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
 				->join('accounts', 'accounts.id', '=', 'invoices.account_id')
 				->join('users', 'users.id', '=', 'invoices.user_id')
@@ -5586,7 +5586,7 @@ class AdvancereportsController extends Controller
             $startDate  = Carbon::now()->subMonths(6);
             $endDate = Carbon::now();
 
-            $itemsAccount = DB::table('invoices')
+            $itemsAccount = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
                 ->select([
@@ -5627,7 +5627,7 @@ class AdvancereportsController extends Controller
 
             $invoices = [];
 
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
                 ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -5782,7 +5782,7 @@ class AdvancereportsController extends Controller
                 if($withTracking === true){
                     $columns[$_date]['qty_tracking'] = 0;
                     $monthEnd = Carbon::parse($to_date)->endOfMonth()->format('Y-m-d');
-                    $tracking = DB::table('products_tracking')
+                    $tracking = DB::connection('main')->table('products_tracking')
                         ->select(
                             'products_tracking.product_id', 'products.category_id', 'products.sub_category_id',
                             DB::raw('DATE_FORMAT(products_tracking.created_at, "%Y-%m-%d") as tracking_created_at'),
@@ -5922,7 +5922,7 @@ class AdvancereportsController extends Controller
                     }
                 }
             }
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
                 ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
                 ->join('products', 'products.id', '=', 'invoice_items.product_id')
                 ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
@@ -5942,7 +5942,7 @@ class AdvancereportsController extends Controller
             }
             $invoices = $invoices->get();
 
-            $products = DB::table('products')
+            $products = DB::connection('main')->table('products')
                 ->join('accounts', 'accounts.id', '=', 'products.account_id')
                 ->select(
                     'products.product_key', 'products.account_id',
@@ -6081,7 +6081,7 @@ class AdvancereportsController extends Controller
         if(count($data) > 0){
             $account = (isset($data['store']) && trim($data['store']) !== 'all' ) ? $data['store'] : null;
             
-            $result = DB::table('products')
+            $result = DB::connection('main')->table('products')
                 ->select('products.product_key','products.description','products.picture')
                 ->groupBy('products.product_key');
             if(isset($account)){

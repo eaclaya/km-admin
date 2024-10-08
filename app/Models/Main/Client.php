@@ -5,7 +5,6 @@ use DB;
 use Carbon;
 use Auth;
 use Session;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Main\Invoice;
 use App\Models\Main\Employee;
@@ -20,7 +19,6 @@ class Client extends ModelDBMain
 {
 
     protected $connection = 'main';
-    use PresentableTrait;
     use SoftDeletes;
 
     /**

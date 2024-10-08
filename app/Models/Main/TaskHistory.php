@@ -2,7 +2,7 @@
 
 use Utils;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+
 
 /**
  * Class Task
@@ -12,7 +12,7 @@ class TaskHistory extends ModelDBMain
 
     protected $connection = 'main';
     use SoftDeletes;
-    use PresentableTrait;
+
     protected $table = 'tasks_history';
     /**
      * @var array

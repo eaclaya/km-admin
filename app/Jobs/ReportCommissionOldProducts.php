@@ -17,7 +17,7 @@ use App\Models\Main\Invoice;
 use App\Models\Main\ProductTracking;
 use App\Models\Main\ReportProcess;
 
-class ReportCommissionOldProducts extends Job implements ShouldQueue, SelfHandling
+class ReportCommissionOldProducts extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     protected $nameFile, $reportProcessId, $stores, $from_date, $to_date;

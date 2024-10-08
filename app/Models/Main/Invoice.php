@@ -5,7 +5,7 @@ use DateTime;
 use Log;
 use Session;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Events\InvoiceWasCreated;
@@ -27,7 +27,7 @@ use App\Events\CheckPromotionsActive;
  */
 class Invoice extends EntityModel implements BalanceAffecting
 {
-    use PresentableTrait;
+
     use OwnedByClientTrait;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;

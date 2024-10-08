@@ -88,7 +88,7 @@ class ReportStockByVendor extends Job implements ShouldQueue, SelfHandling
 
             $relationIdsKeys = array_keys($relatedProducts->toArray());
 
-            $sales = DB::table('invoice_items')
+            $sales = DB::connection('main')->table('invoice_items')
                             ->whereDate('invoice_items.created_at', '>=', $from_date)
                             ->whereDate('invoice_items.created_at', '<', $to_date)
                             ->where('invoice_items.invoice_type_id', 1)

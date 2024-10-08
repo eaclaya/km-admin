@@ -3,7 +3,7 @@
 use Utils;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+
 
 /**
  * Class Refund

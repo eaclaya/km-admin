@@ -1,7 +1,6 @@
 <?php namespace App\Models\Main;
 
 use Utils;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
@@ -16,7 +15,6 @@ class Expense extends ModelDBMain
     protected $connection = 'main';
     // Expenses
     use SoftDeletes;
-    use PresentableTrait;
     protected $table = 'expenses';
 
     /**
