@@ -21,3 +21,5 @@ yarn-error.log
 docker-compose.yml
 Dockerfile
 .php-cs-fixer.cache
+
+/public/backup_file.sql.gz
