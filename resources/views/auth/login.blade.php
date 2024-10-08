@@ -22,6 +22,11 @@
                             required autocomplete="current-password" />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <br>
+            <h4 id="preloader" style="display: none;" class="text-center">Loading...</h4>
+            <div id="errorJS" style="display: none;" class="alert alert-danger"></div>
+            <select style="display: none;" name="account" id="account" class="form-control">
+            </select>
         </div>
 
         <!-- Remember Me -->
@@ -39,9 +44,103 @@
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-primary-button class="ms-3" id="loginButton">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
     </form>
+    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script type="text/javascript">
+        let searchEmail = '';
+        let timeController = '';
+
+        function switchPreloader(casePreloader){
+            const myButton = document.getElementById('loginButton');
+            switch (casePreloader) {
+                case 'preloader':
+                    myButton.style.opacity = 0.7;
+                    myButton.disabled = true;
+                    $('#account').css('display', 'none');
+                    $('#errorJS').css('display', 'none');
+                    $('#preloader').css('display', '');
+                    if ($("span.select2-container").length > 0)
+                    {
+                        $("#account").select2('destroy');
+                    }
+                    break;
+                case 'account':
+                    myButton.style.opacity = 1;
+                    myButton.disabled = false;
+                    $('#errorJS').css('display', 'none');
+                    $('#preloader').css('display', 'none');
+                    $('#account').css('display', '');
+                    break;
+                case 'error':
+                    myButton.style.opacity = 0.7;
+                    myButton.disabled = true;
+                    $('#account').css('display', 'none');
+                    $('#preloader').css('display', 'none');
+                    $('#errorJS').css('display', '');
+                    break;
+                default:
+                    myButton.style.opacity = 0.7;
+                    myButton.disabled = true;
+                    $('#account').css('display', 'none');
+                    $('#preloader').css('display', 'none');
+                    $('#errorJS').css('display', 'none');
+                    break;
+            };
+        };
+
+        function ajaxCall(){
+            const params = {'searchEmail': searchEmail};
+            $.ajax({
+              type: 'POST',
+              data:  params,
+              url: "{!! url('api/accounts') !!}",
+            })
+            .done(function(response){
+              createOption(response);
+            })
+            .fail(function( jqXHR, textStatus, errorThrown ) {
+                $('#errorJS').empty();
+                $('#errorJS').append('Vuelva a ingresar su email');
+                switchPreloader('error');
+            });
+        };
+
+        function createOption(data) {
+            if (data.error) {
+                $('#errorJS').empty();
+                $('#errorJS').append(data.error);
+                switchPreloader('error');
+            } else if (data.accounts){
+                var htmlTags = '';
+                data.accounts.forEach((valued, index) => {
+                    htmlTags += '<option value="'+  valued.id + '">' + valued.name + '</option>';
+                });
+                $('#account').empty();
+                $('#account').append(htmlTags);
+                switchPreloader('account');
+                $('#account').select2();
+            }
+        };
+
+        $(window).on("load", function () {
+            const myButton = document.getElementById('loginButton');
+            myButton.style.opacity = 0.7;
+            $('input#email').on('change', function () {
+                switchPreloader('preloader');
+                if($("input#email").val().indexOf('@', 0) == -1 || $("input#email").val().indexOf('.', 0) == -1) {
+                    $('#errorJS').empty();
+                    $('#errorJS').append('Introduzca un email valido.');
+                    switchPreloader('error');
+                    return false;
+                };
+                searchEmail = $(this).val();
+                clearTimeout(timeController);
+                timeController = setTimeout(ajaxCall, 1000);
+            });
+        });
+    </script>
 </x-guest-layout>
