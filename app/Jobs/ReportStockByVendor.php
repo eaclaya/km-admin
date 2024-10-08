@@ -12,11 +12,11 @@ use Carbon\Carbon;
 use DB;
 use Utils;
 
-use App\Models\Product;
-use App\Models\CountTotalProductKey;
-use App\Models\CountTotalRelationId;
-use App\Models\ReportProcess;
-use App\Models\Account;
+use App\Models\Main\Product;
+use App\Models\Main\CountTotalProductKey;
+use App\Models\Main\CountTotalRelationId;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\Account;
 
 class ReportStockByVendor extends Job implements ShouldQueue, SelfHandling
 {
@@ -88,7 +88,7 @@ class ReportStockByVendor extends Job implements ShouldQueue, SelfHandling
 
             $relationIdsKeys = array_keys($relatedProducts->toArray());
 
-            $sales = DB::table('invoice_items')
+            $sales = DB::connection('main')->table('invoice_items')
                             ->whereDate('invoice_items.created_at', '>=', $from_date)
                             ->whereDate('invoice_items.created_at', '<', $to_date)
                             ->where('invoice_items.invoice_type_id', 1)

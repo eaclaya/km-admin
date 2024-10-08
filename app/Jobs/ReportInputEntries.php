@@ -12,13 +12,13 @@ use Carbon\Carbon;
 use DB;
 use Utils;
 
-use App\Models\Product;
-use App\Models\Purchase;
-use App\Models\PurchaseItem;
-use App\Models\ReportProcess;
-use App\Models\Account;
-use App\Models\Stock;
-use App\Models\InvoiceItem;
+use App\Models\Main\Product;
+use App\Models\Main\Purchase;
+use App\Models\Main\PurchaseItem;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\Account;
+use App\Models\Main\Stock;
+use App\Models\Main\InvoiceItem;
 
 class ReportInputEntries extends Job implements ShouldQueue, SelfHandling
 {

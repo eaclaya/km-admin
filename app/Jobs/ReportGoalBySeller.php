@@ -9,12 +9,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Carbon\Carbon;
 use DB;
-use App\Models\ReportProcess;
-use App\Models\CompanyZones;
-use App\Models\EmployeeGoal;
-use App\Models\EmployeeProfile;
-use App\Models\Goal;
-use App\Models\Route;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\CompanyZones;
+use App\Models\Main\EmployeeGoal;
+use App\Models\Main\EmployeeProfile;
+use App\Models\Main\Goal;
+use App\Models\Main\Route;
 
 class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
 {
@@ -61,7 +61,7 @@ class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
 
         $exception = null;
         try {
-            $refundsData = DB::table('refunds')
+            $refundsData = DB::connection('main')->table('refunds')
                 ->whereIn('refunds.account_id', $stores)
                 ->whereDate('refunds.refund_date', '>=', $from_date)
                 ->whereDate('refunds.refund_date', '<=', $to_date)
@@ -74,7 +74,7 @@ class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
                 $refunds[$refund->employee_id] = $refund->total_refunded_sum;
             }
             
-            $invoices = DB::table('invoices')
+            $invoices = DB::connection('main')->table('invoices')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->join('employees', 'employees.id', '=', 'invoices.employee_id')
                     ->select(
@@ -97,7 +97,7 @@ class ReportGoalBySeller extends Job implements ShouldQueue, SelfHandling
             foreach($invoices as $invoice){
                 $result[$invoice->employee_id] = $invoice;
             
-                $item = DB::table('invoice_items')
+                $item = DB::connection('main')->table('invoice_items')
                     ->join('products', 'invoice_items.product_id', '=', 'products.id')
                     ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')

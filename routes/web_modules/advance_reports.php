@@ -3,7 +3,7 @@
 use App\Http\Controllers\AdvancereportsController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','checkPermission'])->group(function () {
     Route::post('advancereports/sales-by-client-type', [AdvancereportsController::class, 'salesByClientType'])->name('advancereports.sales_by_client_type');
     Route::get('advancereports/sales-by-client-type', [AdvancereportsController::class, 'salesByClientType'])->name('advancereports.sales_by_client_type');
 

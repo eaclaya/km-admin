@@ -1,21 +1,67 @@
-<?php
+<?php namespace App\Models\Main;
 
-namespace App\Models\Main;
-
-use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
+/**
+ * Class InvoiceItem
+ */
 class InvoiceItem extends ModelDBMain
 {
-    protected $table = "invoice_items";
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime'
+    protected $connection = 'main';
+    use SoftDeletes;
+    /**
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_INVOICE_ITEM;
+    }
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
     ];
 
-    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo|null
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
     {
-        return $this->belongsTo('App\Models\Main\Invoice', 'id', 'invoice_id');
+        return $this->belongsTo('App\Models\Main\Invoice');
     }
+
+    /**
+     * @return mixed
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\Models\Main\User')->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function product()
+    {
+        return $this->belongsTo('App\Models\Main\Product');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Main\Account');
+    }
+
 }

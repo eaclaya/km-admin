@@ -9,10 +9,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Carbon\Carbon;
 use DB;
-use App\Models\ReportProcess;
-use App\Models\CompanyZones;
-use App\Models\Goal;
-use App\Models\Route;
+use App\Models\Main\ReportProcess;
+use App\Models\Main\CompanyZones;
+use App\Models\Main\Goal;
+use App\Models\Main\Route;
 
 class ReportGoalByStore extends Job implements ShouldQueue, SelfHandling
 {
@@ -59,7 +59,7 @@ class ReportGoalByStore extends Job implements ShouldQueue, SelfHandling
         $exception = null;
         try {
             $routes = Route::whereNull('deleted')->whereNotNull('seller_id')->pluck('seller_id')->toArray();
-            $invoices = DB::table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
+            $invoices = DB::connection('main')->table('invoices')->join('accounts', 'invoices.account_id', '=', 'accounts.id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->join('goals', 'goals.id', '=', 'accounts.goal_id')
                     ->select(
@@ -77,7 +77,7 @@ class ReportGoalByStore extends Job implements ShouldQueue, SelfHandling
                     ->groupBy('invoices.account_id')
                     ->whereNotIn('invoices.employee_id', $routes)->get();
 
-            $refundsData = DB::table('refunds')
+            $refundsData = DB::connection('main')->table('refunds')
                         ->whereIn('refunds.account_id', $stores)
                         ->whereDate('refunds.refund_date', '>=', $from_date)
                         ->whereDate('refunds.refund_date', '<=', $to_date)
@@ -98,7 +98,7 @@ class ReportGoalByStore extends Job implements ShouldQueue, SelfHandling
                     unset($result[$invoice->account_id]);
                     continue;
                 }
-                $item = DB::table('invoice_items')->join('products', 'invoice_items.product_id', '=', 'products.id')
+                $item = DB::connection('main')->table('invoice_items')->join('products', 'invoice_items.product_id', '=', 'products.id')
                         ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
                         ->join('clients', 'clients.id', '=', 'invoices.client_id')
                         ->leftJoin('categories', 'categories.category_id', '=', 'products.category_id')
