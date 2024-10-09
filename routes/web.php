@@ -17,5 +17,6 @@ require __DIR__ . '/web_modules/clone_models.php';
 require __DIR__ . '/web_modules/setup_menu.php';
 require __DIR__ . '/web_modules/permissions.php';
 require __DIR__ . '/web_modules/advance_reports.php';
+require __DIR__ . '/web_modules/roles.php';
 
 require __DIR__.'/auth.php';
