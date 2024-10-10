@@ -5,29 +5,22 @@ namespace App\Http\Controllers;
 use App\Jobs\CloneInvoiceTableJob;
 use App\Models\CloningControl;
 use Illuminate\Http\Request;
+use App\permissionCategories;
 
 class PermissionsController extends Controller
 {
 
-    private $categories = [
-        0 => 'Undefined',
-        1 => 'Menu',
-        2 => 'Actions',
-        3 => 'view',
-        4 => 'report',
-        5 => 'special'
-    ];
-
     public function index()
     {
-        return view('permissions.list', ['categories' => $this->categories]);
+        return view('permissions.list', ['categories' => collect(permissionCategories::cases())->pluck('name', 'value')]);
     }
 
     public function create()
     {
-        //
+        return view('permissions.create', ['categories' => collect(permissionCategories::cases())]);
     }
 
+    
     public function store(Request $request)
     {
         //

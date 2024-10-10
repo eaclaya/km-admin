@@ -6,6 +6,7 @@ use App\Models\Main\UserResources;
 use App\Models\Permissions;
 use Illuminate\Http\Request;
 use App\Models\Roles;
+use App\permissionCategories;
 use Illuminate\Support\Facades\DB;
 
 class RolesController extends Controller
@@ -23,7 +24,8 @@ class RolesController extends Controller
      */
     public function create()
     {
-        return view('roles.create');
+        $permissions = UserResources::all(['id', 'code']);
+        return view('roles.create', ['permissions' => $permissions]);
     }
 
     /**
@@ -63,13 +65,20 @@ class RolesController extends Controller
     public function edit(string $id)
     {
         $role = Roles::findOrFail($id);
-        $permissions = UserResources::all();
-        $rolePermissions = $role->permissions->pluck('resource_id');
-        $permissionList = $permissions->map(function ($permission) use ($rolePermissions) {
-            $permission->checked = in_array($permission->id, $rolePermissions->toArray());
-            return $permission;
+        $permissions = UserResources::all(['id', 'code', 'name', 'category']);
+        $rolePermissions = $role->permissions->pluck('resource_id')->toArray();
+
+        $permissionList = $permissions->groupBy('category')->map(function ($group) use ($rolePermissions) {
+            return $group->map(function ($permission) use ($rolePermissions) {
+                $permission->checked = in_array($permission->id, $rolePermissions);
+                return $permission;
+            });
         })->toArray();
-        return view('roles.edit', ['role' => $role, 'permissionList' => $permissionList]);
+        return view('roles.edit', [
+            'role' => $role,
+            'permissionList' => $permissionList,
+            'permissionCategories' => permissionCategories::cases()
+        ]);
     }
 
     /**
@@ -93,7 +102,7 @@ class RolesController extends Controller
                 $role->save();
                 if ($request->has('permissions')) {
                     Permissions::where('role_id', $id)->whereNotIn('resource_id', collect($permissions)->pluck('resource_id'))->delete();
-                    Permissions::upsert($permissions, uniqueBy: ['resource_id','role_id'], update: ['resource_id', 'resource_code', 'role_id']);
+                    Permissions::upsert($permissions, uniqueBy: ['resource_id', 'role_id'], update: ['resource_id', 'resource_code', 'role_id']);
                 }
             } catch (\Exception $e) {
                 DB::rollBack();
