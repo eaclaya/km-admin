@@ -38,6 +38,7 @@ class ReportProcessTable extends DataTableComponent
     {
         $this->dispatch('refreshDatatable');
     }
+
     public function finishReport($id): void
     {
         $reportProcess = ReportProcess::find($id);
