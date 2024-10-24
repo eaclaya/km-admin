@@ -9,7 +9,13 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
+//test datatable products charged
+Route::get('products', function () {
+    return view('products.index');
+})->middleware(['auth'])->name('dashboard');
+
 
 require __DIR__ . '/web_modules/daybook.php';
 require __DIR__ . '/web_modules/invoice_discount.php';
