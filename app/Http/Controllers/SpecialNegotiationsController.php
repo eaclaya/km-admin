@@ -23,7 +23,7 @@ class SpecialNegotiationsController extends Controller
      */
     public function create()
     {
-        return view('special_negotiations.edit');
+        return view('special_negotiations.create');
     }
 
     /**
@@ -31,7 +31,13 @@ class SpecialNegotiationsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $invoices_ids = $data['invoice_id'];
+        unset($data['invoice_id']);
+        unset($data['_token']);
+        $negotiation = SpecialNegotiation::create($data);
+        $negotiation->invoices()->attach($invoices_ids);
+        return redirect()->route('special_negotiations.index');
     }
 
     /**

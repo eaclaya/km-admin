@@ -14,14 +14,13 @@ class SpecialNegotiationsTable extends DataTableComponent
 {
     public function builder(): Builder
     {
-        $reportProcess = SpecialNegotiation::orderBy('id', 'DESC')->take(30);
+        $negotiations = SpecialNegotiation::orderBy('id', 'DESC')->take(30);
 
-        return $reportProcess->select([
+        return $negotiations->select([
             'id',
             'account_id',
             'employee_id',
             'client_id',
-            'invoice_id',
             'amount',
             'overdue_balance',
             'due_balance',
@@ -33,14 +32,6 @@ class SpecialNegotiationsTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
-    }
-
-    public function finishReport($id): void
-    {
-        $reportProcess = ReportProcess::find($id);
-        $reportProcess->status = 1;
-        $reportProcess->save();
-        $this->reloadTable();
     }
 
     public function columns(): array
@@ -72,9 +63,9 @@ class SpecialNegotiationsTable extends DataTableComponent
                     $client = Client::on('main')->where('name', 'like', '%'.$searchTerm.'%')->select('id')->take(10);
                     return $query->orWhereIn('products.account_id', $client->pluck('id'));
                 }),
-            Column::make("Factura", "invoice_id")
+            Column::make("Factura", "client_id")
                 ->format(function(string $value, $row) {
-                    return $row->invoice->invoice_number;
+                    return $row->invoices->first() ? $row->invoices->first()->invoice_number : '';
                 })->html()
                 ->searchable(function(Builder $query, $searchTerm) {
                     $invoice = Invoice::on('main')->where('name', 'like', '%'.$searchTerm.'%')->select('id')->take(10);

@@ -93,7 +93,11 @@ class Select2ModelComponent extends Component
                 }elseif(is_string($this->columnText)){
                     $rename = $this->columnText.' as text';
                 }
-                $selects = [$this->key, DB::raw($rename)];
+                $key = $this->key;
+                if($this->key !== 'id'){
+                    $key .= ' as id';
+                }
+                $selects = [$key, DB::raw($rename)];
             }
             $results = $this->model::select($selects)->where(function($query) use ($propierties){
                 foreach($propierties as $filter => $value){
@@ -136,7 +140,11 @@ class Select2ModelComponent extends Component
             }elseif(is_string($this->columnText)){
                 $rename = $this->columnText.' as text';
             }
-            $selects = [$this->key, DB::raw($rename)];
+            $key = $this->key;
+            if($this->key !== 'id'){
+                $key .= ' as id';
+            }
+            $selects = [$key, DB::raw($rename)];
         }
         $filters = $this->filters;
         $results = $this->model::select($selects)->where(function($query) use ($filters){
@@ -148,6 +156,10 @@ class Select2ModelComponent extends Component
                 }
             }
         });
+        if($this->key !== 'id'){
+            $result = $results->whereNotNull($this->key);
+        }
+
         if ($search)
         {
             $results = $results->where(function($query) use ($search,$filters){
@@ -162,7 +174,7 @@ class Select2ModelComponent extends Component
                 }
             });
         }
-        $results = $results->paginate(20,['*'],null,$page);
+        $results = $results->orderBy('id','desc')->paginate(20,['*'],null,$page);
         $this->dispatch('options', ['results' => $results])->self();
     }
 

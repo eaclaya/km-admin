@@ -4,7 +4,7 @@
 
 @section("content_header")
     <h1>
-        Crear
+        Crear Negociacion Especial
     </h1>
 @stop
 
@@ -12,9 +12,28 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-body">
-                <form action="{{Route('special_negotiations.update', ['special_negotiation' => $special_negotiation->id])}}" method="post">
+                <form action="{{Route('special_negotiations.store')}}" method="post" multipart="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-3">
+                        @csrf
+                        <div class="col-md-2">
+                            <label for="route_id" class="form-label">Ruta</label>
+                            @livewire('components.select2-model-component', [
+                                'model' => "App\\Models\\Main\\Route",
+                                'filters'=> ['name'],
+                                'columnText'=> ['name'],
+                                'name' => 'route_id',
+                                'key' => 'account_id',
+                                'set_properties' => [
+                                    [
+                                        'name' => 'account_id',
+                                        'filters' => [
+                                            'id' => '$selected',
+                                        ],
+                                    ]
+                                ],
+                            ])
+                        </div>
+                        <div class="col-md-2">
                             <label for="account_id" class="form-label">Tienda</label>
                             @livewire('components.select2-model-component', [
                                 'model' => "App\\Models\\Main\\Account",
@@ -43,7 +62,7 @@
                                 ],
                             ])
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="employee_id" class="form-label">Empleado</label>
                             @livewire('components.select2-model-component', [
                                 'model' => "App\\Models\\Main\\Employee",
@@ -52,7 +71,7 @@
                                 'name' => 'employee_id',
                             ])
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="client_id" class="form-label">Cliente</label>
                             @livewire('components.select2-model-component', [
                                 'model' => "App\\Models\\Main\\Client",
@@ -61,8 +80,8 @@
                                 'name' => 'client_id',
                             ])
                         </div>
-                        <div class="col-md-3">
-                            <label for="invoice_id" class="form-label">Factura</label>
+                        <div class="col-md-4">
+                            <label for="invoice_id" class="form-label">Facturas</label>
                             @livewire('components.select2-model-component', [
                                 'model' => "App\\Models\\Main\\Invoice",
                                 'filters'=> ['invoice_number', 'created_at', 'amount'],
@@ -96,7 +115,7 @@
                         </div>
                         <div class="col-md-2">
                             <label for="amount" class="form-label">Monto</label>
-                            <input type="number" id="amount" name="amount" step="0.01" class="form-control">
+                            <input type="number" id="amount" name="amount" step="0.01" class="form-control" readonly>
                         </div>
                         <div class="col-md-2">
                             <label for="overdue_balance" class="form-label">Saldo vencido</label>
@@ -122,5 +141,16 @@
 @stop
 
 @section("js")
-    {{-- Add here extra javascript --}}
+    <script>
+        $("#invoice_id").change(function() {
+            var montoFinal = 0;
+            $(this).find("option:selected").each(function() {
+                var texto = $(this).text();
+                var partes = texto.split("-");
+                var monto = partes[partes.length - 1].trim();
+                montoFinal = parseFloat(montoFinal) + parseFloat(monto);
+            })
+            $("#amount").val(montoFinal);
+        });
+    </script>
 @stop

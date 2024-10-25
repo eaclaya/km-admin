@@ -21,7 +21,7 @@ class SpecialNegotiation extends ModelDBMain
         'account_id',
         'employee_id',
         'client_id',
-        'invoice_id',
+        'route_id',
         'amount',
         'overdue_balance',
         'due_balance',
@@ -30,23 +30,28 @@ class SpecialNegotiation extends ModelDBMain
         'negotiations_discount'
     ];
 
-    public function accounts()
+    public function account()
     {
-        return $this->hasMany('App\Models\Main\Account');
+        return $this->belongsTo('App\Models\Main\Account');
     }
 
     public function employee()
     {
-        return $this->hasMany('App\Models\Main\Employee');
+        return $this->belongsTo('App\Models\Main\Employee');
     }
 
-    public function clients()
+    public function client()
     {
-        return $this->hasMany('App\Models\Main\Client');
+        return $this->belongsTo('App\Models\Main\Client');
+    }
+
+    public function route()
+    {
+        return $this->belongsTo('App\Models\Main\Route');
     }
 
     public function invoices()
     {
-        return $this->hasMany('App\Models\Main\Invoice');
+        return $this->belongsToMany('App\Models\Main\Invoice', 'negotiations_invoices', 'special_negotiations_id', 'invoice_id');
     }
 }
