@@ -22,15 +22,6 @@
                                 'filters'=> ['name'],
                                 'columnText'=> ['name'],
                                 'name' => 'route_id',
-                                'key' => 'account_id',
-                                'set_properties' => [
-                                    [
-                                        'name' => 'account_id',
-                                        'filters' => [
-                                            'id' => '$selected',
-                                        ],
-                                    ]
-                                ],
                             ])
                         </div>
                         <div class="col-md-2">

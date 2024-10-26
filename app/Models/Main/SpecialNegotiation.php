@@ -50,6 +50,11 @@ class SpecialNegotiation extends ModelDBMain
         return $this->belongsTo('App\Models\Main\Route');
     }
 
+    public function quotas()
+    {
+        return $this->hasMany('App\Models\Main\Quota', 'special_negotiations_id', 'id');
+    }
+
     public function invoices()
     {
         return $this->belongsToMany('App\Models\Main\Invoice', 'negotiations_invoices', 'special_negotiations_id', 'invoice_id');

@@ -32,12 +32,40 @@ class SpecialNegotiationsTable extends DataTableComponent
     public function configure(): void
     {
         $this->setPrimaryKey('id');
+        $this->setTdAttributes(function(Column $column, $row, $columnIndex, $rowIndex) {
+            if ($column->isField('status')) {
+                if ($row->status == 0) {
+                    return [
+                        'class' => 'bg-success text-center',
+                    ];
+                }else{
+                    return [
+                        'class' => 'bg-danger text-center',
+                    ];
+                }
+            }
+            if ($column->isField('is_document')) {
+                if ($row->is_document == 0) {
+                    return [
+                        'class' => 'bg-danger text-center',
+                    ];
+                }else{
+                    return [
+                        'class' => 'bg-success text-center',
+                    ];
+                }
+            }
+            return [];
+        });
     }
 
     public function columns(): array
     {
         return [
             Column::make("Id", "id")
+                ->format(function(string $value, $row) {
+                    return '<a class="btn btn-primary btn-sm" href="'. route('special_negotiations.show', $row->id) .'">' . $row->id .' - Ir</a>';
+                })->html()
                 ->searchable(),
             Column::make("Tienda", "account_id")
                 ->format(function(string $value, $row) {
@@ -63,9 +91,16 @@ class SpecialNegotiationsTable extends DataTableComponent
                     $client = Client::on('main')->where('name', 'like', '%'.$searchTerm.'%')->select('id')->take(10);
                     return $query->orWhereIn('products.account_id', $client->pluck('id'));
                 }),
-            Column::make("Factura", "client_id")
+            Column::make("Facturas", "client_id")
                 ->format(function(string $value, $row) {
-                    return $row->invoices->first() ? $row->invoices->first()->invoice_number : '';
+                    $invoices = $row->invoices;
+                    $invoiceList = '';
+                    if ($invoices->count() > 0) {
+                        foreach ($invoices as $invoice) {
+                            $invoiceList .=  $invoice->invoice_number . ' <br/>';
+                        }
+                    }
+                    return $invoiceList;
                 })->html()
                 ->searchable(function(Builder $query, $searchTerm) {
                     $invoice = Invoice::on('main')->where('name', 'like', '%'.$searchTerm.'%')->select('id')->take(10);
@@ -81,18 +116,7 @@ class SpecialNegotiationsTable extends DataTableComponent
                     } else {
                         return 'Vencido';
                     }
-                })->html()
-                ->attributes(function($row) {
-                    if ($row->status == 0) {
-                        return [
-                            'class' => 'bg-success',
-                        ];
-                    }else{
-                        return [
-                            'class' => 'bg-danger',
-                        ];
-                    }
-                }),
+                })->html(),
             Column::make('Documentado', 'is_document')
                 ->format(function(string $value, $row) {
                     if ($row->status == 0) {
@@ -100,19 +124,12 @@ class SpecialNegotiationsTable extends DataTableComponent
                     } else {
                         return 'Si';
                     }
-                })->html()
-                ->attributes(function($row) {
-                    if ($row->status == 0) {
-                        return [
-                            'class' => 'bg-danger',
-                        ];
-                    }else{
-                        return [
-                            'class' => 'bg-success',
-                        ];
-                    }
-                }),
+                })->html(),
             Column::make("Descuento Aplicado", "negotiations_discount"),
+            Column::make("Accion", 'id')
+                ->format(function(string $value, $row) {
+                    return '<a class="btn btn-primary btn-sm" href="'. route('special_negotiations.edit', $row->id) .'">Editar</a>';
+                })->html(),
         ];
     }
 

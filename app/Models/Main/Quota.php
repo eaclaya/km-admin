@@ -35,26 +35,26 @@ class Quota extends ModelDBMain
 
     public function special_negotiations()
     {
-        return $this->hasMany('App\Models\Main\SpecialNegotiation');
+        return $this->belongsTo('App\Models\Main\SpecialNegotiation');
     }
 
     public function accounts()
     {
-        return $this->hasMany('App\Models\Main\Account');
+        return $this->belongsTo('App\Models\Main\Account');
     }
 
     public function employee()
     {
-        return $this->hasMany('App\Models\Main\Employee');
+        return $this->belongsTo('App\Models\Main\Employee');
     }
 
     public function clients()
     {
-        return $this->hasMany('App\Models\Main\Client');
+        return $this->belongsTo('App\Models\Main\Client');
     }
 
     public function invoices()
     {
-        return $this->hasMany('App\Models\Main\Invoice');
+        return $this->belongsTo('App\Models\Main\Invoice');
     }
 }
