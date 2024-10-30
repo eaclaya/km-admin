@@ -14,7 +14,7 @@ Route::get('/dashboard', function () {
 //test datatable products charged
 Route::get('products', function () {
     return view('products.index');
-})->middleware(['auth'])->name('dashboard');
+})->middleware(['auth'])->name('products.index');
 
 
 require __DIR__ . '/web_modules/daybook.php';

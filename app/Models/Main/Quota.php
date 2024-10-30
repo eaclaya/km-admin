@@ -22,7 +22,6 @@ class Quota extends ModelDBMain
         'account_id',
         'employee_id',
         'client_id',
-        'invoice_id',
         'days_exceeded',
         'initial_balance',
         'monthly_payment',
@@ -55,6 +54,6 @@ class Quota extends ModelDBMain
 
     public function invoices()
     {
-        return $this->belongsTo('App\Models\Main\Invoice');
+        return $this->belongsToMany('App\Models\Main\Invoice', 'quotas_invoices', 'quota_id', 'invoice_id');
     }
 }

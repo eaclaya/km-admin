@@ -1,6 +1,6 @@
 @extends("adminlte::page")
 
-@section("title", "Editar")
+@section("title", "Crear")
 
 @section("content_header")
     <h1>
@@ -33,12 +33,6 @@
                                 'name' => 'account_id',
                                 'set_properties' => [
                                     [
-                                        'name' => 'employee_id',
-                                        'filters' => [
-                                            'account_id' => '$selected',
-                                        ],
-                                    ],
-                                    [
                                         'name' => 'client_id',
                                         'filters' => [
                                             'account_id' => '$selected',
@@ -57,7 +51,7 @@
                             <label for="employee_id" class="form-label">Empleado</label>
                             @livewire('components.select2-model-component', [
                                 'model' => "App\\Models\\Main\\Employee",
-                                'filters'=> ['first_name','last_name'],
+                                'filters'=> ['first_name','last_name', 'id_number'],
                                 'columnText'=> ['first_name','last_name'],
                                 'name' => 'employee_id',
                             ])
