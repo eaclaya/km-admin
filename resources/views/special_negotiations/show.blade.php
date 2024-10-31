@@ -265,6 +265,33 @@
                                 <td>-</td>
                                 <td>-</td>
                             <tr>
+                            @forelse ($quota->payments as $payment)
+                                <tr>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        {{$loop->iteration}}
+                                        <a class="btn btn-primary btn-sm"
+                                            onclick="editPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$payment->id}}*-*{{$payment->mount_balance}}*-*{{$payment->create_payment_at}}*-*{{$payment->invoice_id}}')">
+                                            Editar
+                                        </a>
+                                    </td>
+                                    <td>{{$payment->payment_at}}</td>
+                                    <td>{{$payment->mount_balance}}</td>
+                                    <td>{{$payment->mount_balance_total}}</td>
+                                    <td></td>
+                                    <td>{{$payment->overdue_balance}}</td>
+                                    <td>{{$payment->final_balance}}</td>
+                                </tr>
+                            @empty
+                                Sin Pagos
+                            @endforelse
                         @empty
                             Cuotas por Agregar
                         @endforelse
@@ -527,6 +554,63 @@
           </div>
         </div>
     </div>
+    <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editPaymentModalLabel">Editar Pago</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form class="row" method="POST" multipart="multipart/form-data" id='editPaymentForm'>
+                        @csrf
+                        <input type="hidden" name="quota_id" id="edit_quota_id" >
+
+                        <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
+                            <div class="col-md-12">
+                                <h4>Crear Pago</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="edit_quota_invoice_id" class="form-label">Factura:</label>
+                                <select name="invoice_id" id="edit_quota_invoice_id" class="form-control" required>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="edit_payment_id" class="form-label">Pagos:</label>
+                                <select name="payment_id" id="edit_payment_id" class="form-control" required>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="edit_mount_balance" class="form-label">Monto Abonado:</label>
+                                <input
+                                    type="number" class="form-control" id="edit_mount_balance"
+                                    name="mount_balance" step="0.01"
+                                    required
+                                />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="edit_payment_at" class="form-label">Fecha de pago:</label>
+                                <input type="date" class="form-control" id="edit_payment_at" name="payment_at" required />
+                            </div>
+                        </div>
+                        <hr>
+
+                        <div class="col-md-3">
+                            <p></p>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
 
     <br>
     <br>
@@ -684,8 +768,8 @@
                         data.payments.forEach(element => {
                             let options = '<option value="' + element.id + '">' + element.amount + ' - ' + element.payment_date + '</option>';
                             $('#create_payment_id').append(options);
-                            $('#create_payment_id').trigger('change');
                         })
+                        $('#create_payment_id').trigger('change');
                     }
                 })
             }
@@ -703,5 +787,72 @@
             $('#create_payment_at').val(date);
         })
 
+        function editPayment(params) {
+            let parts = params.split('*-*');
+            let quotaId = parts[0];
+            let invoice_ids = parts[1].split(',');
+            invoice_ids = invoice_ids.map(id => parseInt(id));
+
+            let paymentId = parts[2];
+            let mountBalance = parts[3];
+            let createPaymentAt = parts[4];
+            let invoiceId = parts[5];
+
+            const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
+
+            let url = "{{route('special_negotiations.payment.update', ':id')}}".replace(':id', paymentId);
+
+            $('#editPaymentForm').attr('action', url);
+
+            $('#edit_quota_id').val(quotaId);
+
+            $('#edit_quota_invoice_id').empty();
+            invoicesFilter.forEach(element => {
+                let options = '';
+                if (element.id == invoiceId) {
+                    options = '<option value="' + element.id + '" selected>' + element.invoice_number + '</option>';
+                }else{
+                    options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
+                }
+                $('#edit_quota_invoice_id').append(options);
+            })
+            $('#edit_quota_invoice_id').trigger('change');
+            $('#edit_mount_balance').val(mountBalance);
+            $('#edit_payment_at').val(createPaymentAt);
+            $('#edit_payment_id').val(paymentId);
+            $('#editPaymentModal').modal('show');
+        }
+
+        $('#edit_quota_invoice_id').change(function() {
+            let invoice_id = $('#edit_quota_invoice_id').val();
+            if (invoice_id) {
+                let url = "{{route('special_negotiations.get_payments', ':id')}}".replace(':id', invoice_id);
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(data) {
+                        console.log(data);
+                        $('#edit_payment_id').empty();
+                        data.payments.forEach(element => {
+                            let options = '<option value="' + element.id + '">' + element.amount + ' - ' + element.payment_date + '</option>';
+                            $('#edit_payment_id').append(options);
+                        })
+                        $('#edit_payment_id').trigger('change');
+                    }
+                })
+            }
+        })
+
+        $('#edit_payment_id').change(function() {
+            const optionSelectedPaymentId = $(this).find('option:selected');
+            const textSelectedPaymentId = optionSelectedPaymentId.text();
+            console.log(textSelectedPaymentId);
+            let parts = textSelectedPaymentId.split(' - ');
+            let mount = parseFloat(parts[0]);
+            let date = parts[1];
+
+            $('#edit_mount_balance').val(mount);
+            $('#edit_payment_at').val(date);
+        })
     </script>
 @stop

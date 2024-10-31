@@ -56,4 +56,9 @@ class Quota extends ModelDBMain
     {
         return $this->belongsToMany('App\Models\Main\Invoice', 'quotas_invoices', 'quota_id', 'invoice_id');
     }
+
+    public function payments()
+    {
+        return $this->hasMany('App\Models\Main\PaymentQuota');
+    }
 }

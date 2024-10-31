@@ -9,6 +9,7 @@ use App\Models\Main\PaymentQuota;
 use App\Models\Main\Quota;
 use App\Models\Main\Payment;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
 
 class SpecialNegotiationsController extends Controller
 {
@@ -253,19 +254,8 @@ class SpecialNegotiationsController extends Controller
 
         $quota = Quota::find($quotaId);
         $monthlyPayment = $quota->monthly_payment;
-        $days = Carbon\Carbon::now()->diffInDays(Carbon\Carbon::parse($quota->credit_payment_at)) + 1;
+        $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
         $is_overdue = $days <= 0 ? true : false;
-
-        $payments = PaymentQuota::where('quota_id', $quotaId)->select('mount_balance', 'mount_balance_total', 'final_balance')->get();
-        $lastPaymentBalanceTotal = $payments->last() ? $payments->last()->mount_balance_total : 0;
-        $lastPaymentBalance = $payments->last() ? $payments->last()->final_balance : 0;
-
-        $paymentAmounts = $payments->sum('mount_balance');
-
-        $mountBalance = $data["mount_balance"];
-        $mountTotalBalance = $lastPaymentBalanceTotal + $mountBalance;
-
-        $finalBalance = $monthlyPayment - $mountTotalBalance;
 
         $insert = [
             'special_negotiations_id' => $specialNegotiationsId,
@@ -276,12 +266,72 @@ class SpecialNegotiationsController extends Controller
             'invoice_id' => $invoiceId,
             'payment_id' => $paymentId,
             'mount_balance' => $mountBalance,
-            'mount_balance_total' => $mountTotalBalance,
+            'mount_balance_total' => 0,
             'overdue_balance' => $is_overdue ? $lastPaymentBalance : 0,
-            'final_balance' => $finalBalance,
+            'final_balance' => 0,
             'payment_at' => $paymentAt,
         ];
 
-        dd($insert);
+        PaymentQuota::create($insert);
+
+        Session::flash('message', 'Pago Agregado Correctamente');
+        return redirect()->back();
+    }
+
+    public function paymentUpdate(Request $request, $id)
+    {
+        $data = $request->all();
+        $payment = PaymentQuota::find($id);
+        $quota = Quota::find($payment->quota_id);
+
+        if (!isset($payment)) {
+            Session::flash('message', 'No se encontro el pago');
+            return redirect()->back();
+        }
+        unset($data['_token']);
+        /* -------- */
+
+        $monthlyPayment = $quota->monthly_payment;
+        $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
+        $is_overdue = $days <= 0 ? true : false;
+
+        $payments = PaymentQuota::where('quota_id', $payment->quota_id)->where('payment_id', '!=', $id)->select('mount_balance', 'mount_balance_total', 'final_balance')->get();
+        $lastPaymentBalanceTotal = $payments->last() ? $payments->last()->mount_balance_total : 0;
+        $lastPaymentBalance = $payments->last() ? $payments->last()->final_balance : 0;
+
+        // $paymentAmounts = ($payments->sum('mount_balance') - $payment->mount_balance);
+
+        $mountBalance = $data["mount_balance"];
+        $mountTotalBalance = $lastPaymentBalanceTotal + $mountBalance;
+
+        $finalBalance = $monthlyPayment - $mountTotalBalance;
+
+        $insert = [
+            'invoice_id' => $data["invoice_id"],
+            'payment_id' => $data["payment_id"],
+            'mount_balance' => $mountBalance,
+            'mount_balance_total' => $mountTotalBalance,
+            'overdue_balance' => $is_overdue ? $lastPaymentBalance : 0,
+            'final_balance' => $finalBalance,
+            'payment_at' => $data["payment_at"],
+        ];
+        /* -------- */
+        $payment->update($insert);
+        Session::flash('message', 'Pago Actualizado Correctamente');
+        return redirect()->back();
+    }
+
+    public function paymentCalculate($id)
+    {
+        /* $payments = PaymentQuota::where('quota_id', $quotaId)->select('mount_balance', 'mount_balance_total', 'final_balance')->get();
+        $lastPaymentBalanceTotal = $payments->last() ? $payments->last()->mount_balance_total : 0;
+        $lastPaymentBalance = $payments->last() ? $payments->last()->final_balance : 0;
+
+        // $paymentAmounts = $payments->sum('mount_balance');
+
+        $mountBalance = $data["mount_balance"];
+        $mountTotalBalance = $lastPaymentBalanceTotal + $mountBalance;
+
+        $finalBalance = $monthlyPayment - $mountTotalBalance; */
     }
 }
