@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Main\SpecialNegotiation;
 use App\Models\Main\DiscountQuota;
 use App\Models\Main\PaymentQuota;
+use App\Models\Main\RefundQuota;
 use App\Models\Main\Quota;
 use App\Models\Main\Payment;
+use App\Models\Main\Refund;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
+use \Auth;
 
 class SpecialNegotiationsController extends Controller
 {
@@ -219,6 +222,9 @@ class SpecialNegotiationsController extends Controller
         unset($data['_token']);
         $invoices = $data['invoice_id'];
         unset($data['invoice_id']);
+        $quota->activateTracking();
+        $quota->setReason($data['reason']);
+        unset($data['reason']);
         $quota->update($data);
         $quota->invoices()->sync($invoices);
 
@@ -236,43 +242,31 @@ class SpecialNegotiationsController extends Controller
         return response()->json(['payments' => $payments], 200);
     }
 
+    public function get_refunds(Request $request, $id)
+    {
+        $data = $request->all();
+        $refunds = Refund::where('invoice_id',$id)->select('id', 'total_refunded', 'refund_date', 'refund_number')->get();
+        if (!isset($refunds)) {
+            return response()->json(['error' => 'No se encontro pagos'], 404);
+        }
+        return response()->json(['refunds' => $refunds], 200);
+    }
+
     public function paymentStore(Request $request)
     {
         $data = $request->all();
         unset($data['_token']);
-
-        $specialNegotiationsId = $data["special_negotiations_id"];
-        $quotaId = $data["quota_id"];
-        $accountId = $data["account_id"];
-        $employeeId = $data["employee_id"];
-        $clientId = $data["client_id"];
-
-        $invoiceId = $data["invoice_id"];
-        $paymentId = $data["payment_id"];
-
-        $paymentAt = $data["payment_at"];
-
-        $quota = Quota::find($quotaId);
+        $quota_id = $data['quota_id'];
+        $quota = Quota::find($quota_id);
         $monthlyPayment = $quota->monthly_payment;
         $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
         $is_overdue = $days <= 0 ? true : false;
+        $data['mount_balance_total'] = 0;
+        $data['final_balance'] = 0;
+        $data['overdue_balance'] = $is_overdue ? $monthlyPayment : 0;
 
-        $insert = [
-            'special_negotiations_id' => $specialNegotiationsId,
-            'quota_id' => $quotaId,
-            'account_id' => $accountId,
-            'employee_id' => $employeeId,
-            'client_id' => $clientId,
-            'invoice_id' => $invoiceId,
-            'payment_id' => $paymentId,
-            'mount_balance' => $mountBalance,
-            'mount_balance_total' => 0,
-            'overdue_balance' => $is_overdue ? $lastPaymentBalance : 0,
-            'final_balance' => 0,
-            'payment_at' => $paymentAt,
-        ];
-
-        PaymentQuota::create($insert);
+        PaymentQuota::create($data);
+        $this->paymentCalculate($quota_id);
 
         Session::flash('message', 'Pago Agregado Correctamente');
         return redirect()->back();
@@ -282,56 +276,86 @@ class SpecialNegotiationsController extends Controller
     {
         $data = $request->all();
         $payment = PaymentQuota::find($id);
-        $quota = Quota::find($payment->quota_id);
 
         if (!isset($payment)) {
             Session::flash('message', 'No se encontro el pago');
             return redirect()->back();
         }
         unset($data['_token']);
-        /* -------- */
+        $payment->activateTracking();
+        $payment->setReason($data['reason']);
+        unset($data['reason']);
+        $payment->update($data);
 
-        $monthlyPayment = $quota->monthly_payment;
-        $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
-        $is_overdue = $days <= 0 ? true : false;
-
-        $payments = PaymentQuota::where('quota_id', $payment->quota_id)->where('payment_id', '!=', $id)->select('mount_balance', 'mount_balance_total', 'final_balance')->get();
-        $lastPaymentBalanceTotal = $payments->last() ? $payments->last()->mount_balance_total : 0;
-        $lastPaymentBalance = $payments->last() ? $payments->last()->final_balance : 0;
-
-        // $paymentAmounts = ($payments->sum('mount_balance') - $payment->mount_balance);
-
-        $mountBalance = $data["mount_balance"];
-        $mountTotalBalance = $lastPaymentBalanceTotal + $mountBalance;
-
-        $finalBalance = $monthlyPayment - $mountTotalBalance;
-
-        $insert = [
-            'invoice_id' => $data["invoice_id"],
-            'payment_id' => $data["payment_id"],
-            'mount_balance' => $mountBalance,
-            'mount_balance_total' => $mountTotalBalance,
-            'overdue_balance' => $is_overdue ? $lastPaymentBalance : 0,
-            'final_balance' => $finalBalance,
-            'payment_at' => $data["payment_at"],
-        ];
-        /* -------- */
-        $payment->update($insert);
+        $quota_id = $payment->quota_id;
+        $this->paymentCalculate($quota_id);
         Session::flash('message', 'Pago Actualizado Correctamente');
         return redirect()->back();
     }
 
-    public function paymentCalculate($id)
+    public function paymentCalculate($quota_id)
     {
-        /* $payments = PaymentQuota::where('quota_id', $quotaId)->select('mount_balance', 'mount_balance_total', 'final_balance')->get();
-        $lastPaymentBalanceTotal = $payments->last() ? $payments->last()->mount_balance_total : 0;
-        $lastPaymentBalance = $payments->last() ? $payments->last()->final_balance : 0;
+        $monthlyPayment = Quota::where('id',$quota_id)->first()->monthly_payment;
 
-        // $paymentAmounts = $payments->sum('mount_balance');
+        $payments = PaymentQuota::where('quota_id', $quota_id)
+            ->select('id','mount_balance', 'mount_balance_total', 'final_balance')
+            ->orderBy('id', 'asc')
+            ->get();
 
-        $mountBalance = $data["mount_balance"];
-        $mountTotalBalance = $lastPaymentBalanceTotal + $mountBalance;
+        $lastPaymentBalanceTotal = 0;
+        $lastFinalBalance = $monthlyPayment;
 
-        $finalBalance = $monthlyPayment - $mountTotalBalance; */
+        foreach ($payments as $payment) {
+            $payment->mount_balance_total = floatval( $lastPaymentBalanceTotal + $payment->mount_balance );
+            $payment->final_balance = floatval($lastFinalBalance - $payment->mount_balance);
+            $payment->save();
+
+            $lastPaymentBalanceTotal = $payment->mount_balance_total;
+            $lastFinalBalance = $payment->final_balance;
+        }
+    }
+
+    public function refundStore(Request $request)
+    {
+        $data = $request->all();
+        unset($data['_token']);
+        $quota_id = $data['quota_id'];
+        $paymentCuota = PaymentQuota::where('quota_id', $quota_id)
+            ->select('id','mount_balance', 'mount_balance_total', 'final_balance')
+            ->orderBy('id', 'asc')
+            ->first();
+        $monthlyRefund = $paymentCuota->monthly_refund;
+        $days = Carbon::now()->diffInDays(Carbon::parse($paymentCuota->credit_refund_at)) + 1;
+        $is_overdue = $days <= 0 ? true : false;
+        $data['mount_balance_total'] = 0;
+        $data['final_balance'] = 0;
+        $data['overdue_balance'] = $is_overdue ? $monthlyRefund : 0;
+
+        RefundQuota::create($data);
+        $this->refundCalculate($quota_id);
+
+        Session::flash('message', 'Pago Agregado Correctamente');
+        return redirect()->back();
+    }
+
+    public function refundUpdate(Request $request, $id)
+    {
+        $data = $request->all();
+        $refund = RefundQuota::find($id);
+
+        if (!isset($refund)) {
+            Session::flash('message', 'No se encontro el pago');
+            return redirect()->back();
+        }
+        unset($data['_token']);
+        $refund->activateTracking();
+        $refund->setReason($data['reason']);
+        unset($data['reason']);
+        $refund->update($data);
+
+        $quota_id = $refund->quota_id;
+        $this->refundCalculate($quota_id);
+        Session::flash('message', 'Pago Actualizado Correctamente');
+        return redirect()->back();
     }
 }

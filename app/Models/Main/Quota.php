@@ -2,6 +2,7 @@
 
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\UpdatesWithEvent;
 
 /**
  * Class Company
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Quota extends ModelDBMain
 {
     use SoftDeletes;
+    use UpdatesWithEvent;
 
     protected $connection = 'main';
 
@@ -60,5 +62,15 @@ class Quota extends ModelDBMain
     public function payments()
     {
         return $this->hasMany('App\Models\Main\PaymentQuota');
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany('App\Models\Main\RefundQuota');
+    }
+
+    public function getEntityType()
+    {
+        return ENTITY_QUOTA;
     }
 }

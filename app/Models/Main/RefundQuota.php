@@ -7,7 +7,7 @@ use App\Traits\UpdatesWithEvent;
 /**
  * Class Company
  */
-class PaymentQuota extends ModelDBMain
+class RefundQuota extends ModelDBMain
 {
     use SoftDeletes;
     use UpdatesWithEvent;
@@ -16,7 +16,7 @@ class PaymentQuota extends ModelDBMain
 
     protected $dates = ['deleted_at'];
 
-    protected $table = 'payment_quotas';
+    protected $table = 'refund_quotas';
 
     protected $fillable = [
         'id',
@@ -26,12 +26,12 @@ class PaymentQuota extends ModelDBMain
         'employee_id',
         'client_id',
         'invoice_id',
-        'payment_id',
+        'refund_id',
         'mount_balance',
         'mount_balance_total',
         'overdue_balance',
         'final_balance',
-        'payment_at'
+        'refund_at'
     ];
 
 
@@ -67,6 +67,6 @@ class PaymentQuota extends ModelDBMain
 
     public function getEntityType()
     {
-        return ENTITY_PAYMENT_QUOTA;
+        return ENTITY_REFUND_QUOTA;
     }
 }
