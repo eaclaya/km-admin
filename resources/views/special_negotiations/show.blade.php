@@ -10,8 +10,8 @@
 
 @section("content")
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-start">
-            <div class="card col-md-6">
+        <div class="row d-flex justify-content-between align-items-start">
+            <div class="card col-sm-12 col-md-6">
                 <h3 class="card-header">
                     {{$special_negotiation->route->name}}
                     <div class="card-tools">
@@ -108,7 +108,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class=" col-sm-12 col-md-6 col-lg-4">
                 <div class="card col-md-12">
                     <h4 class="card-header">
                         Asesor: {{$special_negotiation->employee->name}}
@@ -170,7 +170,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <table class="table text-center">
+                <table class="table text-center table-responsive">
                     <thead>
                         <tr>
                             <th>N.º de Pago</th>
@@ -188,6 +188,7 @@
                             <th>Descuento Aplicado</th>
                             <th>Monto Vencido</th>
                             <th>Saldo Final</th>
+                            <th>Historial</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -259,15 +260,24 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <a class="btn btn-primary btn-sm" onclick="addRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
+                                    <a class="btn btn-warning btn-sm" onclick="addRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
                                         Agregar Rembolso
+                                    </a>
+                                </td>{{-- createDiscountModal --}}
+                                <td>
+                                    <a class="btn btn-info btn-sm" onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
+                                        Agregar Descuento
                                     </a>
                                 </td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
-                                <td>-</td>
+                                <td>
+                                    <a class="btn btn-secondary btn-sm" onclick="showTracking('{{$quota->getEntityType()}}','{{$quota->id}}')">
+                                        historial
+                                    </a>
+                                </td>
                             <tr>
                             @forelse ($quota->payments as $payment)
                                 <tr>
@@ -278,13 +288,14 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
-                                    <td>-</td>
                                     <td>
-                                        {{$loop->iteration}}
-                                        <a class="btn btn-primary btn-sm"
+                                        <a class="btn btn-outline-primary btn-sm"
                                             onclick="editPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$payment->id}}*-*{{$payment->mount_balance}}*-*{{$payment->create_payment_at}}*-*{{$payment->invoice_id}}')">
                                             Editar
                                         </a>
+                                    </td>
+                                    <td class="font-weight-bold">
+                                        Pago -  {{$loop->iteration}}
                                     </td>
                                     <td>{{$payment->payment_at}}</td>
                                     <td>{{$payment->mount_balance}}</td>
@@ -292,6 +303,44 @@
                                     <td></td>
                                     <td>{{$payment->overdue_balance}}</td>
                                     <td>{{$payment->final_balance}}</td>
+                                    <td>
+                                        <a class="btn btn-secondary btn-sm" onclick="showTracking('{{$payment->getEntityType()}}','{{$payment->id}}')">
+                                            historial
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                Sin Pagos
+                            @endforelse
+                            @forelse ($quota->refunds as $refund)
+                                <tr>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <a class="btn btn-outline-warning btn-sm"
+                                            onclick="editRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$refund->id}}*-*{{$refund->mount_balance}}*-*{{$refund->refund_at}}*-*{{$refund->invoice_id}}')">
+                                            Editar
+                                        </a>
+                                    </td>
+                                    <td class="font-weight-bold">
+                                        Rembolso - {{$loop->iteration}}
+                                    </td>
+                                    <td>{{$refund->refund_at}}</td>
+                                    <td>{{$refund->mount_balance}}</td>
+                                    <td>{{$refund->mount_balance_total}}</td>
+                                    <td></td>
+                                    <td>{{$refund->overdue_balance}}</td>
+                                    <td>{{$refund->final_balance}}</td>
+                                    <td>
+                                        <a class="btn btn-secondary btn-sm" onclick="showTracking('{{$refund->getEntityType()}}','{{$refund->id}}')">
+                                            historial
+                                        </a>
+                                    </td>
                                 </tr>
                             @empty
                                 Sin Pagos
@@ -631,7 +680,7 @@
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="createRefundModalLabel">Crear Pago</h5>
+              <h5 class="modal-title" id="createRefundModalLabel">Crear Rembolso</h5>
               <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
@@ -692,7 +741,7 @@
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="editRefundModalLabel">Editar Pago</h5>
+              <h5 class="modal-title" id="editRefundModalLabel">Editar Rembolso</h5>
               <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
@@ -749,7 +798,148 @@
           </div>
         </div>
     </div>
+    {{-- Discount Modals --}}
+    <div class="modal fade" id="createDiscountModal" tabindex="-1" aria-labelledby="createDiscountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="createDiscountModalLabel">Crear Descuento</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form class="row" method="POST" multipart="multipart/form-data" id='createDiscountForm' action="{{route('special_negotiations.discount.store')}}" >
+                        @csrf
+                        <input type="hidden" name="special_negotiations_id" value="{{$special_negotiation->id}}">
+                        <input type="hidden" name="account_id" value="{{$special_negotiation->account_id}}">
+                        <input type="hidden" name="employee_id" value="{{$special_negotiation->employee_id}}">
+                        <input type="hidden" name="client_id" value="{{$special_negotiation->client->id}}">
+                        <input type="hidden" name="quota_id" id="create_discount_quota_id" >
 
+                        <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
+                            <div class="col-md-12">
+                                <h4>Crear Pago</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="create_discount_invoice_id" class="form-label">Factura:</label>
+                                <select name="invoice_id" id="create_discount_invoice_id" class="form-control" required>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="create_discount_id" class="form-label">Rembolsos:</label>
+                                <select name="discount_id" id="create_discount_id" class="form-control" required>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="create_discount_mount_balance" class="form-label">Monto Abonado:</label>
+                                <input
+                                    type="number" class="form-control" id="create_discount_mount_balance"
+                                    name="mount_balance" step="0.01"
+                                    required
+                                />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="create_discount_at" class="form-label">Fecha de pago:</label>
+                                <input type="date" class="form-control" id="create_discount_at" name="discount_at" required />
+                            </div>
+                        </div>
+                        <hr>
+
+                        <div class="col-md-3">
+                            <p></p>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editDiscountModal" tabindex="-1" aria-labelledby="editDiscountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editDiscountModalLabel">Editar Descuento</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form class="row" method="POST" multipart="multipart/form-data" id='editDiscountForm'>
+                        @csrf
+                        <input type="hidden" name="quota_id" id="edit_discount_quota_id" >
+
+                        <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
+                            <div class="col-md-12">
+                                <h4>Crear Pago</h4>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_discount_quota_invoice_id" class="form-label">Factura:</label>
+                                <select name="invoice_id" id="edit_discount_quota_invoice_id" class="form-control" required>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="edit_discount_id" class="form-label">Pagos:</label>
+                                <select name="discount_id" id="edit_discount_id" class="form-control" required>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="edit_discount_mount_balance" class="form-label">Monto Abonado:</label>
+                                <input
+                                    type="number" class="form-control" id="edit_discount_mount_balance"
+                                    name="mount_balance" step="0.01"
+                                    required
+                                />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_discount_at" class="form-label">Fecha de pago:</label>
+                                <input type="date" class="form-control" id="edit_discount_at" name="discount_at" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="reason" class="form-label">Rason del Cambio:</label>
+                                <input type="text" class="form-control" id="reason" name="reason" maxlength="50" required />
+                            </div>
+                        </div>
+                        <hr>
+
+                        <div class="col-md-3">
+                            <p></p>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    {{-- tracking modal --}}
+    <div class="modal fade" id="trackingModal" tabindex="-1" aria-labelledby="trackingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="trackingModalLabel">Historial</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <livewire:Datatables.tracking-table :current_model="$special_negotiation->getEntityType()" :id="$special_negotiation->id" />
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
     <br>
     <br>
     <br>
@@ -772,6 +962,8 @@
         $(document).ready(function() {
             conditionChange();
         });
+
+        // Quotas
 
         $("#create_credit_start_at_0").change(function() {
             let createCreditStartAt = $(this).val();
@@ -876,6 +1068,7 @@
             $('#editQuotaModal').modal('show');
         }
 
+        // Payments
         function addPayment(params) {
             let parts = params.split('*-*');
             let id = parts[0];
@@ -925,56 +1118,6 @@
             $('#create_payment_at').val(date);
         })
 
-        function addRefund(params) {
-            let parts = params.split('*-*');
-            let id = parts[0];
-            let invoice_ids = parts[1].split(',');
-            invoice_ids = invoice_ids.map(id => parseInt(id));
-            const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
-
-            $('#create_refund_quota_id').val(id);
-
-            $('#create_refund_invoice_id').empty();
-            invoicesFilter.forEach(element => {
-                let options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
-                $('#create_refund_invoice_id').append(options);
-            })
-            $('#create_refund_invoice_id').trigger('change');
-            $('#createRefundModal').modal('show');
-        }
-
-        $('#create_refund_invoice_id').change(function() {
-            let invoice_id = $('#create_refund_invoice_id').val();
-            if (invoice_id) {
-                let url = "{{route('special_negotiations.get_refunds', ':id')}}".replace(':id', invoice_id);
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    success: function(data) {
-                        $('#create_refund_id').empty();
-                        data.refunds.forEach(element => {
-                            let options = '<option value="' + element.id + '">' + element.total_refunded + ' - ' + element.refund_date + ' - ' + element.refund_number + '</option>';
-                            $('#create_refund_id').append(options);
-                        })
-                        $('#create_refund_id').trigger('change');
-                    }
-                })
-            }
-        })
-
-        $('#create_refund_id').change(function() {
-            const optionSelectedRefundId = $(this).find('option:selected');
-            const textSelectedRefundId = optionSelectedRefundId.text();
-            console.log(textSelectedRefundId);
-            let parts = textSelectedRefundId.split(' - ');
-            let mount = parseFloat(parts[0]);
-            let date = parts[1];
-
-            $('#create_refund_mount_balance').val(mount);
-            $('#create_refund_at').val(date);
-        })
-
-        /* edit payment */
         function editPayment(params) {
             let parts = params.split('*-*');
             let quotaId = parts[0];
@@ -1043,7 +1186,57 @@
             $('#edit_payment_at').val(date);
         })
 
-        /* edit refund */
+        // Refunds
+
+        function addRefund(params) {
+            let parts = params.split('*-*');
+            let id = parts[0];
+            let invoice_ids = parts[1].split(',');
+            invoice_ids = invoice_ids.map(id => parseInt(id));
+            const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
+
+            $('#create_refund_quota_id').val(id);
+
+            $('#create_refund_invoice_id').empty();
+            invoicesFilter.forEach(element => {
+                let options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
+                $('#create_refund_invoice_id').append(options);
+            })
+            $('#create_refund_invoice_id').trigger('change');
+            $('#createRefundModal').modal('show');
+        }
+
+        $('#create_refund_invoice_id').change(function() {
+            let invoice_id = $('#create_refund_invoice_id').val();
+            if (invoice_id) {
+                let url = "{{route('special_negotiations.get_refunds', ':id')}}".replace(':id', invoice_id);
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(data) {
+                        $('#create_refund_id').empty();
+                        data.refunds.forEach(element => {
+                            let options = '<option value="' + element.id + '">' + element.total_refunded + ' - ' + element.refund_date + ' - ' + element.refund_number + '</option>';
+                            $('#create_refund_id').append(options);
+                        })
+                        $('#create_refund_id').trigger('change');
+                    }
+                })
+            }
+        })
+
+        $('#create_refund_id').change(function() {
+            const optionSelectedRefundId = $(this).find('option:selected');
+            const textSelectedRefundId = optionSelectedRefundId.text();
+            console.log(textSelectedRefundId);
+            let parts = textSelectedRefundId.split(' - ');
+            let mount = parseFloat(parts[0]);
+            let date = parts[1];
+
+            $('#create_refund_mount_balance').val(mount);
+            $('#create_refund_at').val(date);
+        })
+
         function editRefund(params) {
             let parts = params.split('*-*');
             let quotaId = parts[0];
@@ -1111,5 +1304,110 @@
             $('#edit_refund_mount_balance').val(mount);
             $('#edit_refund_at').val(date);
         })
+
+        // Discounts
+
+        function addDiscount(params) {
+            let parts = params.split('*-*');
+            let id = parts[0];
+            let invoice_ids = parts[1].split(',');
+            invoice_ids = invoice_ids.map(id => parseInt(id));
+            const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
+
+            $('#create_discount_quota_id').val(id);
+
+            $('#create_discount_invoice_id').empty();
+            invoicesFilter.forEach(element => {
+                let options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
+                $('#create_discount_invoice_id').append(options);
+            })
+            $('#create_discount_invoice_id').trigger('change');
+            $('#createDiscountModal').modal('show');
+        }
+
+        $('#create_discount_invoice_id').change(function() {
+            let invoice_id = $('#create_discount_invoice_id').val();
+            if (invoice_id) {
+
+            }
+        })
+
+        $('#create_discount_id').change(function() {
+            const optionSelectedDiscountId = $(this).find('option:selected');
+            const textSelectedDiscountId = optionSelectedDiscountId.text();
+            console.log(textSelectedDiscountId);
+            let parts = textSelectedDiscountId.split(' - ');
+            let mount = parseFloat(parts[0]);
+            let date = parts[1];
+
+            $('#create_discount_mount_balance').val(mount);
+            $('#create_discount_at').val(date);
+        })
+
+        function editDiscount(params) {
+            let parts = params.split('*-*');
+            let quotaId = parts[0];
+            let invoice_ids = parts[1].split(',');
+            invoice_ids = invoice_ids.map(id => parseInt(id));
+
+            let discountId = parts[2];
+            let mountBalance = parts[3];
+            let createDiscountAt = parts[4];
+            let invoiceId = parts[5];
+
+            const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
+
+            let url = "{{route('special_negotiations.discount.update', ':id')}}".replace(':id', discountId);
+
+            $('#editDiscountForm').attr('action', url);
+
+            $('#edit_discount_quota_id').val(quotaId);
+
+            $('#edit_discount_quota_invoice_id').empty();
+            invoicesFilter.forEach(element => {
+                let options = '';
+                if (element.id == invoiceId) {
+                    options = '<option value="' + element.id + '" selected>' + element.invoice_number + '</option>';
+                }else{
+                    options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
+                }
+                $('#edit_discount_quota_invoice_id').append(options);
+            })
+            $('#edit_discount_quota_invoice_id').trigger('change');
+            $('#edit_discount_mount_balance').val(mountBalance);
+            $('#edit_discount_at').val(createDiscountAt);
+            $('#edit_discount_id').val(discountId);
+            $('#editDiscountModal').modal('show');
+        }
+
+        $('#edit_discount_quota_invoice_id').change(function() {
+            let invoice_id = $('#edit_discount_quota_invoice_id').val();
+            /* if (invoice_id) {
+
+            } */
+        })
+
+        $('#edit_discount_id').change(function() {
+            const optionSelectedDiscountId = $(this).find('option:selected');
+            const textSelectedDiscountId = optionSelectedDiscountId.text();
+            console.log(textSelectedDiscountId);
+            let parts = textSelectedDiscountId.split(' - ');
+            let mount = parseFloat(parts[0]);
+            let date = parts[1];
+
+            $('#edit_discount_mount_balance').val(mount);
+            $('#edit_discount_at').val(date);
+        })
+
+        // Tracking
+
+        async function showTracking(current_model, id) {
+            let data = {
+                    current_model : current_model,
+                    id : id
+                };
+            Livewire.dispatch('reload-data-tracking-table', data);
+            $('#trackingModal').modal('show');
+        }
     </script>
 @stop

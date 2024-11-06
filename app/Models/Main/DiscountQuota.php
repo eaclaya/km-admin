@@ -24,7 +24,6 @@ class DiscountQuota extends ModelDBMain
         'employee_id',
         'client_id',
         'invoice_id',
-        'payment_quota_id',
         'discount_applied',
         'porcent_quotas_discount'
     ];

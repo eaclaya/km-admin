@@ -19,7 +19,6 @@ class PaymentQuota extends ModelDBMain
     protected $table = 'payment_quotas';
 
     protected $fillable = [
-        'id',
         'special_negotiations_id',
         'quota_id',
         'account_id',

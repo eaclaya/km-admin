@@ -313,6 +313,7 @@ class SpecialNegotiationsController extends Controller
             $lastPaymentBalanceTotal = $payment->mount_balance_total;
             $lastFinalBalance = $payment->final_balance;
         }
+        $this->refundCalculate($quota_id);
     }
 
     public function refundStore(Request $request)
@@ -320,13 +321,20 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
         unset($data['_token']);
         $quota_id = $data['quota_id'];
-        $paymentCuota = PaymentQuota::where('quota_id', $quota_id)
-            ->select('id','mount_balance', 'mount_balance_total', 'final_balance')
-            ->orderBy('id', 'asc')
-            ->first();
-        $monthlyRefund = $paymentCuota->monthly_refund;
-        $days = Carbon::now()->diffInDays(Carbon::parse($paymentCuota->credit_refund_at)) + 1;
+        $quota = Quota::find($quota_id);
+        $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
         $is_overdue = $days <= 0 ? true : false;
+
+        $paymentCuota = PaymentQuota::where('quota_id', $quota_id)
+            ->select('final_balance')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $monthlyRefund = 0;
+        if(isset($paymentCuota)){
+            $monthlyRefund = $paymentCuota->final_balance;
+        }
+
         $data['mount_balance_total'] = 0;
         $data['final_balance'] = 0;
         $data['overdue_balance'] = $is_overdue ? $monthlyRefund : 0;
@@ -357,5 +365,48 @@ class SpecialNegotiationsController extends Controller
         $this->refundCalculate($quota_id);
         Session::flash('message', 'Pago Actualizado Correctamente');
         return redirect()->back();
+    }
+
+    public function refundCalculate($quota_id)
+    {
+        $lastPayment = PaymentQuota::where('quota_id', $quota_id)
+            ->select('final_balance', 'mount_balance_total')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $lastRefundQuotaBalanceTotal = 0;
+        $monthlyRefundQuota = 0;
+        if (isset($lastPayment)) {
+            $monthlyRefundQuota = $lastPayment->final_balance;
+            $lastRefundQuotaBalanceTotal = $lastPayment->mount_balance_total;
+        }else{
+            $monthlyRefundQuota = Quota::where('id',$quota_id)->first()->monthly_payment;
+        }
+
+        $refundQuotas = RefundQuota::where('quota_id', $quota_id)
+            ->select('id','mount_balance', 'mount_balance_total', 'final_balance')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $lastFinalBalance = $monthlyRefundQuota;
+
+        foreach ($refundQuotas as $refundQuota) {
+            $refundQuota->mount_balance_total = floatval( $lastRefundQuotaBalanceTotal - $refundQuota->mount_balance );
+            $refundQuota->final_balance = floatval($lastFinalBalance - $refundQuota->mount_balance);
+            $refundQuota->save();
+
+            $lastRefundQuotaBalanceTotal = $refundQuota->mount_balance_total;
+            $lastFinalBalance = $refundQuota->final_balance;
+        }
+    }
+
+    public function discountStore()
+    {
+
+    }
+
+    public function discountUpdate()
+    {
+
     }
 }

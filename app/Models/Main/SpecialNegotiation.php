@@ -60,4 +60,9 @@ class SpecialNegotiation extends ModelDBMain
     {
         return $this->belongsToMany('App\Models\Main\Invoice', 'negotiations_invoices', 'special_negotiations_id', 'invoice_id');
     }
+
+    public function getEntityType()
+    {
+        return ENTITY_SPECIAL_NEGOTIATION;
+    }
 }

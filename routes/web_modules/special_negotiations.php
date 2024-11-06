@@ -13,6 +13,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('special_negotiations/refund/store', [SpecialNegotiationsController::class, 'refundStore'])->name('special_negotiations.refund.store');
     Route::post('special_negotiations/refund/{id}/update', [SpecialNegotiationsController::class, 'refundUpdate'])->name('special_negotiations.refund.update');
 
+    Route::post('special_negotiations/discount/store', [SpecialNegotiationsController::class, 'discountStore'])->name('special_negotiations.discount.store');
+    Route::post('special_negotiations/discount/{id}/update', [SpecialNegotiationsController::class, 'discountUpdate'])->name('special_negotiations.discount.update');
+
     Route::get('special_negotiations/{id}/get_payments', [SpecialNegotiationsController::class, 'get_payments'])->name('special_negotiations.get_payments');
     Route::get('special_negotiations/{id}/get_refunds', [SpecialNegotiationsController::class, 'get_refunds'])->name('special_negotiations.get_refunds');
 
