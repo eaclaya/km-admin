@@ -51,7 +51,16 @@ class SpecialNegotiationsController extends Controller
      */
     public function show(string $id)
     {
-        $negotiation = SpecialNegotiation::find($id);
+        $negotiation = SpecialNegotiation::where('id', $id)->with([
+            'invoices:id,invoice_number,amount',
+            'route:id,name', 'account:id,name',
+            'employee:id,first_name,last_name',
+            'client:id,name,company_name,phone,work_phone,address1',
+            'quotas', 'quotas.invoices:id,invoice_number,amount',
+            'quotas.payments', 'quotas.discounts',
+            'quotas.refunds',
+        ])->first();
+
         if (!isset($negotiation)) {
             return redirect()->route('special_negotiations.index');
         }

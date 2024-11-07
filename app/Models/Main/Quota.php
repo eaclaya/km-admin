@@ -69,6 +69,11 @@ class Quota extends ModelDBMain
         return $this->hasMany('App\Models\Main\RefundQuota');
     }
 
+    public function discounts()
+    {
+        return $this->hasMany('App\Models\Main\DiscountQuota');
+    }
+
     public function getEntityType()
     {
         return ENTITY_QUOTA;

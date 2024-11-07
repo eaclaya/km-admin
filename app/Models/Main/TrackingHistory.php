@@ -29,7 +29,6 @@ class TrackingHistory extends ModelDBMain
         $model = isset($model) ? $model : $this->model;
         $thisModel = $this->snakeToCamel($model);
         $related = 'App\\Models\\Main\\'.$thisModel;
-        // dd($related);
         return $this->belongsTo($related, 'model_id');
     }
     public function user(){

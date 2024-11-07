@@ -263,9 +263,9 @@
                                     <a class="btn btn-warning btn-sm" onclick="addRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
                                         Agregar Rembolso
                                     </a>
-                                </td>{{-- createDiscountModal --}}
+                                </td>
                                 <td>
-                                    <a class="btn btn-info btn-sm" onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
+                                    <a class="btn btn-info btn-sm" onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}')">
                                         Agregar Descuento
                                     </a>
                                 </td>
@@ -818,31 +818,60 @@
 
                         <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
                             <div class="col-md-12">
-                                <h4>Crear Pago</h4>
+                                <h4>Crear Descuento</h4>
                             </div>
-                            <div class="col-md-3">
-                                <label for="create_discount_invoice_id" class="form-label">Factura:</label>
-                                <select name="invoice_id" id="create_discount_invoice_id" class="form-control" required>
-                                </select>
-                            </div>
+                            <div class="col-md-12 row">
+                                <div class="col-md-3">
+                                    <label for="create_discount_invoice_id" class="form-label">Factura:</label>
+                                    <select name="invoice_id" id="create_discount_invoice_id" class="form-control" required>
+                                    </select>
+                                </div>
 
-                            <div class="col-md-3">
-                                <label for="create_discount_id" class="form-label">Rembolsos:</label>
-                                <select name="discount_id" id="create_discount_id" class="form-control" required>
-                                </select>
-                            </div>
+                                <div class="col-md-3">
+                                    <label for="create_porcent_quotas_discount" class="form-label">Porcentaje de Descuento:</label>
+                                    <input
+                                        type="number" class="form-control" id="create_porcent_quotas_discount"
+                                        name="porcent_quotas_discount" step="0.01"
+                                        required
+                                    />
+                                </div>
 
-                            <div class="col-md-3">
-                                <label for="create_discount_mount_balance" class="form-label">Monto Abonado:</label>
-                                <input
-                                    type="number" class="form-control" id="create_discount_mount_balance"
-                                    name="mount_balance" step="0.01"
-                                    required
-                                />
+                                <div class="col-md-3">
+                                    <label for="create_discount_applied" class="form-label">Descuento Aplicado:</label>
+                                    <input
+                                        type="number" class="form-control" id="create_discount_applied"
+                                        name="discount_applied" step="0.01"
+                                        required readonly
+                                    />
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <label for="create_discount_at" class="form-label">Fecha de pago:</label>
-                                <input type="date" class="form-control" id="create_discount_at" name="discount_at" required />
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <div class="col-md-12 row">
+                                <div class="col-md-3">
+                                    <label for="create_discount_total_amount" class="form-label">Importe Total de Cuota:</label>
+                                    <input type="number" value="0"
+                                        id="create_discount_total_amount"
+                                        class="form-control" disabled readonly
+                                    >
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="create_discount_total_amount_sub_porcent" class="form-label">Importe Total Menos Descuento:</label>
+                                    <input type="number" value="0"
+                                        id="create_discount_total_amount_sub_porcent"
+                                        class="form-control" disabled readonly
+                                    >
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="create_discount_amount_invoice" class="form-label">Importe de Factura:</label>
+                                    <input type="number" value="0" id="create_discount_amount_invoice" class="form-control" disabled readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="create_discount_amount_invoice_sub_porcent" class="form-label">Imp. de Fac. Menos Descuento:</label>
+                                    <input type="number" value="0" id="create_discount_amount_invoice_sub_porcent" class="form-control" disabled readonly>
+                                </div>
                             </div>
                         </div>
                         <hr>
@@ -883,24 +912,24 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-4">
-                                <label for="edit_discount_id" class="form-label">Pagos:</label>
-                                <select name="discount_id" id="edit_discount_id" class="form-control" required>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="edit_discount_mount_balance" class="form-label">Monto Abonado:</label>
+                            <div class="col-md-3">
+                                <label for="edit_porcent_quotas_discount" class="form-label">Porcentaje de Descuento:</label>
                                 <input
-                                    type="number" class="form-control" id="edit_discount_mount_balance"
-                                    name="mount_balance" step="0.01"
+                                    type="number" class="form-control" id="edit_porcent_quotas_discount"
+                                    name="porcent_quotas_discount" step="0.01"
                                     required
                                 />
                             </div>
-                            <div class="col-md-4">
-                                <label for="edit_discount_at" class="form-label">Fecha de pago:</label>
-                                <input type="date" class="form-control" id="edit_discount_at" name="discount_at" required />
+
+                            <div class="col-md-3">
+                                <label for="edit_discount_applied" class="form-label">Descuento Aplicado:</label>
+                                <input
+                                    type="number" class="form-control" id="edit_discount_applied"
+                                    name="discount_applied" step="0.01"
+                                    required
+                                />
                             </div>
+
                             <div class="col-md-4">
                                 <label for="reason" class="form-label">Rason del Cambio:</label>
                                 <input type="text" class="form-control" id="reason" name="reason" maxlength="50" required />
@@ -1313,6 +1342,9 @@
             let invoice_ids = parts[1].split(',');
             invoice_ids = invoice_ids.map(id => parseInt(id));
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
+            let total_amount = parts[2];
+
+            $('#create_discount_total_amount').val(total_amount);
 
             $('#create_discount_quota_id').val(id);
 
@@ -1328,9 +1360,37 @@
         $('#create_discount_invoice_id').change(function() {
             let invoice_id = $('#create_discount_invoice_id').val();
             if (invoice_id) {
-
+                invoicesFilter = invoices.filter(objeto => objeto.id == invoice_id);
+                amount = invoicesFilter[0].amount;
+                $('#create_discount_amount_invoice').val(amount);
             }
+            $('#create_porcent_quotas_discount').trigger('change');
         })
+
+        $('#create_porcent_quotas_discount').change(function() {
+            changeCreatePorcentQuotasDiscount(this);
+        })
+        $('#create_porcent_quotas_discount').keyup(function() {
+            changeCreatePorcentQuotasDiscount(this);
+        })
+
+        function changeCreatePorcentQuotasDiscount(event){
+            let value = event.value;
+            let total_amount = $('#create_discount_total_amount').val();
+
+            let porcent = (value / 100) * total_amount;
+            let final_amount = total_amount - porcent;
+
+            $('#create_discount_applied').val(porcent);
+            $('#create_discount_total_amount_sub_porcent').val(final_amount);
+
+            let amount_invoice = $('#create_discount_amount_invoice').val();
+
+            let porcent_invoice = (value / 100) * amount_invoice;
+            let final_amount_invoice = amount_invoice - porcent_invoice;
+
+            $('#create_discount_amount_invoice_sub_porcent').val(final_amount_invoice);
+        }
 
         $('#create_discount_id').change(function() {
             const optionSelectedDiscountId = $(this).find('option:selected');
