@@ -2,6 +2,7 @@
 
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\UpdatesWithEvent;
 
 /**
  * Class Company
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DiscountQuota extends ModelDBMain
 {
     use SoftDeletes;
+    use UpdatesWithEvent;
 
     protected $connection = 'main';
 
@@ -25,37 +27,43 @@ class DiscountQuota extends ModelDBMain
         'client_id',
         'invoice_id',
         'discount_applied',
-        'porcent_quotas_discount'
+        'porcent_quotas_discount',
+        'final_balance'
     ];
 
 
-    public function special_negotiations()
+    public function special_negotiation()
     {
-        return $this->hasMany('App\Models\Main\SpecialNegotiation');
+        return $this->belongsTo('App\Models\Main\SpecialNegotiation');
     }
 
     public function quota()
     {
-        return $this->hasMany('App\Models\Main\Quota');
+        return $this->belongsTo('App\Models\Main\Quota');
     }
 
-    public function accounts()
+    public function account()
     {
-        return $this->hasMany('App\Models\Main\Account');
+        return $this->belongsTo('App\Models\Main\Account');
     }
 
     public function employee()
     {
-        return $this->hasMany('App\Models\Main\Employee');
+        return $this->belongsTo('App\Models\Main\Employee');
     }
 
-    public function clients()
+    public function client()
     {
-        return $this->hasMany('App\Models\Main\Client');
+        return $this->belongsTo('App\Models\Main\Client');
     }
 
-    public function invoices()
+    public function invoice()
     {
-        return $this->hasMany('App\Models\Main\Invoice');
+        return $this->belongsTo('App\Models\Main\Invoice');
+    }
+
+    public function getEntityType()
+    {
+        return ENTITY_DISCOUNT_QUOTA;
     }
 }

@@ -46,7 +46,6 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @var array
      */
     protected $fillable = [
-        'id',
         'tax_name1',
         'tax_rate1',
         'tax_name2',
@@ -54,7 +53,8 @@ class Invoice extends EntityModel implements BalanceAffecting
         'amount_kms',
         'save_vouchers',
         'discount_vouchers',
-        'public_notes'
+        'public_notes',
+        'discount_negotiations'
     ];
 
     /**
@@ -321,7 +321,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function refunds(){
 	return $this->hasMany('App\Models\Main\Refund');
-    }	 
+    }
 
     /**
      * @return mixed
@@ -1335,9 +1335,11 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         return $message;
     }
+
     public function getWhatsappConfig(){
         return $this->account->whatsappConfigAccount;
     }
+
     public function isParticipantPromotions($promotion){
         $pStarDate = \Carbon\Carbon::parse($promotion->start_date);
         $invCreatedAt = \Carbon\Carbon::parse($this->created_at);
@@ -1370,52 +1372,8 @@ class Invoice extends EntityModel implements BalanceAffecting
         Log::info('no paso la prueba');
         return false;
     }
+
+    public function getAmountSubDiscountNegotiationsAttribute(){
+        return number_format($this->amount + $this->discount_negotiations, 2, '.', '');
+    }
 }
-
-Invoice::creating(function ($invoice) {
-    if (!$invoice->is_recurring) {
-        $invoice->account->incrementCounter($invoice);
-    }
-});
-
-Invoice::created(function ($invoice) {
-    if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-        event(new QuoteWasCreated($invoice));
-    } else {
-        event(new InvoiceWasCreated($invoice));
-    }
-    if(!Session::get('updated_invoice_'.$invoice->invoice_number)){
-        if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-            // event(new WhatsappQuoteWasCreated($invoice));
-        } else {
-            if($invoice->account_id == 17){
-                // event(new WhatsappInvoiceWasCreated($invoice));
-                $randNumber = rand(1, 60);
-                dispatch((new SentApiWhatsapp('WhatsappInvoiceWasCreated', $invoice))->delay($randNumber));
-            }
-        }
-    }
-    Session::flash('updated_invoice_'.$invoice->invoice_number, 1);
-});
-
-Invoice::updating(function ($invoice) {
-    if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-        event(new QuoteWasUpdated($invoice));
-    } else {
-        event(new InvoiceWasUpdated($invoice));
-    }
-});
-
-Invoice::updated(function($invoice){
-    if(!Session::get('updated_invoice_'.$invoice->invoice_number)){
-        if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-            // event(new WhatsappQuoteWasUpdated($invoice));
-        }/*  else {
-            event(new WhatsappInvoiceWasUpdated($invoice));
-        } */
-        if ($invoice->isType(INVOICE_TYPE_STANDARD)) {
-            event(new CheckPromotionsActive($invoice));
-        }
-    }
-    Session::flash('updated_invoice_'.$invoice->invoice_number, 1);
-});

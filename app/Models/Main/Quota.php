@@ -30,7 +30,8 @@ class Quota extends ModelDBMain
         'status',
         'credit_start_at',
         'credit_payment_at',
-        'discount_applied'
+        'discount_applied',
+        'credit_condition'
     ];
 
 

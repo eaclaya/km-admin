@@ -60,9 +60,13 @@
                             <input type="number" id="due_balance" name="due_balance" step="0.01" class="form-control" value="{{$special_negotiation->due_balance}}">
                         </div>
                         <div class="col-md-2">
-                            <p></p>
-                            <button type="submit" class="btn btn-primary">Enviar</button>
+                            <label for="reason" class="form-label">Rason del Cambio</label>
+                            <input type="text" id="reason" name="reason" class="form-control" required>
                         </div>
+                    </div>
+                    <div class="col-md-2">
+                        <p></p>
+                        <button type="submit" class="btn btn-primary">Enviar</button>
                     </div>
                 </form>
             </div>

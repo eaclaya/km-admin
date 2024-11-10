@@ -19,5 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('special_negotiations/{id}/get_payments', [SpecialNegotiationsController::class, 'get_payments'])->name('special_negotiations.get_payments');
     Route::get('special_negotiations/{id}/get_refunds', [SpecialNegotiationsController::class, 'get_refunds'])->name('special_negotiations.get_refunds');
 
+    Route::get('special_negotiations/{id}/set_credit_record', [SpecialNegotiationsController::class, 'set_credit_record'])->name('special_negotiations.set_credit_record');
+
     Route::resource('special_negotiations', SpecialNegotiationsController::class);
 });

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
+
 use App\Models\Main\SpecialNegotiation;
 use App\Models\Main\DiscountQuota;
 use App\Models\Main\PaymentQuota;
@@ -10,12 +12,19 @@ use App\Models\Main\RefundQuota;
 use App\Models\Main\Quota;
 use App\Models\Main\Payment;
 use App\Models\Main\Refund;
-use Illuminate\Support\Facades\Session;
+
+use App\Services\SpecialNegotiationsService;
+
 use Carbon\Carbon;
 use \Auth;
 
 class SpecialNegotiationsController extends Controller
 {
+
+    public function __construct(
+        public SpecialNegotiationsService $moduleService
+    ){}
+
     /**
      * Display a listing of the resource.
      */
@@ -35,14 +44,10 @@ class SpecialNegotiationsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): mixed
     {
         $data = $request->all();
-        $invoices_ids = $data['invoice_id'];
-        unset($data['invoice_id']);
-        unset($data['_token']);
-        $negotiation = SpecialNegotiation::create($data);
-        $negotiation->invoices()->attach($invoices_ids);
+        $this->moduleService->getRepository()->createSpecialNegotiation($data);
         return redirect()->route('special_negotiations.index');
     }
 
@@ -51,16 +56,7 @@ class SpecialNegotiationsController extends Controller
      */
     public function show(string $id)
     {
-        $negotiation = SpecialNegotiation::where('id', $id)->with([
-            'invoices:id,invoice_number,amount',
-            'route:id,name', 'account:id,name',
-            'employee:id,first_name,last_name',
-            'client:id,name,company_name,phone,work_phone,address1',
-            'quotas', 'quotas.invoices:id,invoice_number,amount',
-            'quotas.payments', 'quotas.discounts',
-            'quotas.refunds',
-        ])->first();
-
+        $negotiation = $this->moduleService->getRepository()->firstShowSpecialNegotiation($id);
         if (!isset($negotiation)) {
             return redirect()->route('special_negotiations.index');
         }
@@ -167,13 +163,7 @@ class SpecialNegotiationsController extends Controller
     public function update(Request $request, string $id)
     {
         $data = $request->all();
-        $invoices_ids = $data['invoice_id'];
-
-        unset($data['invoice_id']);
-        unset($data['_token']);
-        $negotiation = SpecialNegotiation::find($id);
-        $negotiation->update($data);
-        $negotiation->invoices()->sync($invoices_ids);
+        $this->moduleService->getRepository()->updateSpecialNegotiation($id, $data);
         return redirect()->route('special_negotiations.index');
     }
 
@@ -188,33 +178,10 @@ class SpecialNegotiationsController extends Controller
     public function quotaStore(Request $request)
     {
         $data = $request->all();
-        $negotiation = SpecialNegotiation::find($data['special_negotiations_id']);
-        if (!isset($negotiation)) {
+        $negotiation = $this->moduleService->createQuotas($data);
+        if (!$negotiation) {
             Session::flash('message', 'No se encontro la negociación');
             return redirect()->back();
-        }
-        $quotasQty = $data['create_select_quotas_qty'];
-        $quotasQty = explode("-", $quotasQty)[1];
-        $result = [];
-        for ($i=0; $i < $quotasQty; $i++) {
-            $result[] = [
-                'special_negotiations_id' => $data['special_negotiations_id'],
-                'account_id' => $data['account_id'],
-                'employee_id' => $data['employee_id'],
-                'client_id' => $data['client_id'],
-                'invoice_id' => $data['invoice_id'][$i],
-                'initial_balance' => $data['initial_balance'][$i],
-                'monthly_payment' => $data['monthly_payment'][$i],
-                'status' => $data['status'][$i],
-                'credit_start_at' => $data['credit_start_at'][$i],
-                'credit_payment_at' => $data['credit_payment_at'][$i]
-            ];
-        }
-        foreach ($result as $value) {
-            $invoices = $value['invoice_id'];
-            unset($value['invoice_id']);
-            $quota = Quota::create($value);
-            $quota->invoices()->sync($invoices);
         }
         Session::flash('message', 'Cuotas Generadas Correctamente');
         return redirect()->route('special_negotiations.show', $data['special_negotiations_id']);
@@ -223,20 +190,12 @@ class SpecialNegotiationsController extends Controller
     public function quotaUpdate(Request $request, string $id)
     {
         $data = $request->all();
-        $quota = Quota::find($id);
-        if (!isset($quota)) {
-            Session::flash('message', 'No se encontro la cuota');
+
+        $quota = $this->moduleService->getRepository()->updateQuota($id, $data);
+        if (!$quota) {
+            Session::flash('message', 'No se encontro la Cuota');
             return redirect()->back();
         }
-        unset($data['_token']);
-        $invoices = $data['invoice_id'];
-        unset($data['invoice_id']);
-        $quota->activateTracking();
-        $quota->setReason($data['reason']);
-        unset($data['reason']);
-        $quota->update($data);
-        $quota->invoices()->sync($invoices);
-
         Session::flash('message', 'Cuota Actualizada Correctamente');
         return redirect()->back();
     }
@@ -264,18 +223,7 @@ class SpecialNegotiationsController extends Controller
     public function paymentStore(Request $request)
     {
         $data = $request->all();
-        unset($data['_token']);
-        $quota_id = $data['quota_id'];
-        $quota = Quota::find($quota_id);
-        $monthlyPayment = $quota->monthly_payment;
-        $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
-        $is_overdue = $days <= 0 ? true : false;
-        $data['mount_balance_total'] = 0;
-        $data['final_balance'] = 0;
-        $data['overdue_balance'] = $is_overdue ? $monthlyPayment : 0;
-
-        PaymentQuota::create($data);
-        $this->paymentCalculate($quota_id);
+        $this->moduleService->getRepository()->createPayment($data);
 
         Session::flash('message', 'Pago Agregado Correctamente');
         return redirect()->back();
@@ -284,138 +232,68 @@ class SpecialNegotiationsController extends Controller
     public function paymentUpdate(Request $request, $id)
     {
         $data = $request->all();
-        $payment = PaymentQuota::find($id);
+        $payment = $this->moduleService->getRepository()->updatePayment($id, $data);
 
-        if (!isset($payment)) {
+        if (!$payment) {
             Session::flash('message', 'No se encontro el pago');
             return redirect()->back();
         }
-        unset($data['_token']);
-        $payment->activateTracking();
-        $payment->setReason($data['reason']);
-        unset($data['reason']);
-        $payment->update($data);
-
-        $quota_id = $payment->quota_id;
-        $this->paymentCalculate($quota_id);
         Session::flash('message', 'Pago Actualizado Correctamente');
         return redirect()->back();
-    }
-
-    public function paymentCalculate($quota_id)
-    {
-        $monthlyPayment = Quota::where('id',$quota_id)->first()->monthly_payment;
-
-        $payments = PaymentQuota::where('quota_id', $quota_id)
-            ->select('id','mount_balance', 'mount_balance_total', 'final_balance')
-            ->orderBy('id', 'asc')
-            ->get();
-
-        $lastPaymentBalanceTotal = 0;
-        $lastFinalBalance = $monthlyPayment;
-
-        foreach ($payments as $payment) {
-            $payment->mount_balance_total = floatval( $lastPaymentBalanceTotal + $payment->mount_balance );
-            $payment->final_balance = floatval($lastFinalBalance - $payment->mount_balance);
-            $payment->save();
-
-            $lastPaymentBalanceTotal = $payment->mount_balance_total;
-            $lastFinalBalance = $payment->final_balance;
-        }
-        $this->refundCalculate($quota_id);
     }
 
     public function refundStore(Request $request)
     {
         $data = $request->all();
-        unset($data['_token']);
-        $quota_id = $data['quota_id'];
-        $quota = Quota::find($quota_id);
-        $days = Carbon::now()->diffInDays(Carbon::parse($quota->credit_payment_at)) + 1;
-        $is_overdue = $days <= 0 ? true : false;
+        $refund = $this->moduleService->getRepository()->createRefund($data);
 
-        $paymentCuota = PaymentQuota::where('quota_id', $quota_id)
-            ->select('final_balance')
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $monthlyRefund = 0;
-        if(isset($paymentCuota)){
-            $monthlyRefund = $paymentCuota->final_balance;
-        }
-
-        $data['mount_balance_total'] = 0;
-        $data['final_balance'] = 0;
-        $data['overdue_balance'] = $is_overdue ? $monthlyRefund : 0;
-
-        RefundQuota::create($data);
-        $this->refundCalculate($quota_id);
-
-        Session::flash('message', 'Pago Agregado Correctamente');
+        Session::flash('message', 'Rembolso Agregado Correctamente');
         return redirect()->back();
     }
 
     public function refundUpdate(Request $request, $id)
     {
         $data = $request->all();
-        $refund = RefundQuota::find($id);
+        $refund = $this->moduleService->getRepository()->updateRefund($id, $data);
 
-        if (!isset($refund)) {
-            Session::flash('message', 'No se encontro el pago');
+        if (!$refund) {
+            Session::flash('message', 'No se encontro el Rembolso');
             return redirect()->back();
         }
-        unset($data['_token']);
-        $refund->activateTracking();
-        $refund->setReason($data['reason']);
-        unset($data['reason']);
-        $refund->update($data);
-
-        $quota_id = $refund->quota_id;
-        $this->refundCalculate($quota_id);
-        Session::flash('message', 'Pago Actualizado Correctamente');
+        Session::flash('message', 'Rembolso Actualizado Correctamente');
         return redirect()->back();
     }
 
-    public function refundCalculate($quota_id)
+    public function discountStore(Request $request)
     {
-        $lastPayment = PaymentQuota::where('quota_id', $quota_id)
-            ->select('final_balance', 'mount_balance_total')
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $lastRefundQuotaBalanceTotal = 0;
-        $monthlyRefundQuota = 0;
-        if (isset($lastPayment)) {
-            $monthlyRefundQuota = $lastPayment->final_balance;
-            $lastRefundQuotaBalanceTotal = $lastPayment->mount_balance_total;
-        }else{
-            $monthlyRefundQuota = Quota::where('id',$quota_id)->first()->monthly_payment;
-        }
-
-        $refundQuotas = RefundQuota::where('quota_id', $quota_id)
-            ->select('id','mount_balance', 'mount_balance_total', 'final_balance')
-            ->orderBy('id', 'asc')
-            ->get();
-
-        $lastFinalBalance = $monthlyRefundQuota;
-
-        foreach ($refundQuotas as $refundQuota) {
-            $refundQuota->mount_balance_total = floatval( $lastRefundQuotaBalanceTotal - $refundQuota->mount_balance );
-            $refundQuota->final_balance = floatval($lastFinalBalance - $refundQuota->mount_balance);
-            $refundQuota->save();
-
-            $lastRefundQuotaBalanceTotal = $refundQuota->mount_balance_total;
-            $lastFinalBalance = $refundQuota->final_balance;
-        }
+        $data = $request->all();
+        $this->moduleService->getRepository()->createDiscount($data);
+        Session::flash('message', 'Descuento Agregado Correctamente');
+        return redirect()->back();
     }
 
-    public function discountStore()
+    public function discountUpdate(Request $request, $id)
     {
+        $data = $request->all();
+        $discount = $this->moduleService->getRepository()->updateDiscount($id, $data);
 
+        if (!$discount) {
+            Session::flash('message', 'No se encontro el Descuento');
+            return redirect()->back();
+        }
+        Session::flash('message', 'Descuento Actualizado Correctamente');
+        return redirect()->back();
     }
 
-    public function discountUpdate()
+    public function set_credit_record(Request $request, $id)
     {
-
+        $data = $request->all();
+        $negotiation = $this->moduleService->getRepository()->setCreditRecord($id, $data);
+        if (!$negotiation) {
+            Session::flash('message', 'No se encontro la Negociacion');
+            return redirect()->back();
+        }
+        Session::flash('message', 'Record Asignado Correctamente');
+        return redirect()->back();
     }
 }

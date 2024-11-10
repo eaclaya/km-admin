@@ -34,7 +34,7 @@
                                         Importe del crédito {{$loop->iteration}} - FACT # {{$invoice->invoice_number}}
                                     </div>
                                     <span class="">
-                                        {{$invoice->amount}}
+                                        {{$invoice->amount_sub_discount_negotiations}}
                                     </span>
                                 </li>
                             @endforeach
@@ -50,11 +50,31 @@
                     </div>
                     <div class="border-bottom border-top">
                         <label class="control-label col-5">Descuento Otorgado</label>
-                        0% (pendiente)
+                        @php
+                            $discount_current = 0;
+                            $discount_applied = $special_negotiation->discounts->sum('porcent_quotas_discount');
+                            $discount_qty = $special_negotiation->discounts->count();
+                            if ((isset($discount_applied) && $discount_applied > 0) && (isset($discount_qty) && $discount_qty > 0)) {
+                                $discount_current = $discount_applied / $discount_qty;
+                            }
+                        @endphp
+                        {{$discount_applied}} %
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Condicion de Credito</label>
-                        30/60 (pendiente)
+                        @php
+                            $credit_condition = 0;
+                        @endphp
+                        @foreach ($special_negotiation->quotas as $quota)
+                            @php
+                                $credit_condition += $quota->credit_condition;
+                            @endphp
+                            @if ($loop->iteration == 1)
+                                {{$credit_condition}}
+                            @else
+                                / {{$credit_condition}}
+                            @endif
+                        @endforeach
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Fecha de Inicio</label>
@@ -75,35 +95,48 @@
                     </div>
                     <div class="border-bottom  bg-light">
                         <label class="control-label col-5">Revision Record Créditicio</label>
-                        L 0,00 (pendiente)
+                        L {{$special_negotiation->credit_record}}
                     </div>
                     <div class="border-bottom list-group-item-secondary">
                         <label class="control-label col-5">TOTAL CREDITO+REVISION HISTORIAL</label>
-                        {{$special_negotiation->amount}} + (pendiente)
+                        L {{$special_negotiation->amount + $special_negotiation->credit_record}}
                     </div>
                     <div class="border-bottom bg-light">
                         <label class="control-label col-5">Pago mensual sin descuento otorgado</label>
-                        (pendiente)
+                        L {{$special_negotiation->quotas->first()->monthly_payment}}
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Numero de Pagos</label>
-                        (pendiente)
+                        {{$special_negotiation->quotas->count()}} Quotas
                     </div>
                     <div class="border-bottom list-group-item-secondary">
                         <label class="control-label col-5">Descuento total otorgado</label>
-                        (pendiente)
+                        @php $discount_applied = $special_negotiation->discounts->sum('discount_applied') @endphp
+                        L {{$discount_applied}}
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Descuento por pago otorgado</label>
-                        (pendiente)
+                        @forelse ($special_negotiation->discounts as $discount)
+                            @if ($loop->iteration > 1) / @endif {{$discount->discount_applied}}
+                        @empty
+                            L 0
+                        @endforelse
                     </div>
                     <div class="border-bottom bg-light">
                         <label class="control-label col-5">Importe total del crédito - descuento</label>
-                        {{$special_negotiation->amount}} - (pendiente)
+                        {{$special_negotiation->amount - $discount_applied}}
                     </div>
                     <div class="border-bottom  list-group-item-secondary">
                         <label class="control-label col-5">Pago mensual con descuento otorgado</label>
-                        {{$special_negotiation->amount}} - (pendiente)
+                        @forelse ( $special_negotiation->quotas as $quota )
+                            @php
+                                $current_discount = $quota->discounts->sum('discount_applied');
+                                $monthly_payment = $quota->monthly_payment - $current_discount;
+                            @endphp
+                            @if ($loop->iteration > 1) / @endif L {{ $monthly_payment }}
+                        @empty
+                            L 0
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -141,11 +174,26 @@
                     <div class="card-body">
                         <div class="border-bottom">
                             <label class="control-label col-5">Pendiente en Factura</label>
-                            L 0,00 (pendiente)
+                            @php
+                                $result = 0;
+                                foreach ($special_negotiation->quotas as $quota) {
+                                    $monthly_payment = $quota->monthly_payment;
+                                    $total_payments = $quota->payments->sum('mount_balance');
+                                    $total_refunds = $quota->refunds->sum('mount_balance');
+                                    $total_discounts = $quota->discounts->sum('discount_applied');
+                                    $current_result = $monthly_payment - ($total_payments + $total_discounts + $total_refunds);
+                                    $current_result = $current_result > 0 ? $current_result : 0;
+                                    $result += $current_result;
+                                }
+                            @endphp
+                            L {{$result}}
                         </div>
                         <div class="border-bottom  bg-light">
                             <label class="control-label col-5">Revision Record Créditicio</label>
-                            L 0,00 (pendiente)
+                            L {{$special_negotiation->credit_record}} -
+                            <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#creditRecordModal" >
+                                Asignar
+                            </a>
                         </div>
                         <div class="border-bottom list-group-item-secondary">
                             <label class="control-label col-5">Total Saldo Pendiente</label>
@@ -274,7 +322,7 @@
                                 <td>-</td>
                                 <td>-</td>
                                 <td>
-                                    <a class="btn btn-secondary btn-sm" onclick="showTracking('{{$quota->getEntityType()}}','{{$quota->id}}')">
+                                    <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$quota->getEntityType()}}','{{$quota->id}}')">
                                         historial
                                     </a>
                                 </td>
@@ -304,7 +352,7 @@
                                     <td>{{$payment->overdue_balance}}</td>
                                     <td>{{$payment->final_balance}}</td>
                                     <td>
-                                        <a class="btn btn-secondary btn-sm" onclick="showTracking('{{$payment->getEntityType()}}','{{$payment->id}}')">
+                                        <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$payment->getEntityType()}}','{{$payment->id}}')">
                                             historial
                                         </a>
                                     </td>
@@ -337,13 +385,46 @@
                                     <td>{{$refund->overdue_balance}}</td>
                                     <td>{{$refund->final_balance}}</td>
                                     <td>
-                                        <a class="btn btn-secondary btn-sm" onclick="showTracking('{{$refund->getEntityType()}}','{{$refund->id}}')">
+                                        <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$refund->getEntityType()}}','{{$refund->id}}')">
                                             historial
                                         </a>
                                     </td>
                                 </tr>
                             @empty
-                                Sin Pagos
+                                Sin Rembolsos
+                            @endforelse
+                            @forelse ($quota->discounts as $discount)
+                                <tr>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <a class="btn btn-outline-info btn-sm"
+                                            onclick="editDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$discount->id}}*-*{{$discount->porcent_quotas_discount}}*-*{{$discount->invoice_id}}')">
+                                            Editar
+                                        </a>
+                                    </td>
+                                    <td class="font-weight-bold">
+                                        Descuento - {{$loop->iteration}}
+                                    </td>
+                                    <td>{{$discount->created_at->format('Y-m-d')}}</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>{{$discount->discount_applied}}</td>
+                                    <td>-</td>
+                                    <td>{{$discount->final_balance}}</td>
+                                    <td>
+                                        <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$discount->getEntityType()}}','{{$discount->id}}')">
+                                            historial
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                Sin Descuentos
                             @endforelse
                         @empty
                             Cuotas por Agregar
@@ -898,41 +979,74 @@
             </div>
             <div class="modal-body">
                 <div class="container">
-                    <form class="row" method="POST" multipart="multipart/form-data" id='editDiscountForm'>
+                    <form class="row" method="POST" multipart="multipart/form-data" id='editDiscountForm' >
                         @csrf
                         <input type="hidden" name="quota_id" id="edit_discount_quota_id" >
 
                         <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
                             <div class="col-md-12">
-                                <h4>Crear Pago</h4>
+                                <h4>Crear Descuento</h4>
                             </div>
-                            <div class="col-md-4">
-                                <label for="edit_discount_quota_invoice_id" class="form-label">Factura:</label>
-                                <select name="invoice_id" id="edit_discount_quota_invoice_id" class="form-control" required>
-                                </select>
-                            </div>
+                            <div class="col-md-12 row">
+                                <div class="col-md-3">
+                                    <label for="edit_discount_invoice_id" class="form-label">Factura:</label>
+                                    <select name="invoice_id" id="edit_discount_invoice_id" class="form-control" required>
+                                    </select>
+                                </div>
 
-                            <div class="col-md-3">
-                                <label for="edit_porcent_quotas_discount" class="form-label">Porcentaje de Descuento:</label>
-                                <input
-                                    type="number" class="form-control" id="edit_porcent_quotas_discount"
-                                    name="porcent_quotas_discount" step="0.01"
-                                    required
-                                />
-                            </div>
+                                <div class="col-md-3">
+                                    <label for="edit_porcent_quotas_discount" class="form-label">Porcentaje de Descuento:</label>
+                                    <input
+                                        type="number" class="form-control" id="edit_porcent_quotas_discount"
+                                        name="porcent_quotas_discount" step="0.01"
+                                        required
+                                    />
+                                </div>
 
-                            <div class="col-md-3">
-                                <label for="edit_discount_applied" class="form-label">Descuento Aplicado:</label>
-                                <input
-                                    type="number" class="form-control" id="edit_discount_applied"
-                                    name="discount_applied" step="0.01"
-                                    required
-                                />
+                                <div class="col-md-3">
+                                    <label for="edit_discount_applied" class="form-label">Descuento Aplicado:</label>
+                                    <input
+                                        type="number" class="form-control" id="edit_discount_applied"
+                                        name="discount_applied" step="0.01"
+                                        required readonly
+                                    />
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="reason" class="form-label">Rason:</label>
+                                    <input
+                                        type="text" class="form-control" id="reason"
+                                        name="reason"
+                                        required
+                                    />
+                                </div>
                             </div>
-
-                            <div class="col-md-4">
-                                <label for="reason" class="form-label">Rason del Cambio:</label>
-                                <input type="text" class="form-control" id="reason" name="reason" maxlength="50" required />
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+                            <div class="col-md-12 row">
+                                <div class="col-md-3">
+                                    <label for="edit_discount_total_amount" class="form-label">Importe Total de Cuota:</label>
+                                    <input type="number" value="0"
+                                        id="edit_discount_total_amount"
+                                        class="form-control" disabled readonly
+                                    >
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="edit_discount_total_amount_sub_porcent" class="form-label">Importe Total Menos Descuento:</label>
+                                    <input type="number" value="0"
+                                        id="edit_discount_total_amount_sub_porcent"
+                                        class="form-control" disabled readonly
+                                    >
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="edit_discount_amount_invoice" class="form-label">Importe de Factura:</label>
+                                    <input type="number" value="0" id="edit_discount_amount_invoice" class="form-control" disabled readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="edit_discount_amount_invoice_sub_porcent" class="form-label">Imp. de Fac. Menos Descuento:</label>
+                                    <input type="number" value="0" id="edit_discount_amount_invoice_sub_porcent" class="form-control" disabled readonly>
+                                </div>
                             </div>
                         </div>
                         <hr>
@@ -969,6 +1083,30 @@
           </div>
         </div>
     </div>
+    {{-- credit record modal --}}
+    <div class="modal fade" id="creditRecordModal" tabindex="-1" aria-labelledby="creditRecordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="creditRecordModalLabel">Record Crediticio</h5>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form action="{{ route('special_negotiations.set_credit_record', $special_negotiation->id) }}" method="get">
+                        <div class="row justify-content-center">
+                            <input type="number" class="form-control col-md-2" step="0.01" name="credit_record" id="credit_record" value="{{$special_negotiation->credit_record}}">
+                            <button type="submit" class="btn btn-primary btn-sm col-md-2 offset-md-1">Asignar Record Crediticio</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
     <br>
     <br>
     <br>
@@ -986,7 +1124,7 @@
     <script>
         let days = 45;
         let quotasQty = 2;
-        let invoices = {!! json_encode($special_negotiation->invoices) !!};
+        let invoices = {!! json_encode($special_negotiation->invoices->map(function($item) { return ['id' => $item->id, 'invoice_number' => $item->invoice_number, 'amount' => $item->amount_sub_discount_negotiations]; })) !!};
 
         $(document).ready(function() {
             conditionChange();
@@ -1379,85 +1517,91 @@
             let total_amount = $('#create_discount_total_amount').val();
 
             let porcent = (value / 100) * total_amount;
+            porcent = porcent.toFixed(2);
             let final_amount = total_amount - porcent;
+            final_amount = final_amount.toFixed(2);
 
             $('#create_discount_applied').val(porcent);
             $('#create_discount_total_amount_sub_porcent').val(final_amount);
 
             let amount_invoice = $('#create_discount_amount_invoice').val();
 
-            let porcent_invoice = (value / 100) * amount_invoice;
-            let final_amount_invoice = amount_invoice - porcent_invoice;
+            let final_amount_invoice = amount_invoice - porcent;
+            final_amount_invoice = final_amount_invoice.toFixed(2);
 
             $('#create_discount_amount_invoice_sub_porcent').val(final_amount_invoice);
         }
 
-        $('#create_discount_id').change(function() {
-            const optionSelectedDiscountId = $(this).find('option:selected');
-            const textSelectedDiscountId = optionSelectedDiscountId.text();
-            console.log(textSelectedDiscountId);
-            let parts = textSelectedDiscountId.split(' - ');
-            let mount = parseFloat(parts[0]);
-            let date = parts[1];
-
-            $('#create_discount_mount_balance').val(mount);
-            $('#create_discount_at').val(date);
-        })
-
         function editDiscount(params) {
             let parts = params.split('*-*');
-            let quotaId = parts[0];
+            let quota_id = parts[0];
             let invoice_ids = parts[1].split(',');
             invoice_ids = invoice_ids.map(id => parseInt(id));
-
-            let discountId = parts[2];
-            let mountBalance = parts[3];
-            let createDiscountAt = parts[4];
-            let invoiceId = parts[5];
-
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
+            let total_amount = parts[2];
 
-            let url = "{{route('special_negotiations.discount.update', ':id')}}".replace(':id', discountId);
+            let discount_id = parts[3];
+            let porcent_quotas_discount = parts[4];
+            let invoice_id = parts[5];
 
+            $('#edit_discount_total_amount').val(total_amount);
+
+            $('#edit_discount_quota_id').val(quota_id); //<--
+
+            let url = "{{route('special_negotiations.discount.update', ':id')}}".replace(':id', discount_id);
             $('#editDiscountForm').attr('action', url);
 
-            $('#edit_discount_quota_id').val(quotaId);
-
-            $('#edit_discount_quota_invoice_id').empty();
+            $('#edit_discount_invoice_id').empty();
             invoicesFilter.forEach(element => {
-                let options = '';
-                if (element.id == invoiceId) {
-                    options = '<option value="' + element.id + '" selected>' + element.invoice_number + '</option>';
-                }else{
-                    options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
-                }
-                $('#edit_discount_quota_invoice_id').append(options);
+                let options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
+                $('#edit_discount_invoice_id').append(options);
             })
-            $('#edit_discount_quota_invoice_id').trigger('change');
-            $('#edit_discount_mount_balance').val(mountBalance);
-            $('#edit_discount_at').val(createDiscountAt);
-            $('#edit_discount_id').val(discountId);
+
+            $('#edit_discount_invoice_id').val(invoice_id);
+
+            $('#edit_discount_invoice_id').trigger('change');
+
+            $('#edit_porcent_quotas_discount').val(porcent_quotas_discount);
+
             $('#editDiscountModal').modal('show');
         }
 
-        $('#edit_discount_quota_invoice_id').change(function() {
-            let invoice_id = $('#edit_discount_quota_invoice_id').val();
-            /* if (invoice_id) {
-
-            } */
+        $('#edit_discount_invoice_id').change(function() {
+            let invoice_id = $('#edit_discount_invoice_id').val();
+            if (invoice_id) {
+                invoicesFilter = invoices.filter(objeto => objeto.id == invoice_id);
+                amount = invoicesFilter[0].amount;
+                $('#edit_discount_amount_invoice').val(amount);
+            }
+            $('#edit_porcent_quotas_discount').trigger('change');
         })
 
-        $('#edit_discount_id').change(function() {
-            const optionSelectedDiscountId = $(this).find('option:selected');
-            const textSelectedDiscountId = optionSelectedDiscountId.text();
-            console.log(textSelectedDiscountId);
-            let parts = textSelectedDiscountId.split(' - ');
-            let mount = parseFloat(parts[0]);
-            let date = parts[1];
-
-            $('#edit_discount_mount_balance').val(mount);
-            $('#edit_discount_at').val(date);
+        $('#edit_porcent_quotas_discount').change(function() {
+            changeEditPorcentQuotasDiscount(this);
         })
+        $('#edit_porcent_quotas_discount').keyup(function() {
+            changeEditPorcentQuotasDiscount(this);
+        })
+
+        function changeEditPorcentQuotasDiscount(event){
+            let value = event.value;
+            let total_amount = $('#edit_discount_total_amount').val();
+
+            let porcent = (value / 100) * total_amount;
+            porcent = porcent.toFixed(2);
+            let final_amount = total_amount - porcent;
+            final_amount = final_amount.toFixed(2);
+
+            $('#edit_discount_applied').val(porcent);
+            $('#edit_discount_total_amount_sub_porcent').val(final_amount);
+
+            let amount_invoice = $('#edit_discount_amount_invoice').val();
+
+            let final_amount_invoice = amount_invoice - porcent;
+            final_amount_invoice = final_amount_invoice.toFixed(2);
+
+            $('#edit_discount_amount_invoice_sub_porcent').val(final_amount_invoice);
+        }
 
         // Tracking
 
