@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
-
 use App\Models\Main\SpecialNegotiation;
 use App\Models\Main\DiscountQuota;
 use App\Models\Main\PaymentQuota;
@@ -12,18 +11,16 @@ use App\Models\Main\RefundQuota;
 use App\Models\Main\Quota;
 use App\Models\Main\Payment;
 use App\Models\Main\Refund;
-
 use App\Services\SpecialNegotiationsService;
-
 use Carbon\Carbon;
-use \Auth;
+use Auth;
 
 class SpecialNegotiationsController extends Controller
 {
-
     public function __construct(
         public SpecialNegotiationsService $moduleService
-    ){}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -56,11 +53,15 @@ class SpecialNegotiationsController extends Controller
      */
     public function show(string $id)
     {
-        $negotiation = $this->moduleService->getRepository()->firstShowSpecialNegotiation($id);
+        $negotiation = $this->moduleService->getRepository()
+            ->firstShowSpecialNegotiation($id);
         if (!isset($negotiation)) {
             return redirect()->route('special_negotiations.index');
         }
-        return view('special_negotiations.show', ['special_negotiation' => $negotiation]);
+        return view(
+            'special_negotiations.show',
+            ['special_negotiation' => $negotiation]
+        );
     }
 
     /**
@@ -203,7 +204,7 @@ class SpecialNegotiationsController extends Controller
     public function get_payments(Request $request, $id)
     {
         $data = $request->all();
-        $payments = Payment::where('invoice_id',$id)->select('id','amount','payment_date')->get();
+        $payments = Payment::where('invoice_id', $id)->select('id', 'amount', 'payment_date')->get();
         if (!isset($payments)) {
             return response()->json(['error' => 'No se encontro pagos'], 404);
         }
@@ -213,7 +214,7 @@ class SpecialNegotiationsController extends Controller
     public function get_refunds(Request $request, $id)
     {
         $data = $request->all();
-        $refunds = Refund::where('invoice_id',$id)->select('id', 'total_refunded', 'refund_date', 'refund_number')->get();
+        $refunds = Refund::where('invoice_id', $id)->select('id', 'total_refunded', 'refund_date', 'refund_number')->get();
         if (!isset($refunds)) {
             return response()->json(['error' => 'No se encontro pagos'], 404);
         }
