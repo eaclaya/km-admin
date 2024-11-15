@@ -12,7 +12,11 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-body">
-                <livewire:Datatables.special-negotiations-table />
+                @isset($routes_id)
+                    <livewire:Datatables.special-negotiations-table :routes_id='$routes_id' />
+                @else
+                    No Tiene Permitido Visualizar.
+                @endisset
             </div>
         </div>
     </div>

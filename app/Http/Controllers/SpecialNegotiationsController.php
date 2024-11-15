@@ -2,32 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Session;
-use Illuminate\Http\Request;
-use App\Models\Main\SpecialNegotiation;
-use App\Models\Main\DiscountQuota;
-use App\Models\Main\PaymentQuota;
-use App\Models\Main\RefundQuota;
-use App\Models\Main\Quota;
 use App\Models\Main\Payment;
 use App\Models\Main\Refund;
+use App\Models\Main\SpecialNegotiation;
 use App\Services\SpecialNegotiationsService;
-use Carbon\Carbon;
-use Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class SpecialNegotiationsController extends Controller
 {
     public function __construct(
-        public SpecialNegotiationsService $moduleService
-    ) {
-    }
+        public SpecialNegotiationsService $moduleService,
+    ) {}
 
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('special_negotiations.index');
+        $user = Auth::user()->realUser();
+        $routes_id = $this->moduleService->getRouteToUser($user);
+
+        return view('special_negotiations.index', ['routes_id' => $routes_id]);
     }
 
     /**
@@ -45,6 +42,7 @@ class SpecialNegotiationsController extends Controller
     {
         $data = $request->all();
         $this->moduleService->getRepository()->createSpecialNegotiation($data);
+
         return redirect()->route('special_negotiations.index');
     }
 
@@ -55,9 +53,10 @@ class SpecialNegotiationsController extends Controller
     {
         $negotiation = $this->moduleService->getRepository()
             ->firstShowSpecialNegotiation($id);
-        if (!isset($negotiation)) {
+        if (! isset($negotiation)) {
             return redirect()->route('special_negotiations.index');
         }
+
         return view(
             'special_negotiations.show',
             ['special_negotiation' => $negotiation]
@@ -71,25 +70,25 @@ class SpecialNegotiationsController extends Controller
     {
         $data = [];
         $negotiation = SpecialNegotiation::find($id);
-        if (!isset($negotiation)) {
+        if (! isset($negotiation)) {
             return redirect()->route('special_negotiations.index');
         }
         $data['special_negotiation'] = $negotiation;
         $data['route_select'] = [
-            'model' => "App\\Models\\Main\\Route",
+            'model' => 'App\\Models\\Main\\Route',
             'filters' => ['name'],
             'columnText' => ['name'],
             'name' => 'route_id',
             'optionSelected' => [
-                'id' => $negotiation->route_id
+                'id' => $negotiation->route_id,
             ],
         ];
         $data['account_select'] = [
-            'model' => "App\\Models\\Main\\Account",
+            'model' => 'App\\Models\\Main\\Account',
             'filters' => ['name'],
             'columnText' => ['name'],
             'optionSelected' => [
-                'id' => $negotiation->account_id
+                'id' => $negotiation->account_id,
             ],
             'name' => 'account_id',
             'set_properties' => [
@@ -108,25 +107,25 @@ class SpecialNegotiationsController extends Controller
             ],
         ];
         $data['employee_select'] = [
-            'model' => "App\\Models\\Main\\Employee",
-            'filters' => ['first_name','last_name', 'id_number'],
-            'columnText' => ['first_name','last_name'],
+            'model' => 'App\\Models\\Main\\Employee',
+            'filters' => ['first_name', 'last_name', 'id_number'],
+            'columnText' => ['first_name', 'last_name'],
             'optionSelected' => [
-                'id' => $negotiation->employee_id
+                'id' => $negotiation->employee_id,
             ],
             'name' => 'employee_id',
         ];
         $data['client_select'] = [
-            'model' => "App\\Models\\Main\\Client",
+            'model' => 'App\\Models\\Main\\Client',
             'filters' => ['name'],
             'columnText' => ['name'],
             'name' => 'client_id',
             'optionSelected' => [
-                'id' => $negotiation->client_id
+                'id' => $negotiation->client_id,
             ],
         ];
         $data['invoice_select'] = [
-            'model' => "App\\Models\\Main\\Invoice",
+            'model' => 'App\\Models\\Main\\Invoice',
             'filters' => ['invoice_number', 'created_at', 'amount'],
             'columnText' => ['invoice_number', 'created_at', 'amount'],
             'name' => 'invoice_id',
@@ -137,8 +136,8 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['status_select'] = [
             'array' => [
-                "0" => 'Activo',
-                "1" => 'Vencido',
+                '0' => 'Activo',
+                '1' => 'Vencido',
             ],
             'optionSelected' => [
                 'id' => $negotiation->status,
@@ -147,14 +146,15 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['is_document_select'] = [
             'array' => [
-                "0" => 'No',
-                "1" => 'Si',
+                '0' => 'No',
+                '1' => 'Si',
             ],
             'optionSelected' => [
                 'id' => $negotiation->is_document,
             ],
             'name' => 'is_document',
         ];
+
         return view('special_negotiations.edit', $data);
     }
 
@@ -165,6 +165,7 @@ class SpecialNegotiationsController extends Controller
     {
         $data = $request->all();
         $this->moduleService->getRepository()->updateSpecialNegotiation($id, $data);
+
         return redirect()->route('special_negotiations.index');
     }
 
@@ -180,11 +181,13 @@ class SpecialNegotiationsController extends Controller
     {
         $data = $request->all();
         $negotiation = $this->moduleService->createQuotas($data);
-        if (!$negotiation) {
+        if (! $negotiation) {
             Session::flash('message', 'No se encontro la negociación');
+
             return redirect()->back();
         }
         Session::flash('message', 'Cuotas Generadas Correctamente');
+
         return redirect()->route('special_negotiations.show', $data['special_negotiations_id']);
     }
 
@@ -193,11 +196,13 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
 
         $quota = $this->moduleService->getRepository()->updateQuota($id, $data);
-        if (!$quota) {
+        if (! $quota) {
             Session::flash('message', 'No se encontro la Cuota');
+
             return redirect()->back();
         }
         Session::flash('message', 'Cuota Actualizada Correctamente');
+
         return redirect()->back();
     }
 
@@ -205,9 +210,10 @@ class SpecialNegotiationsController extends Controller
     {
         $data = $request->all();
         $payments = Payment::where('invoice_id', $id)->select('id', 'amount', 'payment_date')->get();
-        if (!isset($payments)) {
+        if (! isset($payments)) {
             return response()->json(['error' => 'No se encontro pagos'], 404);
         }
+
         return response()->json(['payments' => $payments], 200);
     }
 
@@ -215,9 +221,10 @@ class SpecialNegotiationsController extends Controller
     {
         $data = $request->all();
         $refunds = Refund::where('invoice_id', $id)->select('id', 'total_refunded', 'refund_date', 'refund_number')->get();
-        if (!isset($refunds)) {
+        if (! isset($refunds)) {
             return response()->json(['error' => 'No se encontro pagos'], 404);
         }
+
         return response()->json(['refunds' => $refunds], 200);
     }
 
@@ -227,6 +234,7 @@ class SpecialNegotiationsController extends Controller
         $this->moduleService->getRepository()->createPayment($data);
 
         Session::flash('message', 'Pago Agregado Correctamente');
+
         return redirect()->back();
     }
 
@@ -235,11 +243,13 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
         $payment = $this->moduleService->getRepository()->updatePayment($id, $data);
 
-        if (!$payment) {
+        if (! $payment) {
             Session::flash('message', 'No se encontro el pago');
+
             return redirect()->back();
         }
         Session::flash('message', 'Pago Actualizado Correctamente');
+
         return redirect()->back();
     }
 
@@ -249,6 +259,7 @@ class SpecialNegotiationsController extends Controller
         $refund = $this->moduleService->getRepository()->createRefund($data);
 
         Session::flash('message', 'Rembolso Agregado Correctamente');
+
         return redirect()->back();
     }
 
@@ -257,11 +268,13 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
         $refund = $this->moduleService->getRepository()->updateRefund($id, $data);
 
-        if (!$refund) {
+        if (! $refund) {
             Session::flash('message', 'No se encontro el Rembolso');
+
             return redirect()->back();
         }
         Session::flash('message', 'Rembolso Actualizado Correctamente');
+
         return redirect()->back();
     }
 
@@ -270,6 +283,7 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
         $this->moduleService->getRepository()->createDiscount($data);
         Session::flash('message', 'Descuento Agregado Correctamente');
+
         return redirect()->back();
     }
 
@@ -278,23 +292,30 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
         $discount = $this->moduleService->getRepository()->updateDiscount($id, $data);
 
-        if (!$discount) {
+        if (! $discount) {
             Session::flash('message', 'No se encontro el Descuento');
+
             return redirect()->back();
         }
         Session::flash('message', 'Descuento Actualizado Correctamente');
+
         return redirect()->back();
     }
 
     public function set_credit_record(Request $request, $id)
     {
         $data = $request->all();
+        if (! isset($data['credit_record_is_payment'])) {
+            $data['credit_record_is_payment'] = 0;
+        }
         $negotiation = $this->moduleService->getRepository()->setCreditRecord($id, $data);
-        if (!$negotiation) {
+        if (! $negotiation) {
             Session::flash('message', 'No se encontro la Negociacion');
+
             return redirect()->back();
         }
         Session::flash('message', 'Record Asignado Correctamente');
+
         return redirect()->back();
     }
 }

@@ -3,32 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Exception;
+use App\Models\Main\Account;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
-use Session;
-use App\Models\Main\Account;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $connection = 'main';
-
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            throw new Exception('No se puede crear este modelo directamente');
-        });
-
-        static::deleting(function ($model) {
-            throw new Exception('No se puede eliminar este modelo directamente');
-        });
-    }
 
     /**
      * The attributes that are mass assignable.
@@ -67,17 +53,15 @@ class User extends Authenticatable
 
     /**
      * Get the user's full name.
-     *
-     * @return string
      */
     public function getNameAttribute(): string
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function adminlte_desc()
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function realUser()
@@ -86,21 +70,37 @@ class User extends Authenticatable
             $realUserId = Session::get('real_userid');
             if ($realUserId > 0) {
                 $user = User::with('role')->find($realUserId);
-                Session::flash('current_real_user_auth',$user);
+                Session::flash('current_real_user_auth', $user);
+
                 return $user;
             }
             Session::flash('current_real_user_auth', $this);
+
             return $this;
-        }else{
+        } else {
             return Session::get('current_real_user_auth');
         }
     }
-    public function account(){
+
+    public function account()
+    {
         return $this->belongsTo(Account::class, 'account_id', 'id');
     }
 
     public function role()
     {
         return $this->belongsTo('App\Models\Main\UserRole');
+    }
+
+    public function _can($code = '')
+    {
+        if (trim($code) == '') {
+            return false;
+        }
+        $permissions = Session::get('user_permissions');
+        $permissions = $permissions ? $permissions : [];
+
+        return isset($permissions[$code]) ? true : false;
+        //        return in_array($code, $permissions);
     }
 }

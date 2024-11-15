@@ -31,7 +31,9 @@ class SpecialNegotiation extends ModelDBMain
         'status',
         'is_document',
         'negotiations_discount',
-        'credit_record'
+        'credit_record',
+        'credit_record_is_payment',
+        'estimated_percentage'
     ];
 
     public function account()
@@ -64,15 +66,18 @@ class SpecialNegotiation extends ModelDBMain
         return $this->belongsToMany('App\Models\Main\Invoice', 'negotiations_invoices', 'special_negotiations_id', 'invoice_id');
     }
 
-    public function discounts(){
+    public function discounts()
+    {
         return $this->hasMany('App\Models\Main\DiscountQuota', 'special_negotiations_id', 'id');
     }
 
-    public function payments(){
+    public function payments()
+    {
         return $this->hasMany('App\Models\Main\PaymentQuota', 'special_negotiations_id', 'id');
     }
 
-    public function refunds(){
+    public function refunds()
+    {
         return $this->hasMany('App\Models\Main\RefundQuota', 'special_negotiations_id', 'id');
     }
 

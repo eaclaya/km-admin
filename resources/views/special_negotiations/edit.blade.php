@@ -52,12 +52,12 @@
                             <input type="number" id="amount" name="amount" step="0.01" class="form-control" value="{{$special_negotiation->amount}}" readonly>
                         </div>
                         <div class="col-md-2">
-                            <label for="overdue_balance" class="form-label">Saldo vencido</label>
-                            <input type="number" id="overdue_balance" name="overdue_balance" step="0.01" class="form-control" value="{{$special_negotiation->overdue_balance}}">
+                            <label for="estimated_percentage" class="form-label">Procentaje Estimado</label>
+                            <input type="number" id="estimated_percentage" name="estimated_percentage" step="0.01" class="form-control">
                         </div>
                         <div class="col-md-2">
-                            <label for="due_balance" class="form-label">Saldo pendiente</label>
-                            <input type="number" id="due_balance" name="due_balance" step="0.01" class="form-control" value="{{$special_negotiation->due_balance}}">
+                            <label for="credit_record" class="form-label">Record Crediticio</label>
+                            <input type="number" id="credit_record" name="credit_record"" step="0.01" class="form-control">
                         </div>
                         <div class="col-md-2">
                             <label for="reason" class="form-label">Rason del Cambio</label>

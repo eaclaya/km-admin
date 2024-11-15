@@ -50,22 +50,14 @@
                     </div>
                     <div class="border-bottom border-top">
                         <label class="control-label col-5">Descuento Otorgado</label>
-                        @php
-                            $discount_current = 0;
-                            $discount_applied = $special_negotiation->discounts->sum('porcent_quotas_discount');
-                            $discount_qty = $special_negotiation->discounts->count();
-                            if ((isset($discount_applied) && $discount_applied > 0) && (isset($discount_qty) && $discount_qty > 0)) {
-                                $discount_current = $discount_applied / $discount_qty;
-                            }
-                        @endphp
-                        {{$discount_applied}} %
+                        {{$special_negotiation->estimated_percentage ?? 0}} %
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Condicion de Credito</label>
                         @php
                             $credit_condition = 0;
                         @endphp
-                        @foreach ($special_negotiation->quotas as $quota)
+                        @forelse ($special_negotiation->quotas as $quota)
                             @php
                                 $credit_condition += $quota->credit_condition;
                             @endphp
@@ -74,7 +66,9 @@
                             @else
                                 / {{$credit_condition}}
                             @endif
-                        @endforeach
+                        @empty
+                            Cuotas por Definir
+                        @endforelse
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Fecha de Inicio</label>
@@ -93,9 +87,12 @@
                             @endif
                         @endforeach
                     </div>
+                    @php
+                        $quotasCount = $special_negotiation->quotas->count() ?? 0;
+                    @endphp
                     <div class="border-bottom  bg-light">
                         <label class="control-label col-5">Revision Record Créditicio</label>
-                        L {{$special_negotiation->credit_record}}
+                        L {{$special_negotiation->credit_record}}  - @if($special_negotiation->credit_record_is_payment > 0) Pagado @else Pendiente @endif
                     </div>
                     <div class="border-bottom list-group-item-secondary">
                         <label class="control-label col-5">TOTAL CREDITO+REVISION HISTORIAL</label>
@@ -103,24 +100,26 @@
                     </div>
                     <div class="border-bottom bg-light">
                         <label class="control-label col-5">Pago mensual sin descuento otorgado</label>
-                        L {{$special_negotiation->quotas->first()->monthly_payment}}
+                        @php
+                            $amountForMonth = $special_negotiation->amount / ($quotasCount > 0 ? $quotasCount : 1)
+                        @endphp
+                        L {{$amountForMonth}}
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Numero de Pagos</label>
-                        {{$special_negotiation->quotas->count()}} Quotas
+                        {{$quotasCount}} Quotas
                     </div>
                     <div class="border-bottom list-group-item-secondary">
                         <label class="control-label col-5">Descuento total otorgado</label>
-                        @php $discount_applied = $special_negotiation->discounts->sum('discount_applied') @endphp
+                        @php $discount_applied = ($special_negotiation->estimated_percentage / 100) * $special_negotiation->amount;  @endphp
                         L {{$discount_applied}}
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Descuento por pago otorgado</label>
-                        @forelse ($special_negotiation->discounts as $discount)
-                            @if ($loop->iteration > 1) / @endif {{$discount->discount_applied}}
-                        @empty
-                            L 0
-                        @endforelse
+                        @php
+                            $discountForPayment = $discount_applied / ($quotasCount > 0 ? $quotasCount : 1)
+                        @endphp
+                        L {{$discount_applied / ($quotasCount > 0 ? $quotasCount : 1)}}
                     </div>
                     <div class="border-bottom bg-light">
                         <label class="control-label col-5">Importe total del crédito - descuento</label>
@@ -128,15 +127,7 @@
                     </div>
                     <div class="border-bottom  list-group-item-secondary">
                         <label class="control-label col-5">Pago mensual con descuento otorgado</label>
-                        @forelse ( $special_negotiation->quotas as $quota )
-                            @php
-                                $current_discount = $quota->discounts->sum('discount_applied');
-                                $monthly_payment = $quota->monthly_payment - $current_discount;
-                            @endphp
-                            @if ($loop->iteration > 1) / @endif L {{ $monthly_payment }}
-                        @empty
-                            L 0
-                        @endforelse
+                        {{$amountForMonth - $discountForPayment}}
                     </div>
                 </div>
             </div>
@@ -176,28 +167,39 @@
                             <label class="control-label col-5">Pendiente en Factura</label>
                             @php
                                 $result = 0;
-                                foreach ($special_negotiation->quotas as $quota) {
-                                    $monthly_payment = $quota->monthly_payment;
-                                    $total_payments = $quota->payments->sum('mount_balance');
-                                    $total_refunds = $quota->refunds->sum('mount_balance');
-                                    $total_discounts = $quota->discounts->sum('discount_applied');
-                                    $current_result = $monthly_payment - ($total_payments + $total_discounts + $total_refunds);
-                                    $current_result = $current_result > 0 ? $current_result : 0;
-                                    $result += $current_result;
+                                $quotas = $special_negotiation->quotas;
+                                if(isset($quotas) && count($quotas) > 0){
+                                    foreach ($quotas as $quota) {
+                                        $monthly_payment = $quota->monthly_payment;
+                                        $total_payments = $quota->payments->sum('mount_balance');
+                                        $total_refunds = $quota->refunds->sum('mount_balance');
+                                        $total_discounts = $quota->discounts->sum('discount_applied');
+                                        $current_result = $monthly_payment - ($total_payments + $total_discounts + $total_refunds);
+                                        $current_result = $current_result > 0 ? $current_result : 0;
+                                        $result += $current_result;
+                                    }
+                                }else{
+                                    $result = $special_negotiation->amount;
                                 }
+                                $result = bcdiv($result, '1', 2)
                             @endphp
                             L {{$result}}
                         </div>
                         <div class="border-bottom  bg-light">
                             <label class="control-label col-5">Revision Record Créditicio</label>
-                            L {{$special_negotiation->credit_record}} -
+                            L {{$special_negotiation->credit_record}} - @if($special_negotiation->credit_record_is_payment > 0) Pagado @else Pendiente @endif
                             <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#creditRecordModal" >
                                 Asignar
                             </a>
                         </div>
                         <div class="border-bottom list-group-item-secondary">
                             <label class="control-label col-5">Total Saldo Pendiente</label>
-                            L 0,00 (pendiente)
+                            @php
+                                if(!isset($special_negotiation->credit_record_is_payment) || $special_negotiation->credit_record_is_payment == 0){
+                                    $result += $special_negotiation->credit_record;
+                                }
+                            @endphp
+                            L {{$result}}
                         </div>
                     </div>
                 </div>
@@ -313,7 +315,10 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <a class="btn btn-info btn-sm" onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}')">
+                                    <a class="btn btn-info btn-sm @if($days < -5) disabled @endif "
+                                        onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$quota->refunds->pluck('mount_balance')->implode(',')}}')"
+                                        @if($days < -5) disabled @endif
+                                    >
                                         Agregar Descuento
                                     </a>
                                 </td>
@@ -403,8 +408,10 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>
-                                        <a class="btn btn-outline-info btn-sm"
-                                            onclick="editDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$discount->id}}*-*{{$discount->porcent_quotas_discount}}*-*{{$discount->invoice_id}}')">
+                                        <a class="btn btn-outline-info btn-sm  @if($days < -5) disabled @endif "
+                                            onclick="editDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$discount->id}}*-*{{$discount->porcent_quotas_discount}}*-*{{$discount->invoice_id}}*-*{{$quota->refunds->pluck('mount_balance')->implode(',')}}')"
+                                            @if($days < -5) disabled @endif
+                                        >
                                             Editar
                                         </a>
                                     </td>
@@ -505,7 +512,7 @@
                                             $quotasCount = $special_negotiation->quotas->count();
                                             $initialBalance = $special_negotiation->amount;
                                             if ($quotasCount > 0 && $initialBalance > 0) {
-                                                $initialBalance = $initialBalance / $quotasCount;
+                                                $initialBalance = $initialBalance / ($quotasCount ?? 1);
                                             }
                                         }
                                     @endphp
@@ -918,6 +925,14 @@
                                 </div>
 
                                 <div class="col-md-3">
+                                    <label for="create_refund_applied" class="form-label">Rembolso Aplicado:</label>
+                                    <input
+                                        type="number" class="form-control" id="create_refund_applied"
+                                        step="0.01" readonly
+                                    />
+                                </div>
+
+                                <div class="col-md-3">
                                     <label for="create_discount_applied" class="form-label">Descuento Aplicado:</label>
                                     <input
                                         type="number" class="form-control" id="create_discount_applied"
@@ -925,6 +940,7 @@
                                         required readonly
                                     />
                                 </div>
+
                             </div>
                             <br>
                             <br>
@@ -1004,6 +1020,14 @@
                                 </div>
 
                                 <div class="col-md-3">
+                                    <label for="edit_refund_applied" class="form-label">Rembolso Aplicado:</label>
+                                    <input
+                                        type="number" class="form-control" id="edit_refund_applied"
+                                        step="0.01" readonly
+                                    />
+                                </div>
+
+                                <div class="col-md-3">
                                     <label for="edit_discount_applied" class="form-label">Descuento Aplicado:</label>
                                     <input
                                         type="number" class="form-control" id="edit_discount_applied"
@@ -1011,14 +1035,7 @@
                                         required readonly
                                     />
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="reason" class="form-label">Rason:</label>
-                                    <input
-                                        type="text" class="form-control" id="reason"
-                                        name="reason"
-                                        required
-                                    />
-                                </div>
+
                             </div>
                             <br>
                             <br>
@@ -1051,9 +1068,19 @@
                         </div>
                         <hr>
 
-                        <div class="col-md-3">
-                            <p></p>
-                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        <div class="col-md-12 row">
+                            <div class="col-md-3">
+                                <label for="reason" class="form-label">Rason:</label>
+                                <input
+                                    type="text" class="form-control" id="reason"
+                                    name="reason"
+                                    required
+                                />
+                            </div>
+                            <div class="col-md-3">
+                                <p></p>
+                                <button type="submit" class="btn btn-primary">Enviar</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1095,7 +1122,21 @@
                 <div class="container">
                     <form action="{{ route('special_negotiations.set_credit_record', $special_negotiation->id) }}" method="get">
                         <div class="row justify-content-center">
-                            <input type="number" class="form-control col-md-2" step="0.01" name="credit_record" id="credit_record" value="{{$special_negotiation->credit_record}}">
+                            <div class="form-check col-md-6">
+                                <label for="credit_record" class="form-label">Monto</label>
+                                <input type="number" class="form-control" step="0.01" name="credit_record" id="credit_record" value="{{$special_negotiation->credit_record}}">
+                            </div>
+                            <div class="input-group col-md-1">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <label class="form-check-label" for="credit_record_is_payment">
+                                            Pagado
+                                            <br>
+                                            <input type="checkbox" value="1" name="credit_record_is_payment" id="credit_record_is_payment" @if($special_negotiation->credit_record_is_payment) checked @endif >
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-primary btn-sm col-md-2 offset-md-1">Asignar Record Crediticio</button>
                         </div>
                     </form>
@@ -1482,6 +1523,10 @@
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
             let total_amount = parts[2];
 
+            let refund_amount = parts[3].split(',');
+            refund_amount = refund_amount.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+            $('#create_refund_applied').val(refund_amount);
+
             $('#create_discount_total_amount').val(total_amount);
 
             $('#create_discount_quota_id').val(id);
@@ -1515,9 +1560,13 @@
         function changeCreatePorcentQuotasDiscount(event){
             let value = event.value;
             let total_amount = $('#create_discount_total_amount').val();
+            $refund_amount = $('#create_refund_applied').val();
 
             let porcent = (value / 100) * total_amount;
+            porcent = porcent - $refund_amount;
             porcent = porcent.toFixed(2);
+            porcent = porcent < 0 ? 0 : porcent;
+            console.log(porcent);
             let final_amount = total_amount - porcent;
             final_amount = final_amount.toFixed(2);
 
@@ -1543,6 +1592,10 @@
             let discount_id = parts[3];
             let porcent_quotas_discount = parts[4];
             let invoice_id = parts[5];
+
+            let refund_amount = parts[6].split(',');
+            refund_amount = refund_amount.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+            $('#edit_refund_applied').val(refund_amount);
 
             $('#edit_discount_total_amount').val(total_amount);
 
@@ -1586,9 +1639,13 @@
         function changeEditPorcentQuotasDiscount(event){
             let value = event.value;
             let total_amount = $('#edit_discount_total_amount').val();
+            $refund_amount = $('#edit_refund_applied').val();
 
             let porcent = (value / 100) * total_amount;
+            porcent = porcent - $refund_amount;
             porcent = porcent.toFixed(2);
+            porcent = porcent < 0 ? 0 : porcent;
+            console.log(porcent);
             let final_amount = total_amount - porcent;
             final_amount = final_amount.toFixed(2);
 
