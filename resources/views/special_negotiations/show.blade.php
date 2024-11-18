@@ -188,9 +188,9 @@
                         <div class="border-bottom  bg-light">
                             <label class="control-label col-5">Revision Record Créditicio</label>
                             L {{$special_negotiation->credit_record}} - @if($special_negotiation->credit_record_is_payment > 0) Pagado @else Pendiente @endif
-                            <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#creditRecordModal" >
+                            <x-anchor-permission type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#creditRecordModal" >
                                 Asignar
-                            </a>
+                            </x-anchor-permission>
                         </div>
                         <div class="border-bottom list-group-item-secondary">
                             <label class="control-label col-5">Total Saldo Pendiente</label>
@@ -247,11 +247,11 @@
                                 <td>
                                     {{$loop->iteration}}
                                     <br>
-                                    <a class="btn btn-primary btn-sm"
+                                    <x-anchor-permission class="btn btn-primary btn-sm"
                                         onclick="editQuota('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->credit_start_at}}*-*{{$quota->credit_payment_at}}*-*{{$quota->initial_balance}}*-*{{$quota->monthly_payment}}*-*{{$quota->status}}')"
                                     >
                                         Editar
-                                    </a>
+                                    </x-anchor-permission>
                                 </td>
                                 <td>
                                     @foreach ($quota->invoices as $invoice)
@@ -305,31 +305,31 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a class="btn btn-primary btn-sm" onclick="addPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
+                                    <x-anchor-permission class="btn btn-primary btn-sm" onclick="addPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
                                         Agregar Pago
-                                    </a>
+                                    </x-anchor-permission>
                                 </td>
                                 <td>
-                                    <a class="btn btn-warning btn-sm" onclick="addRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
+                                    <x-anchor-permission class="btn btn-warning btn-sm" onclick="addRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}')">
                                         Agregar Rembolso
-                                    </a>
+                                    </x-anchor-permission>
                                 </td>
                                 <td>
-                                    <a class="btn btn-info btn-sm @if($days < -5) disabled @endif "
+                                    <x-anchor-permission class="btn btn-info btn-sm {{ ($days < -5) ? 'disabled' : '' }} "
                                         onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$quota->refunds->pluck('mount_balance')->implode(',')}}')"
-                                        @if($days < -5) disabled @endif
+                                        disable="{{ ($days < -5) ? 'disabled' : '' }}"
                                     >
                                         Agregar Descuento
-                                    </a>
+                                    </x-anchor-permission>
                                 </td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>
-                                    <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$quota->getEntityType()}}','{{$quota->id}}')">
+                                    <x-anchor-permission class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$quota->getEntityType()}}','{{$quota->id}}')">
                                         historial
-                                    </a>
+                                    </x-anchor-permission>
                                 </td>
                             <tr>
                             @forelse ($quota->payments as $payment)
@@ -342,10 +342,10 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>
-                                        <a class="btn btn-outline-primary btn-sm"
+                                        <x-anchor-permission class="btn btn-outline-primary btn-sm"
                                             onclick="editPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$payment->id}}*-*{{$payment->mount_balance}}*-*{{$payment->create_payment_at}}*-*{{$payment->invoice_id}}')">
                                             Editar
-                                        </a>
+                                        </x-anchor-permission>
                                     </td>
                                     <td class="font-weight-bold">
                                         Pago -  {{$loop->iteration}}
@@ -357,9 +357,9 @@
                                     <td>{{$payment->overdue_balance}}</td>
                                     <td>{{$payment->final_balance}}</td>
                                     <td>
-                                        <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$payment->getEntityType()}}','{{$payment->id}}')">
+                                        <x-anchor-permission class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$payment->getEntityType()}}','{{$payment->id}}')">
                                             historial
-                                        </a>
+                                        </x-anchor-permission>
                                     </td>
                                 </tr>
                             @empty
@@ -375,10 +375,10 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>
-                                        <a class="btn btn-outline-warning btn-sm"
+                                        <x-anchor-permission class="btn btn-outline-warning btn-sm"
                                             onclick="editRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$refund->id}}*-*{{$refund->mount_balance}}*-*{{$refund->refund_at}}*-*{{$refund->invoice_id}}')">
                                             Editar
-                                        </a>
+                                        </x-anchor-permission>
                                     </td>
                                     <td class="font-weight-bold">
                                         Rembolso - {{$loop->iteration}}
@@ -390,9 +390,9 @@
                                     <td>{{$refund->overdue_balance}}</td>
                                     <td>{{$refund->final_balance}}</td>
                                     <td>
-                                        <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$refund->getEntityType()}}','{{$refund->id}}')">
+                                        <x-anchor-permission class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$refund->getEntityType()}}','{{$refund->id}}')">
                                             historial
-                                        </a>
+                                        </x-anchor-permission>
                                     </td>
                                 </tr>
                             @empty
@@ -408,12 +408,12 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>
-                                        <a class="btn btn-outline-info btn-sm  @if($days < -5) disabled @endif "
+                                        <x-anchor-permission class="btn btn-outline-info btn-sm  {{ ($days < -5) ? 'disabled' : '' }} "
                                             onclick="editDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$discount->id}}*-*{{$discount->porcent_quotas_discount}}*-*{{$discount->invoice_id}}*-*{{$quota->refunds->pluck('mount_balance')->implode(',')}}')"
-                                            @if($days < -5) disabled @endif
+                                            disable="{{ ($days < -5) ? 'disabled' : '' }}"
                                         >
                                             Editar
-                                        </a>
+                                        </x-anchor-permission>
                                     </td>
                                     <td class="font-weight-bold">
                                         Descuento - {{$loop->iteration}}
@@ -425,9 +425,9 @@
                                     <td>-</td>
                                     <td>{{$discount->final_balance}}</td>
                                     <td>
-                                        <a class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$discount->getEntityType()}}','{{$discount->id}}')">
+                                        <x-anchor-permission class="btn btn-outline-secondary btn-sm" onclick="showTracking('{{$discount->getEntityType()}}','{{$discount->id}}')">
                                             historial
-                                        </a>
+                                        </x-anchor-permission>
                                     </td>
                                 </tr>
                             @empty

@@ -1,8 +1,9 @@
-<?php namespace App\Models\Main;
+<?php
 
-use Eloquent;
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models\Main;
+
 use App\Traits\UpdatesWithEvent;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Company
@@ -30,38 +31,37 @@ class PaymentQuota extends ModelDBMain
         'mount_balance_total',
         'overdue_balance',
         'final_balance',
-        'payment_at'
+        'payment_at',
     ];
-
 
     public function special_negotiations()
     {
-        return $this->hasMany('App\Models\Main\SpecialNegotiation');
+        return $this->belongsTo('App\Models\Main\SpecialNegotiation');
     }
 
     public function quota()
     {
-        return $this->hasMany('App\Models\Main\Quota');
+        return $this->belongsTo('App\Models\Main\Quota');
     }
 
     public function accounts()
     {
-        return $this->hasMany('App\Models\Main\Account');
+        return $this->belongsTo('App\Models\Main\Account');
     }
 
     public function employee()
     {
-        return $this->hasMany('App\Models\Main\Employee');
+        return $this->belongsTo('App\Models\Main\Employee');
     }
 
     public function clients()
     {
-        return $this->hasMany('App\Models\Main\Client');
+        return $this->belongsTo('App\Models\Main\Client');
     }
 
     public function invoices()
     {
-        return $this->hasMany('App\Models\Main\Invoice');
+        return $this->belongsTo('App\Models\Main\Invoice');
     }
 
     public function getEntityType()

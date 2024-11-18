@@ -2,8 +2,8 @@
 
 namespace App\Models\Main;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\UpdatesWithEvent;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Company
@@ -26,14 +26,12 @@ class SpecialNegotiation extends ModelDBMain
         'client_id',
         'route_id',
         'amount',
-        'overdue_balance',
-        'due_balance',
         'status',
         'is_document',
         'negotiations_discount',
         'credit_record',
         'credit_record_is_payment',
-        'estimated_percentage'
+        'estimated_percentage',
     ];
 
     public function account()

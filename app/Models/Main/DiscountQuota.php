@@ -1,8 +1,9 @@
-<?php namespace App\Models\Main;
+<?php
 
-use Eloquent;
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models\Main;
+
 use App\Traits\UpdatesWithEvent;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Company
@@ -28,13 +29,12 @@ class DiscountQuota extends ModelDBMain
         'invoice_id',
         'discount_applied',
         'porcent_quotas_discount',
-        'final_balance'
+        'final_balance',
     ];
-
 
     public function special_negotiation()
     {
-        return $this->belongsTo('App\Models\Main\SpecialNegotiation');
+        return $this->belongsTo('App\Models\Main\SpecialNegotiation', 'special_negotiations_id');
     }
 
     public function quota()

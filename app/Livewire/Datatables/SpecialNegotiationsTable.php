@@ -32,8 +32,6 @@ class SpecialNegotiationsTable extends DataTableComponent
             'employee_id',
             'client_id',
             'amount',
-            'overdue_balance',
-            'due_balance',
             'status',
             'is_document',
             'negotiations_discount',
