@@ -55,6 +55,7 @@ class SpecialNegotiationsRepository
         foreach ($data as $value) {
             $invoices = $value['invoice_id'];
             unset($value['invoice_id']);
+            $value['status'] = 0;
             $quota = Quota::create($value);
             $quota->invoices()->sync($invoices);
         }
@@ -297,6 +298,17 @@ class SpecialNegotiationsRepository
         if ($days <= 0) {
             $quota->status = 2;
             $quota->save();
+        }
+    }
+
+    public function calculateNegotiationStatus($negotiationId)
+    {
+        $quotas = Quota::where('special_negotiations_id', $negotiationId)->where('status', '<', 1)->count();
+        if (! isset($quotas) || $quotas == 0) {
+            $negotiation = SpecialNegotiation::find($negotiationId);
+            $negotiation->status = 1;
+            $negotiation->activateTracking();
+            $negotiation->save();
         }
     }
 

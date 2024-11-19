@@ -47,6 +47,10 @@ class SpecialNegotiationsTable extends DataTableComponent
                     return [
                         'class' => 'bg-success text-center',
                     ];
+                } elseif ($row->status == 1) {
+                    return [
+                        'class' => 'bg-primary text-center',
+                    ];
                 } else {
                     return [
                         'class' => 'bg-danger text-center',
@@ -160,6 +164,8 @@ class SpecialNegotiationsTable extends DataTableComponent
                 ->format(function (string $value, $row) {
                     if ($row->status == 0) {
                         return 'Activo';
+                    } elseif ($row->status == 1) {
+                        return 'Finalizado';
                     } else {
                         return 'Vencido';
                     }
