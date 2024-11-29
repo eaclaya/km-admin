@@ -2,12 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Models\Main\ConditionsSpecialNegotiation;
 use App\Models\Main\DiscountQuota;
 use App\Models\Main\PaymentQuota;
 use App\Models\Main\Quota;
 use App\Models\Main\RefundQuota;
 use App\Models\Main\SpecialNegotiation;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class SpecialNegotiationsRepository
 {
@@ -16,10 +18,41 @@ class SpecialNegotiationsRepository
         unset($data['_token']);
         $invoices_ids = $data['invoice_id'];
         unset($data['invoice_id']);
+        $data['estimated_percentage'] = $this->calculatePorcentStimed($data['conditions_special_negotiation_id'], $invoices_ids);
         $negotiation = SpecialNegotiation::create($data);
         $negotiation->invoices()->attach($invoices_ids);
 
         return $negotiation;
+    }
+
+    public function calculatePorcentStimed($condition_id, $invoices_ids)
+    {
+        $condition = ConditionsSpecialNegotiation::where('id', $condition_id)->first();
+        $items = DB::connection('main')->table('invoice_items')
+            ->whereIn('invoice_items.invoice_id', $invoices_ids)
+            ->join('products', function ($join) {
+                $join->on('products.product_key', '=', 'invoice_items.product_key')
+                    ->where('products.account_id', 17);
+            })
+            ->join('categories', function ($join) {
+                $join->on('categories.category_id', '=', 'products.category_id');
+            })
+            ->select('invoice_items.product_key', 'categories.name as category_name')
+            ->get();
+        $limit = false;
+        $categories_limits = ['cascos', 'llantas'];
+        foreach ($items as $item) {
+            $catagoryLowerCase = strtolower($item->category_name);
+            if (in_array($catagoryLowerCase, $categories_limits)) {
+                $limit = true;
+                break;
+            }
+        }
+        if ($limit) {
+            return $condition->limit_discount;
+        }
+
+        return $condition->normal_discount;
     }
 
     public function updateSpecialNegotiation($id, $data): ?SpecialNegotiation
@@ -44,7 +77,7 @@ class SpecialNegotiationsRepository
             'route:id,name', 'account:id,name', 'employee:id,first_name,last_name',
             'client:id,name,company_name,phone,work_phone,address1',
             'quotas', 'quotas.invoices:id,invoice_number,amount,discount_negotiations',
-            'quotas.payments', 'quotas.discounts', 'quotas.refunds',
+            'quotas.payments', 'quotas.discounts', 'quotas.refunds', 'condition',
         ])->first();
 
         return $negotiation;
@@ -366,5 +399,23 @@ class SpecialNegotiationsRepository
             $lastRefundQuotaBalanceTotal = $refundQuota->mount_balance_total;
             $lastFinalBalance = $refundQuota->final_balance;
         }
+    }
+
+    public function setConditionInToNegotiation($conditionsSpecialNegotiationId, $negotiationId)
+    {
+        $specialNegotiation = SpecialNegotiation::find($negotiationId);
+
+        if ($specialNegotiation->conditions_special_negotiation_id == $conditionsSpecialNegotiationId) {
+            return ConditionsSpecialNegotiation::find($conditionsSpecialNegotiationId);
+        }
+        $specialNegotiation->conditions_special_negotiation_id = $conditionsSpecialNegotiationId;
+        $estimatedPercentage = $this->calculatePorcentStimed(
+            $conditionsSpecialNegotiationId,
+            $specialNegotiation->invoices->pluck('id')->toArray()
+        );
+        $specialNegotiation->estimated_percentage = $estimatedPercentage;
+        $specialNegotiation->save();
+
+        return ConditionsSpecialNegotiation::find($conditionsSpecialNegotiationId);
     }
 }

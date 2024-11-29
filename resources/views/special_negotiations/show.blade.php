@@ -49,26 +49,15 @@
                         </ul>
                     </div>
                     <div class="border-bottom border-top">
+                        @php
+                            $condition = $special_negotiation->condition;
+                        @endphp
                         <label class="control-label col-5">Descuento Otorgado</label>
-                        {{$special_negotiation->estimated_percentage ?? 0}} %
+                        {{$special_negotiation->estimated_percentage ?? 0}} %  --> {!! $condition->discount_string !!}
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Condicion de Credito</label>
-                        @php
-                            $credit_condition = 0;
-                        @endphp
-                        @forelse ($special_negotiation->quotas as $quota)
-                            @php
-                                $credit_condition += $quota->credit_condition;
-                            @endphp
-                            @if ($loop->iteration == 1)
-                                {{$credit_condition}}
-                            @else
-                                / {{$credit_condition}}
-                            @endif
-                        @empty
-                            Cuotas por Definir
-                        @endforelse
+                        {{$condition->condition_range}}
                     </div>
                     <div class="border-bottom">
                         <label class="control-label col-5">Fecha de Inicio</label>
@@ -209,10 +198,17 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-                Cuotas -
-                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createQuotaModal">
-                    Crear Cuotas
-                </button>
+                Cuotas
+                    -
+                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createQuotaModal">
+                        Crear Cuotas
+                    </button>
+                @if($special_negotiation->quotas->count() == 0)
+                    -
+                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createQuotaModal">
+                        Crear Cuotas
+                    </button>
+                @endif
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                         <i class="fas fa-minus"></i>
@@ -315,9 +311,19 @@
                                     </x-anchor-permission>
                                 </td>
                                 <td>
-                                    <x-anchor-permission class="btn btn-info btn-sm {{ ($days < -5) ? 'disabled' : '' }} "
-                                        onclick="addDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$quota->refunds->pluck('mount_balance')->implode(',')}}')"
-                                        disable="{{ ($days < -5) ? 'disabled' : '' }}"
+                                    @php
+                                        $days = $days * -1;
+                                        $porcent = $special_negotiation->estimated_percentage;
+                                        $limit = $porcent;
+                                        $penalty = $special_negotiation->condition->getPenalty($days);
+                                        if($penalty > 0){
+                                            $limit = $porcent - ($porcent * ($penalty / 100));
+                                        }
+
+                                    @endphp
+                                    <x-anchor-permission class="btn btn-info btn-sm {{ ($limit == 0) ? 'disabled' : '' }} "
+                                        onclick="addDiscount('{{$quota->id}}','{{$quota->invoices->pluck('id')->implode(',')}}','{{$quota->monthly_payment}}','{{$quota->refunds->pluck('mount_balance')->implode(',')}}','{{$limit}}')"
+                                        disable="{{ ($limit == 0) ? 'disabled' : '' }}"
                                     >
                                         Agregar Descuento
                                     </x-anchor-permission>
@@ -408,9 +414,9 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>
-                                        <x-anchor-permission class="btn btn-outline-info btn-sm  {{ ($days < -5) ? 'disabled' : '' }} "
-                                            onclick="editDiscount('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$quota->monthly_payment}}*-*{{$discount->id}}*-*{{$discount->porcent_quotas_discount}}*-*{{$discount->invoice_id}}*-*{{$quota->refunds->pluck('mount_balance')->implode(',')}}')"
-                                            disable="{{ ($days < -5) ? 'disabled' : '' }}"
+                                        <x-anchor-permission class="btn btn-outline-info btn-sm  {{ ($limit == 0) ? 'disabled' : '' }} "
+                                            onclick="editDiscount('{{$quota->id}}','{{$quota->invoices->pluck('id')->implode(',')}}','{{$quota->monthly_payment}}','{{$discount->id}}','{{$discount->porcent_quotas_discount}}','{{$discount->invoice_id}}','{{$quota->refunds->pluck('mount_balance')->implode(',')}}','{{$limit}}')"
+                                            disable="{{ ($limit == 0) ? 'disabled' : '' }}"
                                         >
                                             Editar
                                         </x-anchor-permission>
@@ -457,37 +463,23 @@
                         <input type="hidden" name="account_id" value="{{$special_negotiation->account_id}}">
                         <input type="hidden" name="employee_id" value="{{$special_negotiation->employee_id}}">
                         <input type="hidden" name="client_id" value="{{$special_negotiation->client->id}}">
-                        <div class="col-md-12 mb-3 border-bottom">
-                            <div class="mb-3" >
-                                <legend>Seleccione una condicion:</legend>
-
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input type="radio" name="create_select_quotas_qty" class="form-check-input" value="45-2" checked />
-                                        45 Dias - 2 Cuotas
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input type="radio" name="create_select_quotas_qty" class="form-check-input" value="60-2" />
-                                        60 Dias - 2 Cuotas
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input type="radio" name="create_select_quotas_qty" class="form-check-input" value="90-3" />
-                                        90 Dias - 3 Cuotas
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input type="radio" name="create_select_quotas_qty" class="form-check-input" value="120-4" />
-                                        120 Dias - 4 Cuotas
-                                    </label>
-                                </div>
+                        <div class="col-md-4" >
+                            <label class="form-label">Seleccione una condicion:</label>
+                            <div class="row p-2">
+                                @foreach ($conditions as $condition)
+                                    <div class="col-md-12 form-check text-justify text-nowrap" >
+                                        <label class="form-check-label text-justify text-nowrap" >
+                                            <input type="radio" name="conditions_special_negotiation_id"
+                                                class="form-check-input" value="{{$condition->id}}"
+                                                @if($special_negotiation->conditions_special_negotiation_id == $condition->id) checked @endif
+                                                id="condition_{{$condition->id}}"
+                                            />
+                                            {{$condition->amount_range_string}} /
+                                            {{$condition->condition_range}} /
+                                            {!! $condition->discount_string !!}
+                                        </label>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                         @for ($i = 0; $i < 4; $i++)
@@ -1001,7 +993,7 @@
 
                         <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
                             <div class="col-md-12">
-                                <h4>Crear Descuento</h4>
+                                <h4>Editar Descuento</h4>
                             </div>
                             <div class="col-md-12 row">
                                 <div class="col-md-3">
@@ -1162,10 +1154,16 @@
 @stop
 
 @section("js")
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
     <script>
-        let days = 45;
+        let days = 30;
         let quotasQty = 2;
         let invoices = {!! json_encode($special_negotiation->invoices->map(function($item) { return ['id' => $item->id, 'invoice_number' => $item->invoice_number, 'amount' => $item->amount_sub_discount_negotiations]; })) !!};
+
+        let conditions = {!! json_encode($conditions->keyBy('id')->toArray()) !!};
 
         $(document).ready(function() {
             conditionChange();
@@ -1174,21 +1172,20 @@
         // Quotas
 
         $("#create_credit_start_at_0").change(function() {
-            let createCreditStartAt = $(this).val();
             conditionChange();
         });
 
-        $('input[name="create_select_quotas_qty"]').change(function() {
+        $('input[name="conditions_special_negotiation_id"]').change(function() {
             var thisValue = $(this).val();
-            var parts = thisValue.split('-');
-            days = parseInt(parts[0]) + 1;
-            quotasQty = parseInt(parts[1]);
+            var condition = conditions[thisValue].condition_range;
+            var parts = condition.split('-');
+            days = parseInt(parts[0]);
+            quotasQty = parts.length;
 
             conditionChange();
         });
 
         function conditionChange() {
-            let daysAdd = (Math.round((days + 1) / quotasQty)  * 86400000);
             let initialBalanceVal = $('#create_initial_balance_0').val();
 
             for (let index = 0; index < 4; index++) {
@@ -1239,16 +1236,10 @@
 
                 let today = new Date(creditStartAt.val());
 
-                var paymentDate = new Date(today.getTime() + daysAdd);
+                let formattedDate = moment(today).add(31, 'days');
 
-                var day = paymentDate.getDate();
-                var month = paymentDate.getMonth() + 1;
-                var year = paymentDate.getFullYear();
-
-                var formattedDate = year + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day);
-
-                creditPaymentAt.val(formattedDate);
-                $('#create_credit_start_at_'+afterIndex).val(formattedDate);
+                creditPaymentAt.val(formattedDate.format('YYYY-MM-DD'));
+                $('#create_credit_start_at_'+afterIndex).val(formattedDate.format('YYYY-MM-DD'));
             }
         }
 
@@ -1317,7 +1308,6 @@
         $('#create_payment_id').change(function() {
             const optionSelectedPaymentId = $(this).find('option:selected');
             const textSelectedPaymentId = optionSelectedPaymentId.text();
-            console.log(textSelectedPaymentId);
             let parts = textSelectedPaymentId.split(' - ');
             let mount = parseFloat(parts[0]);
             let date = parts[1];
@@ -1370,7 +1360,6 @@
                     url: url,
                     type: 'GET',
                     success: function(data) {
-                        console.log(data);
                         $('#edit_payment_id').empty();
                         data.payments.forEach(element => {
                             let options = '<option value="' + element.id + '">' + element.amount + ' - ' + element.payment_date + '</option>';
@@ -1385,7 +1374,6 @@
         $('#edit_payment_id').change(function() {
             const optionSelectedPaymentId = $(this).find('option:selected');
             const textSelectedPaymentId = optionSelectedPaymentId.text();
-            console.log(textSelectedPaymentId);
             let parts = textSelectedPaymentId.split(' - ');
             let mount = parseFloat(parts[0]);
             let date = parts[1];
@@ -1436,7 +1424,6 @@
         $('#create_refund_id').change(function() {
             const optionSelectedRefundId = $(this).find('option:selected');
             const textSelectedRefundId = optionSelectedRefundId.text();
-            console.log(textSelectedRefundId);
             let parts = textSelectedRefundId.split(' - ');
             let mount = parseFloat(parts[0]);
             let date = parts[1];
@@ -1489,7 +1476,6 @@
                     url: url,
                     type: 'GET',
                     success: function(data) {
-                        console.log(data);
                         $('#edit_refund_id').empty();
                         data.refunds.forEach(element => {
                             let options = '<option value="' + element.id + '">' + element.total_refunded + ' - ' + element.refund_date + ' - ' + element.refund_number + '</option>';
@@ -1504,7 +1490,6 @@
         $('#edit_refund_id').change(function() {
             const optionSelectedRefundId = $(this).find('option:selected');
             const textSelectedRefundId = optionSelectedRefundId.text();
-            console.log(textSelectedRefundId);
             let parts = textSelectedRefundId.split(' - ');
             let mount = parseFloat(parts[0]);
             let date = parts[1];
@@ -1515,15 +1500,14 @@
 
         // Discounts
 
-        function addDiscount(params) {
-            let parts = params.split('*-*');
-            let id = parts[0];
-            let invoice_ids = parts[1].split(',');
+        function addDiscount(quota_id, invoice_ids, monthly_payment, refund_amount, limit) {
+            const id = quota_id;
+            invoice_ids = invoice_ids.split(',');
             invoice_ids = invoice_ids.map(id => parseInt(id));
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
-            let total_amount = parts[2];
+            let total_amount = monthly_payment;
 
-            let refund_amount = parts[3].split(',');
+            refund_amount = refund_amount.split(',');
             refund_amount = refund_amount.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
             $('#create_refund_applied').val(refund_amount);
 
@@ -1536,6 +1520,9 @@
                 let options = '<option value="' + element.id + '">' + element.invoice_number + '</option>';
                 $('#create_discount_invoice_id').append(options);
             })
+            $('#create_porcent_quotas_discount').prop('max', limit);
+            $('#create_porcent_quotas_discount').val(limit);
+            $('#create_porcent_quotas_discount').trigger('change');
             $('#create_discount_invoice_id').trigger('change');
             $('#createDiscountModal').modal('show');
         }
@@ -1551,9 +1538,17 @@
         })
 
         $('#create_porcent_quotas_discount').change(function() {
+            const limit = $(this).prop('max');
+            if (parseFloat($(this).val()) > parseFloat(limit)) {
+                $(this).val(limit);
+            }
             changeCreatePorcentQuotasDiscount(this);
         })
         $('#create_porcent_quotas_discount').keyup(function() {
+            const limit = $(this).prop('max');
+            if (parseFloat($(this).val()) > parseFloat(limit)) {
+                $(this).val(limit);
+            }
             changeCreatePorcentQuotasDiscount(this);
         })
 
@@ -1566,7 +1561,6 @@
             porcent = porcent - $refund_amount;
             porcent = porcent.toFixed(2);
             porcent = porcent < 0 ? 0 : porcent;
-            console.log(porcent);
             let final_amount = total_amount - porcent;
             final_amount = final_amount.toFixed(2);
 
@@ -1581,25 +1575,19 @@
             $('#create_discount_amount_invoice_sub_porcent').val(final_amount_invoice);
         }
 
-        function editDiscount(params) {
-            let parts = params.split('*-*');
-            let quota_id = parts[0];
-            let invoice_ids = parts[1].split(',');
+        function editDiscount(quota_id, invoice_ids, monthly_payment, discount_id, porcent_quotas_discount, invoice_id, refund_amount, limit) {
+            invoice_ids = invoice_ids.split(',');
             invoice_ids = invoice_ids.map(id => parseInt(id));
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
-            let total_amount = parts[2];
+            let total_amount = monthly_payment;
 
-            let discount_id = parts[3];
-            let porcent_quotas_discount = parts[4];
-            let invoice_id = parts[5];
-
-            let refund_amount = parts[6].split(',');
+            refund_amount = refund_amount.split(',');
             refund_amount = refund_amount.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
             $('#edit_refund_applied').val(refund_amount);
 
             $('#edit_discount_total_amount').val(total_amount);
 
-            $('#edit_discount_quota_id').val(quota_id); //<--
+            $('#edit_discount_quota_id').val(quota_id);
 
             let url = "{{route('special_negotiations.discount.update', ':id')}}".replace(':id', discount_id);
             $('#editDiscountForm').attr('action', url);
@@ -1613,9 +1601,11 @@
             $('#edit_discount_invoice_id').val(invoice_id);
 
             $('#edit_discount_invoice_id').trigger('change');
+            $('#edit_porcent_quotas_discount').prop('max', limit);
 
             $('#edit_porcent_quotas_discount').val(porcent_quotas_discount);
 
+            $('#edit_porcent_quotas_discount').trigger('change');
             $('#editDiscountModal').modal('show');
         }
 
@@ -1630,9 +1620,17 @@
         })
 
         $('#edit_porcent_quotas_discount').change(function() {
+            const limit = $(this).prop('max');
+            if (parseFloat($(this).val()) > parseFloat(limit)) {
+                $(this).val(limit);
+            }
             changeEditPorcentQuotasDiscount(this);
         })
         $('#edit_porcent_quotas_discount').keyup(function() {
+            const limit = $(this).prop('max');
+            if (parseFloat($(this).val()) > parseFloat(limit)) {
+                $(this).val(limit);
+            }
             changeEditPorcentQuotasDiscount(this);
         })
 
@@ -1645,7 +1643,6 @@
             porcent = porcent - $refund_amount;
             porcent = porcent.toFixed(2);
             porcent = porcent < 0 ? 0 : porcent;
-            console.log(porcent);
             let final_amount = total_amount - porcent;
             final_amount = final_amount.toFixed(2);
 

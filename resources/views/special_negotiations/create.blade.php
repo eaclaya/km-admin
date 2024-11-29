@@ -79,32 +79,27 @@
                     <br>
                     <div class="row">
                         <div class="col-md-2">
-                            <label for="status" class="form-label">Estado</label>
-                            @livewire('components.select2-array-component', [
-                                'array' => [
-                                    "0" => 'Activo',
-                                    "1" => 'Vencido',
-                                ],
-                                'name' => 'status',
-                            ])
-                        </div>
-                        <div class="col-md-2">
-                            <label for="is_document" class="form-label">¿Esta Documentado?</label>
-                            @livewire('components.select2-array-component', [
-                                'array' => [
-                                    "0" => 'No',
-                                    "1" => 'Si',
-                                ],
-                                'name' => 'is_document',
-                            ])
-                        </div>
-                        <div class="col-md-2">
                             <label for="amount" class="form-label">Monto</label>
                             <input type="number" id="amount" name="amount" step="0.01" class="form-control" readonly>
                         </div>
-                        <div class="col-md-2">
-                            <label for="estimated_percentage" class="form-label">Procentaje Estimado</label>
-                            <input type="number" id="estimated_percentage" name="estimated_percentage" step="0.01" class="form-control">
+                        <div class="col-md-4" >
+                            <label class="form-label">Seleccione una condicion:</label>
+                            <div class="row p-2">
+                                @foreach ($conditions as $condition)
+                                    <div class="col-md-6 form-check text-justify text-nowrap" >
+                                        <label class="form-check-label text-justify text-nowrap" >
+                                            <input type="radio" name="conditions_special_negotiation_id"
+                                                class="form-check-input" value="{{$condition->id}}"
+                                                @if($loop->first) checked @endif
+                                                id="condition_{{$condition->id}}"
+                                            />
+                                            {{$condition->amount_range_string}} /
+                                            {{$condition->condition_range}} /
+                                            {!! $condition->discount_string !!}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                         <div class="col-md-2">
                             <label for="credit_record" class="form-label">Record Crediticio</label>
@@ -127,6 +122,7 @@
 
 @section("js")
     <script>
+        let conditions = {!! json_encode($conditions) !!};
         $("#invoice_id").change(function() {
             var montoFinal = 0;
             $(this).find("option:selected").each(function() {
@@ -136,6 +132,25 @@
                 montoFinal = parseFloat(montoFinal) + parseFloat(monto);
             })
             $("#amount").val(montoFinal);
+            if(montoFinal == 0){
+                $("#condition_1").prop("checked", true);
+            }
+            for (let i = 0; i <= conditions.length; i++) {
+                if(!conditions[i]){
+                    continue;
+                }
+                const min = parseFloat(conditions[i].amount_range.min);
+                const max = conditions[i].amount_range.max > 0 ? parseFloat(conditions[i].amount_range.max) : null;
+                if (max == null) {
+                    if (montoFinal >= min) {
+                        $("#condition_" + conditions[i].id).prop("checked", true);
+                    }
+                }else {
+                    if (montoFinal >= min && montoFinal < max) {
+                        $("#condition_" + conditions[i].id).prop("checked", true);
+                    }
+                }
+            }
         });
     </script>
 @stop

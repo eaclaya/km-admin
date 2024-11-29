@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Main\ConditionsSpecialNegotiation;
 use App\Models\Main\Payment;
 use App\Models\Main\Refund;
 use App\Models\Main\SpecialNegotiation;
@@ -16,9 +17,6 @@ class SpecialNegotiationsController extends Controller
         public SpecialNegotiationsService $moduleService,
     ) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $user = Auth::user()->realUser();
@@ -27,17 +25,13 @@ class SpecialNegotiationsController extends Controller
         return view('special_negotiations.index', ['routes_id' => $routes_id]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('special_negotiations.create');
+        $conditions = ConditionsSpecialNegotiation::get();
+
+        return view('special_negotiations.create', ['conditions' => $conditions]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): mixed
     {
         $data = $request->all();
@@ -46,9 +40,6 @@ class SpecialNegotiationsController extends Controller
         return redirect()->route('special_negotiations.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $negotiation = $this->moduleService->getRepository()
@@ -57,15 +48,17 @@ class SpecialNegotiationsController extends Controller
             return redirect()->route('special_negotiations.index');
         }
 
+        $conditions = ConditionsSpecialNegotiation::get();
+
         return view(
             'special_negotiations.show',
-            ['special_negotiation' => $negotiation]
+            [
+                'special_negotiation' => $negotiation,
+                'conditions' => $conditions,
+            ]
         );
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $data = [];
@@ -158,9 +151,6 @@ class SpecialNegotiationsController extends Controller
         return view('special_negotiations.edit', $data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $data = $request->all();
@@ -169,9 +159,6 @@ class SpecialNegotiationsController extends Controller
         return redirect()->route('special_negotiations.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //

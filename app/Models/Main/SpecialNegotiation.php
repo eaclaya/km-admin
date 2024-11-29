@@ -32,11 +32,17 @@ class SpecialNegotiation extends ModelDBMain
         'credit_record',
         'credit_record_is_payment',
         'estimated_percentage',
+        'conditions_special_negotiation_id',
     ];
 
     public function account()
     {
         return $this->belongsTo('App\Models\Main\Account');
+    }
+
+    public function condition()
+    {
+        return $this->belongsTo('App\Models\Main\ConditionsSpecialNegotiation', 'conditions_special_negotiation_id', 'id');
     }
 
     public function employee()

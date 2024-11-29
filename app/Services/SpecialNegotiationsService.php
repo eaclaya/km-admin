@@ -6,7 +6,6 @@ use App\Models\Main\Account;
 use App\Models\Main\Route;
 use App\Models\Main\SpecialNegotiation;
 use App\Repositories\SpecialNegotiationsRepository;
-use Carbon\Carbon;
 
 class SpecialNegotiationsService
 {
@@ -25,13 +24,16 @@ class SpecialNegotiationsService
         if (! isset($negotiation)) {
             return false;
         }
-        $quotasQty = $data['create_select_quotas_qty'];
-        $quotasQty = explode('-', $quotasQty)[1];
+        $condition_id = $data['conditions_special_negotiation_id'];
+        $condition = $this->moduleRepository->setConditionInToNegotiation(
+            $condition_id,
+            $data['special_negotiations_id']
+        );
+        $conditionsRange = $condition->condition_range_array;
+        $quotasQty = count($conditionsRange);
         $result = [];
         for ($i = 0; $i < $quotasQty; $i++) {
-            $credit_start_at = Carbon::parse($data['credit_start_at'][$i]);
-            $credit_payment_at = Carbon::parse($data['credit_payment_at'][$i]);
-            $days = $credit_start_at->diffInDays($credit_payment_at);
+            $days = $conditionsRange[$i];
             $result[] = [
                 'special_negotiations_id' => $data['special_negotiations_id'],
                 'account_id' => $data['account_id'],
