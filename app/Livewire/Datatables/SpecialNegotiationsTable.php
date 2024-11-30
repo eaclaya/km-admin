@@ -62,6 +62,10 @@ class SpecialNegotiationsTable extends DataTableComponent
                     return [
                         'class' => 'bg-danger text-center',
                     ];
+                } elseif ($row->is_document == 1) {
+                    return [
+                        'class' => 'bg-warning text-center',
+                    ];
                 } else {
                     return [
                         'class' => 'bg-success text-center',
@@ -174,6 +178,8 @@ class SpecialNegotiationsTable extends DataTableComponent
                 ->format(function (string $value, $row) {
                     if ($row->is_document == 0) {
                         return 'No';
+                    } elseif ($row->is_document == 1) {
+                        return 'Incompleto';
                     } else {
                         return 'Si';
                     }

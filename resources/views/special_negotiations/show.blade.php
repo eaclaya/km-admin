@@ -148,6 +148,30 @@
                             <label class="control-label col-5">Direccion</label>
                             {{$special_negotiation->client->address1}}
                         </div>
+                        <div class="border-bottom border-top">
+                            <label class="control-label col-5">Documentado</label>
+                            @php
+                                switch ($special_negotiation->is_document) {
+                                    case 0:
+                                        $is_documents = 'No';
+                                        break;
+                                    case 1:
+                                        $is_documents = 'Incompleto';
+                                        break;
+                                    case 2:
+                                        $is_documents = 'Si';
+                                        break;
+                                    default:
+                                        $is_documents = 'No';
+                                        break;
+                                }
+                            @endphp
+                            {{$is_documents}} -
+                            <x-anchor-permission href="{{route('special_negotiations.set_document', $special_negotiation->id)}}" class="btn btn-primary btn-sm" >
+                                Verificar
+                            </x-anchor-permission>
+
+                        </div>
                     </div>
                 </div>
                 <div class="card col-md-12">

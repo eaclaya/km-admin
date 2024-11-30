@@ -44,29 +44,40 @@
                             @livewire('components.select2-array-component', $status_select)
                         </div>
                         <div class="col-md-2">
-                            <label for="is_document" class="form-label">¿Esta Documentado?</label>
-                            @livewire('components.select2-array-component', $is_document_select)
-                        </div>
-                        <div class="col-md-2">
                             <label for="amount" class="form-label">Monto</label>
                             <input type="number" id="amount" name="amount" step="0.01" class="form-control" value="{{$special_negotiation->amount}}" readonly>
                         </div>
-                        <div class="col-md-2">
-                            <label for="estimated_percentage" class="form-label">Procentaje Estimado</label>
-                            <input type="number" id="estimated_percentage" name="estimated_percentage" step="0.01" class="form-control">
+                        <div class="col-md-4" >
+                            <label class="form-label">Seleccione una condicion:</label>
+                            <div class="row p-2">
+                                @foreach ($conditions as $condition)
+                                    <div class="col-md-6 form-check text-justify text-nowrap" >
+                                        <label class="form-check-label text-justify text-nowrap" >
+                                            <input type="radio" name="conditions_special_negotiation_id"
+                                                class="form-check-input" value="{{$condition->id}}"
+                                                @if($special_negotiation->conditions_special_negotiation_id == $condition->id) checked @endif
+                                                id="condition_{{$condition->id}}"
+                                            />
+                                            {{$condition->amount_range_string}} /
+                                            {{$condition->condition_range}} /
+                                            {!! $condition->discount_string !!}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                         <div class="col-md-2">
                             <label for="credit_record" class="form-label">Record Crediticio</label>
-                            <input type="number" id="credit_record" name="credit_record"" step="0.01" class="form-control">
+                            <input type="number" id="credit_record" name="credit_record"" step="0.01" class="form-control" value="{{$special_negotiation->credit_record}}" >
                         </div>
                         <div class="col-md-2">
                             <label for="reason" class="form-label">Rason del Cambio</label>
                             <input type="text" id="reason" name="reason" class="form-control" required>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <p></p>
-                        <button type="submit" class="btn btn-primary">Enviar</button>
+                        <div class="col-md-2">
+                            <p></p>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
                     </div>
                 </form>
             </div>

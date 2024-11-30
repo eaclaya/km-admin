@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Main\Client;
 use App\Models\Main\ConditionsSpecialNegotiation;
 use App\Models\Main\DiscountQuota;
 use App\Models\Main\PaymentQuota;
@@ -15,44 +16,18 @@ class SpecialNegotiationsRepository
 {
     public function createSpecialNegotiation($data): ?SpecialNegotiation
     {
-        unset($data['_token']);
         $invoices_ids = $data['invoice_id'];
         unset($data['invoice_id']);
-        $data['estimated_percentage'] = $this->calculatePorcentStimed($data['conditions_special_negotiation_id'], $invoices_ids);
+        unset($data['_token']);
+        $data['estimated_percentage'] = $this->calculatePorcentStimed(
+            $data['conditions_special_negotiation_id'],
+            $invoices_ids
+        );
+        $data['is_document'] = $this->calculateDocument($data['client_id']);
         $negotiation = SpecialNegotiation::create($data);
         $negotiation->invoices()->attach($invoices_ids);
 
         return $negotiation;
-    }
-
-    public function calculatePorcentStimed($condition_id, $invoices_ids)
-    {
-        $condition = ConditionsSpecialNegotiation::where('id', $condition_id)->first();
-        $items = DB::connection('main')->table('invoice_items')
-            ->whereIn('invoice_items.invoice_id', $invoices_ids)
-            ->join('products', function ($join) {
-                $join->on('products.product_key', '=', 'invoice_items.product_key')
-                    ->where('products.account_id', 17);
-            })
-            ->join('categories', function ($join) {
-                $join->on('categories.category_id', '=', 'products.category_id');
-            })
-            ->select('invoice_items.product_key', 'categories.name as category_name')
-            ->get();
-        $limit = false;
-        $categories_limits = ['cascos', 'llantas'];
-        foreach ($items as $item) {
-            $catagoryLowerCase = strtolower($item->category_name);
-            if (in_array($catagoryLowerCase, $categories_limits)) {
-                $limit = true;
-                break;
-            }
-        }
-        if ($limit) {
-            return $condition->limit_discount;
-        }
-
-        return $condition->normal_discount;
     }
 
     public function updateSpecialNegotiation($id, $data): ?SpecialNegotiation
@@ -60,7 +35,12 @@ class SpecialNegotiationsRepository
         $invoices_ids = $data['invoice_id'];
         unset($data['invoice_id']);
         unset($data['_token']);
+        $data['estimated_percentage'] = $this->calculatePorcentStimed(
+            $data['conditions_special_negotiation_id'],
+            $invoices_ids
+        );
         $negotiation = SpecialNegotiation::find($id);
+        $data['is_document'] = $this->calculateDocument($negotiation->client_id);
         $negotiation->activateTracking();
         $negotiation->setReason($data['reason']);
         unset($data['reason']);
@@ -291,6 +271,20 @@ class SpecialNegotiationsRepository
         return $negotiation;
     }
 
+    public function setDocument($id)
+    {
+        $negotiation = SpecialNegotiation::find($id);
+        if (! isset($negotiation)) {
+            return false;
+        }
+        $data['is_document'] = $this->calculateDocument($negotiation->client_id);
+        $negotiation->activateTracking();
+        $negotiation->setReason('credit_record');
+        $negotiation->update($data);
+
+        return $negotiation;
+    }
+
     public function calculateFinalBalance($quota_id, $not_discount_id = null)
     {
         $quota = Quota::find($quota_id);
@@ -417,5 +411,72 @@ class SpecialNegotiationsRepository
         $specialNegotiation->save();
 
         return ConditionsSpecialNegotiation::find($conditionsSpecialNegotiationId);
+    }
+
+    public function calculatePorcentStimed($condition_id, $invoices_ids)
+    {
+        $condition = ConditionsSpecialNegotiation::where('id', $condition_id)->first();
+        $items = DB::connection('main')->table('invoice_items')
+            ->whereIn('invoice_items.invoice_id', $invoices_ids)
+            ->join('products', function ($join) {
+                $join->on('products.product_key', '=', 'invoice_items.product_key')
+                    ->where('products.account_id', 17);
+            })
+            ->join('categories', function ($join) {
+                $join->on('categories.category_id', '=', 'products.category_id');
+            })
+            ->select('invoice_items.product_key', 'categories.name as category_name')
+            ->get();
+        $limit = false;
+        $categories_limits = ['cascos', 'llantas'];
+        foreach ($items as $item) {
+            $catagoryLowerCase = strtolower($item->category_name);
+            if (in_array($catagoryLowerCase, $categories_limits)) {
+                $limit = true;
+                break;
+            }
+        }
+        if ($limit) {
+            return $condition->limit_discount;
+        }
+
+        return $condition->normal_discount;
+    }
+
+    public function calculateDocument($cliend_id)
+    {
+        $client = Client::find($cliend_id);
+        if (isset($client)) {
+            $a = json_decode($client->extra_attributes, true);
+            $adjunts = isset($a['adjunts']) ? $a['adjunts'] : null;
+            if (! isset($adjunts)) {
+                return 0;
+            }
+            if (! isset($adjunts['revision_historial_credito']) && $client->is_credit) {
+                return 1;
+            }
+            if (! isset($adjunts['letra_cambio_firmada']) && $client->is_credit) {
+                return 1;
+            }
+            if (! isset($adjunts['identidad'])) {
+                return 1;
+            }
+            if (! isset($adjunts['rtn'])) {
+                return 1;
+            }
+            if (! isset($adjunts['recibo_servicio_publico']) && $client->is_credit) {
+                return 1;
+            }
+            if (! isset($adjunts['croquis']) && $client->is_credit) {
+                return 1;
+            }
+            if (! isset($adjunts['foto_actividad_negocio']) && $client->is_credit) {
+                return 1;
+            }
+
+            return 2;
+        }
+
+        return 0;
     }
 }

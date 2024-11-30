@@ -147,6 +147,8 @@ class SpecialNegotiationsController extends Controller
             ],
             'name' => 'is_document',
         ];
+        $conditions = ConditionsSpecialNegotiation::get();
+        $data['conditions'] = $conditions;
 
         return view('special_negotiations.edit', $data);
     }
@@ -302,6 +304,19 @@ class SpecialNegotiationsController extends Controller
             return redirect()->back();
         }
         Session::flash('message', 'Record Asignado Correctamente');
+
+        return redirect()->back();
+    }
+
+    public function set_document($id)
+    {
+        $negotiation = $this->moduleService->getRepository()->setDocument($id);
+        if (! $negotiation) {
+            Session::flash('message', 'No se encontro la Negociacion');
+
+            return redirect()->back();
+        }
+        Session::flash('message', 'Documento Asignado Correctamente');
 
         return redirect()->back();
     }
