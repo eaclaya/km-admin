@@ -25,9 +25,10 @@ class TrackingHistory extends ModelDBMain
         'after_data' => 'array',
     ];
 
-    public function currentModel(){
-        $thisModel = $this->snakeToCamel($this->model);
-        $related = 'App\\Models\\'.$thisModel;
+    public function currentModel($model = null){
+        $model = isset($model) ? $model : $this->model;
+        $thisModel = $this->snakeToCamel($model);
+        $related = 'App\\Models\\Main\\'.$thisModel;
         return $this->belongsTo($related, 'model_id');
     }
     public function user(){

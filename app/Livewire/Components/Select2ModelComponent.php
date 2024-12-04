@@ -22,12 +22,17 @@ class Select2ModelComponent extends Component
     public $x_model;
     public $set_properties;
     public $hasProperties;
+    public $is_multiple;
+    public $optionSelected;
+    public $key;
 
     public function mount(
         $model = null, $filters = null,
         $columnText = ['name'], $name = null,
         $all = null, $wire_model = null,
-        $x_model = null, $set_properties = null
+        $x_model = null, $set_properties = null,
+        $is_multiple = false, $optionSelected = null,
+        $key = 'id'
     )
     {
         $this->uniqId = uniqid();
@@ -38,6 +43,9 @@ class Select2ModelComponent extends Component
         $this->all = (isset($all) && $all > 0) ? $all : 0;
         $this->wire_model = $wire_model;
         $this->x_model = $x_model;
+        $this->is_multiple = $is_multiple;
+        $this->key = $key;
+
         if(isset($set_properties) && is_array($set_properties) && count($set_properties) > 0 ){
             if ( $this->isArrayofArrays($set_properties)){
                 $this->set_properties = $set_properties;
@@ -49,11 +57,61 @@ class Select2ModelComponent extends Component
             $this->set_properties = $set_properties;
             $this->hasProperties = 0;
         }
+        if($optionSelected !== null){
+            $this->optionSelected = $this->optionSelected($optionSelected);
+        }
     }
 
     public function render()
     {
         return view('livewire.components.select2-model-component');
+    }
+
+    public function optionSelected($propierties = null){
+        $results = [];
+        if(isset($propierties) && count($propierties) > 0){
+            if(isset($this->columnText)){
+                if(is_array($this->columnText)){
+                    if(count($this->columnText) > 1){
+                        $separator = "";
+                        $result = "";
+                        $i = 0;
+                        foreach ($this->columnText as $columnText) {
+                            if ($i < 1) {
+                                $separator = ", ' ', ";
+                            } else {
+                                $separator = ", ' - ', ";
+                            }
+                            $result .= $columnText . $separator;
+                            $i++;
+                        }
+                        $result = rtrim($result, $separator);
+                        $rename = "CONCAT(".$result.") as text";
+                    }else{
+                      $rename = $this->columnText[0].' as text';
+                    }
+                }elseif(is_string($this->columnText)){
+                    $rename = $this->columnText.' as text';
+                }
+                $key = $this->key;
+                if($this->key !== 'id'){
+                    $key .= ' as id';
+                }
+                $selects = [$key, DB::raw($rename)];
+            }
+            $results = $this->model::select($selects)->where(function($query) use ($propierties){
+                foreach($propierties as $filter => $value){
+                    if (!is_int($filter)) {
+                        if(is_array($value)){
+                            $query->whereIn($filter, $value);
+                        }else{
+                            $query->where($filter, $value);
+                        }
+                    }
+                }
+            })->get()->toArray();
+        }
+        return $results;
     }
 
     #[On('getOptions')]
@@ -82,7 +140,11 @@ class Select2ModelComponent extends Component
             }elseif(is_string($this->columnText)){
                 $rename = $this->columnText.' as text';
             }
-            $selects = ['id', DB::raw($rename)];
+            $key = $this->key;
+            if($this->key !== 'id'){
+                $key .= ' as id';
+            }
+            $selects = [$key, DB::raw($rename)];
         }
         $filters = $this->filters;
         $results = $this->model::select($selects)->where(function($query) use ($filters){
@@ -94,6 +156,10 @@ class Select2ModelComponent extends Component
                 }
             }
         });
+        if($this->key !== 'id'){
+            $result = $results->whereNotNull($this->key);
+        }
+
         if ($search)
         {
             $results = $results->where(function($query) use ($search,$filters){
@@ -108,7 +174,7 @@ class Select2ModelComponent extends Component
                 }
             });
         }
-        $results = $results->paginate(20,['*'],null,$page);
+        $results = $results->orderBy('id','desc')->paginate(20,['*'],null,$page);
         $this->dispatch('options', ['results' => $results])->self();
     }
 

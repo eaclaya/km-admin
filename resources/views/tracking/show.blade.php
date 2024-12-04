@@ -3,14 +3,14 @@
 @section("title", "index")
 
 @section("content_header")
-    <h1>
-        Productos
-    </h1>
+    <h1>Exportar Facturas</h1>
 @stop
 
 @section("content")
-    <div class="container-fluid">
-        <livewire:Datatables.products-table />
+    <div class="container">
+        <hr>
+        <livewire:Datatables.tracking-table :current_model="$model" :id="$id" />
+        <hr>
     </div>
 @stop
 
@@ -19,6 +19,5 @@
 @stop
 
 @section("js")
-    <script>
-    </script>
+    {{-- Add here extra javascript --}}
 @stop

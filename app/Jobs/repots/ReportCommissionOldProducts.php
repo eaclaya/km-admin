@@ -2,25 +2,30 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Models\Main\Account;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
-
-use Carbon\Carbon;
-use DB;
-
 use App\Models\Main\Employee;
 use App\Models\Main\Invoice;
 use App\Models\Main\ProductTracking;
 use App\Models\Main\ReportProcess;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ReportCommissionOldProducts extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
-    protected $nameFile, $reportProcessId, $stores, $from_date, $to_date;
+
+    protected $nameFile;
+
+    protected $reportProcessId;
+
+    protected $stores;
+
+    protected $from_date;
+
+    protected $to_date;
 
     /**
      * Create a new job instance.
@@ -64,20 +69,20 @@ class ReportCommissionOldProducts extends Job implements ShouldQueue
 
         $six_months_ago = $last_day_of_fortnight->copy()->subMonths(6);
 
-        $from_date = !empty($from_date) ? $from_date : $first_day_of_fortnight->format('Y-m-d');
-        $to_date = !empty($to_date) ? $to_date : $last_day_of_fortnight->format('Y-m-d');
+        $from_date = ! empty($from_date) ? $from_date : $first_day_of_fortnight->format('Y-m-d');
+        $to_date = ! empty($to_date) ? $to_date : $last_day_of_fortnight->format('Y-m-d');
 
         $exception = null;
 
         try {
-            $file = public_path() . '/' . $nameFile;
+            $file = public_path().'/'.$nameFile;
             $fp = fopen($file, 'a+');
 
             foreach ($stores as $account) {
                 $employees = Employee::where('account_id', $account->id)
                     ->where('is_seller', true)
                     ->where('enabled', true)
-                    ->select("id", "account_id", "first_name", "last_name")
+                    ->select('id', 'account_id', 'first_name', 'last_name')
                     ->get();
 
                 // Consulta principal para facturas
@@ -105,7 +110,7 @@ class ReportCommissionOldProducts extends Job implements ShouldQueue
 
                 // Consulta de productos que no deben incluirse
                 $products_t = ProductTracking::whereDate('products_tracking.created_at', '>', $six_months_ago)
-                    ->whereDate('products_tracking.created_at', '<',  $from_date)
+                    ->whereDate('products_tracking.created_at', '<', $from_date)
                     ->where('reason', '!=', 'Cantidad rebajada en factura')
                     ->where('products_tracking.final_account_id', $account->id)
                     ->groupBy('products_tracking.product_key')
@@ -113,7 +118,7 @@ class ReportCommissionOldProducts extends Job implements ShouldQueue
                     ->pluck('products_tracking.product_key');
 
                 $products_u = ProductTracking::whereDate('products_tracking.created_at', '>', $from_date)
-                    ->whereDate('products_tracking.created_at', '<',  $to_date)
+                    ->whereDate('products_tracking.created_at', '<', $to_date)
                     ->where('reason', '!=', 'Cantidad rebajada en factura')
                     ->where('products_tracking.transaction_type', '!=', 'invoice')
                     ->where('products_tracking.final_account_id', $account->id)
@@ -130,11 +135,11 @@ class ReportCommissionOldProducts extends Job implements ShouldQueue
                     ->whereNull('ii.deleted_at')
                     ->whereIn('invoices.employee_id', $employees->pluck('id'))
                     ->where('invoices.account_id', $account->id)
-                    ->whereIn('ii.product_key',  $invoicess->pluck('product_key'))
+                    ->whereIn('ii.product_key', $invoicess->pluck('product_key'))
                     ->where('invoices.invoice_type_id', 1)
                     ->where('invoices.invoice_status_id', 6)
-                    ->whereDate('invoices.created_at', '>',  $six_months_ago)
-                    ->whereDate('invoices.created_at', '<',  $from_date)
+                    ->whereDate('invoices.created_at', '>', $six_months_ago)
+                    ->whereDate('invoices.created_at', '<', $from_date)
                     ->groupBy('ii.product_key')
                     ->select('ii.product_key', 'ii.created_at');
                 $invoices_old = $invoices_old->get();
@@ -144,15 +149,15 @@ class ReportCommissionOldProducts extends Job implements ShouldQueue
                 foreach ($valors as $valor) {
                     $result = [
                         $account->name ?? '',
-                        $valor->employee->first_name . ' ' . $valor->employee->last_name,
-                        $from_date . ' al ' . $to_date,
+                        $valor->employee->first_name.' '.$valor->employee->last_name,
+                        $from_date.' al '.$to_date,
                         $valor->product_key,
                         $valor->first_created_at,
                         $valor->invoice_number,
                         $valor->qty,
                         $valor->cost,
                         $valor->total_cost,
-                        $valor->total_cost * 0.04
+                        $valor->total_cost * 0.04,
                     ];
                     fputcsv($fp, $result, ';');
                 }
@@ -166,11 +171,11 @@ class ReportCommissionOldProducts extends Job implements ShouldQueue
 
         // Actualiza el estado del proceso en la base de datos
         $reportProcess = ReportProcess::find($reportProcessId);
-        $reportProcess->count_rows = is_null($reportProcess->count_rows) ? 1 : (int)$reportProcess->count_rows + 1;
+        $reportProcess->count_rows = is_null($reportProcess->count_rows) ? 1 : (int) $reportProcess->count_rows + 1;
         $finish = ($reportProcess->count_rows >= $reportProcess->rows) ? true : false;
 
-        if (!is_null($exception)) {
-            $reportProcess->exception .= substr(trim($exception), 0, 200) . '*--*';
+        if (! is_null($exception)) {
+            $reportProcess->exception .= substr(trim($exception), 0, 200).'*--*';
             $reportProcess->status = 2;
         }
 

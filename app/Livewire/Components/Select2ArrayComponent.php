@@ -20,14 +20,19 @@ class Select2ArrayComponent extends Component
     public $x_model;
     public $set_properties;
     public $hasProperties;
-    public function mount($array = null, $name = null, $all = null, $wire_model = null, $x_model = null, $set_properties = null)
+    public $is_multiple;
+    public $optionSelected;
+
+    public function mount($array = null, $name = null, $all = null, $wire_model = null, $x_model = null, $set_properties = null, $is_multiple = false, $optionSelected = null)
     {
         $this->uniqId = uniqid();
+        $this->optionSelected = isset($optionSelected) ? $optionSelected : [];
         $this->array = $this->sortArray($array);
         $this->name = isset($name) ? $name : 'select2-'.$this->uniqId;
         $this->all = (isset($all) && $all > 0) ? $all : 0;
         $this->wire_model = $wire_model;
         $this->x_model = $x_model;
+        $this->is_multiple = $is_multiple;
         if(isset($set_properties) && is_array($set_properties) && count($set_properties) > 0 ){
             if ( $this->isArrayofArrays($set_properties)){
                 $this->set_properties = $set_properties;
@@ -63,10 +68,18 @@ class Select2ArrayComponent extends Component
             foreach($array as $key => $value){
                 if (is_array($value)){
                     if(isset($value['id']) && isset($value['text'])){
-                        $newArray[] = ['id' => $value['id'], 'text' => $value['text']];
+                        if ( in_array($value['id'], $this->optionSelected) ) {
+                            $newArray[] = ['id' => $value['id'], 'text' => $value['text'], 'selected' => true];
+                        }else{
+                            $newArray[] = ['id' => $value['id'], 'text' => $value['text']];
+                        }
                     }
                 } else {
-                    $newArray[] = ['id' => $key, 'text' => $value];
+                    if ( in_array($key, $this->optionSelected) ) {
+                        $newArray[] = ['id' => $key, 'text' => $value, 'selected' => true];
+                    }else{
+                        $newArray[] = ['id' => $key, 'text' => $value];
+                    }
                 }
             }
         }

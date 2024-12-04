@@ -83,6 +83,11 @@ const ENTITY_ORDER_REQUEST = 'order_request';
 const ENTITY_PRODUCT_REQUEST = 'product_request';
 const ENTITY_ORDER_REQUEST_CONFIRMED = 'order_request_confirmed';
 const ENTITY_PRODUCT_REQUEST_CONFIRMED = 'product_request_confirmed';
+const ENTITY_QUOTA = 'quota';
+const ENTITY_REFUND_QUOTA = 'refund_quota';
+const ENTITY_PAYMENT_QUOTA = 'payment_quota';
+const ENTITY_DISCOUNT_QUOTA = 'discount_quota';
+const ENTITY_SPECIAL_NEGOTIATION = 'special_negotiation';
 
 const INVOICE_TYPE_STANDARD = 1;
 const INVOICE_TYPE_QUOTE = 2;

@@ -20,3 +20,4 @@ yarn-error.log
 /.vscode
 docker-compose.yml
 Dockerfile
+.php-cs-fixer.cache
