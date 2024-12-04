@@ -184,7 +184,10 @@ class SpecialNegotiationsTable extends DataTableComponent
                         return 'Si';
                     }
                 })->html(),
-            Column::make('Descuento Estimado', 'estimated_percentage'),
+            Column::make('Descuento Estimado', 'estimated_percentage')
+                ->format(function (string $value, $row) {
+                    return $row->estimated_percentage.' %';
+                })->html(),
             Column::make('Descuento Aplicado', 'negotiations_discount'),
             Column::make('Accion', 'id')
                 ->format(function (string $value, $row) {

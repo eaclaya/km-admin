@@ -294,7 +294,7 @@
                                 <td>
                                     @php
                                         $text = "";
-                                        $days = Carbon\Carbon::now()->diffInDays(Carbon\Carbon::parse($quota->credit_payment_at)) + 1;
+                                        $days = Carbon\Carbon::now()->diffInDays(Carbon\Carbon::parse($quota->credit_payment_at));
                                         if ($days > 0) {
                                             $text = '<div class="bg-success" > Dias restantes: '. intval(ceil($days)) . '</div>';
                                         }else{

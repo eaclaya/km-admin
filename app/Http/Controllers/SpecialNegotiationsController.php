@@ -86,12 +86,6 @@ class SpecialNegotiationsController extends Controller
             'name' => 'account_id',
             'set_properties' => [
                 [
-                    'name' => 'client_id',
-                    'filters' => [
-                        'account_id' => '$selected',
-                    ],
-                ],
-                [
                     'name' => 'invoice_id',
                     'filters' => [
                         'account_id' => '$selected',
@@ -110,8 +104,8 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['client_select'] = [
             'model' => 'App\\Models\\Main\\Client',
-            'filters' => ['name'],
-            'columnText' => ['name'],
+            'filters' => ['name', 'company_name', 'id_number'],
+            'columnText' => ['name', 'company_name', 'id_number'],
             'name' => 'client_id',
             'optionSelected' => [
                 'id' => $negotiation->client_id,
@@ -136,16 +130,6 @@ class SpecialNegotiationsController extends Controller
                 'id' => $negotiation->status,
             ],
             'name' => 'status',
-        ];
-        $data['is_document_select'] = [
-            'array' => [
-                '0' => 'No',
-                '1' => 'Si',
-            ],
-            'optionSelected' => [
-                'id' => $negotiation->is_document,
-            ],
-            'name' => 'is_document',
         ];
         $conditions = ConditionsSpecialNegotiation::get();
         $data['conditions'] = $conditions;

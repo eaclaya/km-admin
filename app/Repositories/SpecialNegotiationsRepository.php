@@ -226,20 +226,32 @@ class SpecialNegotiationsRepository
         return $discount;
     }
 
+    public function calculateDiscountNegotiation($negotiation, $newDiscount)
+    {
+        $discounts = $negotiation->discounts();
+        $porcentQuotasDiscount = $discounts->sum('porcent_quotas_discount');
+        $discountsCount = $discounts->count();
+        if ($porcentQuotasDiscount > 0 && $discountsCount > 0) {
+            $negotiation->negotiations_discount = $porcentQuotasDiscount / $discountsCount;
+            $negotiation->save();
+        }
+    }
+
     public function insertDiscountInvoice($discount)
     {
         $discount_negotiation = $discount->discount_applied;
         $invoice = $discount->invoice;
-
-        $negotiation = $discount->special_negotiation;
-        $negotiation->negotiations_discount += $discount->porcent_quotas_discount;
-        $negotiation->save();
 
         $invoice->discount_negotiations += $discount_negotiation;
         $invoice->discount += $discount_negotiation;
         $invoice->amount -= $discount_negotiation;
         $invoice->replacement_amount -= $discount_negotiation;
         $invoice->save();
+
+        $negotiation = $discount->special_negotiation;
+        $newDiscount = $discount->porcent_quotas_discount;
+        $this->calculateDiscountNegotiation($negotiation, $newDiscount);
+
     }
 
     public function clearDiscountInvoicetoUpdate($discount)

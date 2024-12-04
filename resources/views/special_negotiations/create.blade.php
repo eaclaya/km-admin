@@ -33,12 +33,6 @@
                                 'name' => 'account_id',
                                 'set_properties' => [
                                     [
-                                        'name' => 'client_id',
-                                        'filters' => [
-                                            'account_id' => '$selected',
-                                        ],
-                                    ],
-                                    [
                                         'name' => 'invoice_id',
                                         'filters' => [
                                             'account_id' => '$selected',
@@ -60,8 +54,8 @@
                             <label for="client_id" class="form-label">Cliente</label>
                             @livewire('components.select2-model-component', [
                                 'model' => "App\\Models\\Main\\Client",
-                                'filters'=> ['name'],
-                                'columnText'=> ['name'],
+                                'filters'=> ['name', 'company_name', 'id_number'],
+                                'columnText'=> ['name','company_name', 'id_number'],
                                 'name' => 'client_id',
                             ])
                         </div>
