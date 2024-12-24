@@ -61,7 +61,7 @@ class LoginRequest extends FormRequest
 
         if ($user->allowed_account_ids > 0) {
             $allowedAccounts = explode(',', $user->allowed_account_ids);
-            if (in_array($request->get('account'), $allowedAccounts) == false) {
+            if (in_array($this->request->get('account'), $allowedAccounts) == false) {
                 throw ValidationException::withMessages([
                     'account' => 'No tiene permiso para acceder a esta Tienda',
                 ]);
