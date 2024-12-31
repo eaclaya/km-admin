@@ -42,14 +42,6 @@ class SpecialNegotiationsController extends Controller
             'filters'=> ['name'],
             'columnText'=> ['name'],
             'name' => 'account_id',
-            // 'set_properties' => [
-            //     [
-            //         'name' => 'invoice_id',
-            //         'filters' => [
-            //             'account_id' => '$selected',
-            //         ],
-            //     ],
-            // ],
         ];
         $data['employee_select'] = [
             'model' => "App\\Models\\Main\\Employee",
@@ -59,8 +51,8 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['client_select'] = [
             'model' => "App\\Models\\Main\\Client",
-            'filters'=> ['name', 'company_name', 'id_number'],
-            'columnText'=> ['name','company_name', 'id_number'],
+            'filters' => ['name', 'company_name'],
+            'columnText' => ['name', 'company_name'],
             'name' => 'client_id',
         ];
         $data['invoice_select'] = [
@@ -129,14 +121,6 @@ class SpecialNegotiationsController extends Controller
                 'id' => $negotiation->account_id,
             ],
             'name' => 'account_id',
-            // 'set_properties' => [
-            //     [
-            //         'name' => 'invoice_id',
-            //         'filters' => [
-            //             'account_id' => '$selected',
-            //         ],
-            //     ],
-            // ],
         ];
         $data['employee_select'] = [
             'model' => 'App\\Models\\Main\\Employee',
@@ -149,8 +133,8 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['client_select'] = [
             'model' => 'App\\Models\\Main\\Client',
-            'filters' => ['name', 'company_name', 'id_number'],
-            'columnText' => ['name', 'company_name', 'id_number'],
+            'filters' => ['name', 'company_name'],
+            'columnText' => ['name', 'company_name'],
             'name' => 'client_id',
             'optionSelected' => [
                 'id' => $negotiation->client_id,

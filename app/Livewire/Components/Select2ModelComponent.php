@@ -166,7 +166,8 @@ class Select2ModelComponent extends Component
                 if(isset($filters) && count($filters) > 0){
                     foreach($filters as $filter => $value){
                         if (is_int($filter)) {
-                            $query->orWhere($value, 'LIKE', "%$search%");
+                            $query->orWhere($value, $search)
+                                ->orWhere($value, 'LIKE', "%$search%");
                         } else {
                             $query->where($filter, $value);
                         }
