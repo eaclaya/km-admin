@@ -17,57 +17,23 @@
                         @csrf
                         <div class="col-md-2">
                             <label for="route_id" class="form-label">Ruta</label>
-                            @livewire('components.select2-model-component', [
-                                'model' => "App\\Models\\Main\\Route",
-                                'filters'=> ['name'],
-                                'columnText'=> ['name'],
-                                'name' => 'route_id',
-                            ])
+                            @livewire('components.select2-model-component', $route_select)
                         </div>
                         <div class="col-md-2">
                             <label for="account_id" class="form-label">Tienda</label>
-                            @livewire('components.select2-model-component', [
-                                'model' => "App\\Models\\Main\\Account",
-                                'filters'=> ['name'],
-                                'columnText'=> ['name'],
-                                'name' => 'account_id',
-                                'set_properties' => [
-                                    [
-                                        'name' => 'invoice_id',
-                                        'filters' => [
-                                            'account_id' => '$selected',
-                                        ],
-                                    ],
-                                ],
-                            ])
+                            @livewire('components.select2-model-component', $account_select)
                         </div>
                         <div class="col-md-2">
                             <label for="employee_id" class="form-label">Empleado</label>
-                            @livewire('components.select2-model-component', [
-                                'model' => "App\\Models\\Main\\Employee",
-                                'filters'=> ['first_name','last_name', 'id_number'],
-                                'columnText'=> ['first_name','last_name'],
-                                'name' => 'employee_id',
-                            ])
+                            @livewire('components.select2-model-component', $employee_select)
                         </div>
                         <div class="col-md-2">
                             <label for="client_id" class="form-label">Cliente</label>
-                            @livewire('components.select2-model-component', [
-                                'model' => "App\\Models\\Main\\Client",
-                                'filters'=> ['name', 'company_name', 'id_number'],
-                                'columnText'=> ['name','company_name', 'id_number'],
-                                'name' => 'client_id',
-                            ])
+                            @livewire('components.select2-model-component', $client_select)
                         </div>
                         <div class="col-md-4">
                             <label for="invoice_id" class="form-label">Facturas</label>
-                            @livewire('components.select2-model-component', [
-                                'model' => "App\\Models\\Main\\Invoice",
-                                'filters'=> ['invoice_number', 'created_at', 'amount'],
-                                'columnText'=> ['invoice_number', 'created_at', 'amount'],
-                                'name' => 'invoice_id',
-                                'is_multiple' => true,
-                            ])
+                            @livewire('components.select2-model-component', $invoice_select)
                         </div>
                     </div>
                     <br>

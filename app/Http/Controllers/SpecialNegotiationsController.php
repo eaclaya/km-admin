@@ -27,9 +27,50 @@ class SpecialNegotiationsController extends Controller
 
     public function create()
     {
+        $data = [];
         $conditions = ConditionsSpecialNegotiation::get();
+        $data['conditions'] = $conditions;
 
-        return view('special_negotiations.create', ['conditions' => $conditions]);
+        $data['route_select'] = [
+            'model' => "App\\Models\\Main\\Route",
+            'filters'=> ['name'],
+            'columnText'=> ['name'],
+            'name' => 'route_id',
+        ];
+        $data['account_select'] = [
+            'model' => "App\\Models\\Main\\Account",
+            'filters'=> ['name'],
+            'columnText'=> ['name'],
+            'name' => 'account_id',
+            // 'set_properties' => [
+            //     [
+            //         'name' => 'invoice_id',
+            //         'filters' => [
+            //             'account_id' => '$selected',
+            //         ],
+            //     ],
+            // ],
+        ];
+        $data['employee_select'] = [
+            'model' => "App\\Models\\Main\\Employee",
+            'filters'=> ['first_name','last_name', 'id_number'],
+            'columnText'=> ['first_name','last_name'],
+            'name' => 'employee_id',
+        ];
+        $data['client_select'] = [
+            'model' => "App\\Models\\Main\\Client",
+            'filters'=> ['name', 'company_name', 'id_number'],
+            'columnText'=> ['name','company_name', 'id_number'],
+            'name' => 'client_id',
+        ];
+        $data['invoice_select'] = [
+            'model' => "App\\Models\\Main\\Invoice",
+            'filters'=> ['invoice_number', 'created_at', 'amount'],
+            'columnText'=> ['invoice_number', 'created_at', 'amount'],
+            'name' => 'invoice_id',
+            'is_multiple' => true,
+        ];
+        return view('special_negotiations.create', $data);
     }
 
     public function store(Request $request): mixed
@@ -67,6 +108,10 @@ class SpecialNegotiationsController extends Controller
             return redirect()->route('special_negotiations.index');
         }
         $data['special_negotiation'] = $negotiation;
+
+        $conditions = ConditionsSpecialNegotiation::get();
+        $data['conditions'] = $conditions;
+
         $data['route_select'] = [
             'model' => 'App\\Models\\Main\\Route',
             'filters' => ['name'],
@@ -84,14 +129,14 @@ class SpecialNegotiationsController extends Controller
                 'id' => $negotiation->account_id,
             ],
             'name' => 'account_id',
-            'set_properties' => [
-                [
-                    'name' => 'invoice_id',
-                    'filters' => [
-                        'account_id' => '$selected',
-                    ],
-                ],
-            ],
+            // 'set_properties' => [
+            //     [
+            //         'name' => 'invoice_id',
+            //         'filters' => [
+            //             'account_id' => '$selected',
+            //         ],
+            //     ],
+            // ],
         ];
         $data['employee_select'] = [
             'model' => 'App\\Models\\Main\\Employee',
@@ -131,8 +176,6 @@ class SpecialNegotiationsController extends Controller
             ],
             'name' => 'status',
         ];
-        $conditions = ConditionsSpecialNegotiation::get();
-        $data['conditions'] = $conditions;
 
         return view('special_negotiations.edit', $data);
     }
