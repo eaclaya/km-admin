@@ -15,14 +15,11 @@ class AccountRepository
 {
     public function findUserAccounts($userId1, $userId2 = false)
     {
-	    /* if (!Schema::hasTable('user_accounts')) {
-            return false;
-        } */
-        /*if(!Auth::user()->realUser()->_can('switch_account')){
-            return false;
-        }*/
         $realUserId = Session::get('real_userid');
-        if(!$realUserId || !in_array($realUserId, [16,27,47,52,62,63,66,78,50,166,154,139])){
+        if(
+            !$realUserId
+            || !in_array($realUserId, [16,27,47,52,62,63,66,78,50,166,154,139])
+        ){
             return false;
         }
         //PERMITIR MAS DE 5 TIENDAS O USUARIOS
