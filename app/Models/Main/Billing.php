@@ -2,8 +2,14 @@
 
 namespace App\Models\Main;
 
+use Illuminate\Database\Eloquent\Model;
+
 class Billing extends ModelDBMain
 {
-    protected $table = 'billing';
 
+    protected $connection = 'main';
+    //
+    protected $table = 'billing';
+    protected $primaryKey = 'billing_id';
+    public $timestamps = false;
 }

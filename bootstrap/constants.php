@@ -83,6 +83,11 @@ const ENTITY_ORDER_REQUEST = 'order_request';
 const ENTITY_PRODUCT_REQUEST = 'product_request';
 const ENTITY_ORDER_REQUEST_CONFIRMED = 'order_request_confirmed';
 const ENTITY_PRODUCT_REQUEST_CONFIRMED = 'product_request_confirmed';
+const ENTITY_QUOTA = 'quota';
+const ENTITY_REFUND_QUOTA = 'refund_quota';
+const ENTITY_PAYMENT_QUOTA = 'payment_quota';
+const ENTITY_DISCOUNT_QUOTA = 'discount_quota';
+const ENTITY_SPECIAL_NEGOTIATION = 'special_negotiation';
 
 const INVOICE_TYPE_STANDARD = 1;
 const INVOICE_TYPE_QUOTE = 2;
@@ -135,6 +140,7 @@ const ACCOUNT_SYSTEM_SETTINGS = 'system_settings';
 const ACCOUNT_PAYMENT_TERMS = 'payment_terms';
 const ACCOUNT_AREAS_AND_ZONES = 'areas_and_zones';
 const ACCOUNT_ORGANIZATION_COMPANY = 'organization_company';
+const ACCOUNT_SET_TOKEN = 'set_token';
 
 const ACTION_RESTORE = 'restore';
 const ACTION_ARCHIVE = 'archive';

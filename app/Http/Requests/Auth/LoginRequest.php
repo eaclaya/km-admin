@@ -5,10 +5,17 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+
+use App\Events\UserLoggedIn;
+use App\Models\User;
+
+use Carbon\Carbon;
 
 class LoginRequest extends FormRequest
 {
@@ -30,6 +37,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'account' => ['required', 'integer'],
         ];
     }
 
@@ -41,6 +49,24 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+        $data = $this->request->all();
+
+        $user = User::where('email', '=', $data['email'])->first();
+        if ($user == null) {
+            Session::flash('error', trans('texts.invalid_credentials'));
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        if ($user->allowed_account_ids > 0) {
+            $allowedAccounts = explode(',', $user->allowed_account_ids);
+            if (in_array($this->request->get('account'), $allowedAccounts) == false) {
+                throw ValidationException::withMessages([
+                    'account' => 'No tiene permiso para acceder a esta Tienda',
+                ]);
+            }
+        }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
@@ -48,9 +74,23 @@ class LoginRequest extends FormRequest
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
+        }else{
+            Session::put('authentication_token', null);
+            Session::put('real_useraccount', $user->account_id);
+            Session::put('real_userid', $user->id);
+            Cache::forever('real_userid', $user->id);
+
+            if ($user->is_superuser && $user->id != 81) {
+                $newUser = User::where('account_id', $data['account'])->where('is_superuser', 1)->first();
+                if ($newUser) {
+                    Auth::login($newUser);
+                }
+            }
         }
 
-        $userId = Auth::id();
+        // dd('aqui');
+
+        /* $userId = Auth::id();
 
         $codes = DB::connection('main')
             ->table('users')
@@ -60,7 +100,8 @@ class LoginRequest extends FormRequest
             ->pluck('user_resources.code')
             ->toArray();
 
-        session(['user_codes' => $codes]);
+        session(['user_codes' => $codes]); */
+        UserLoggedIn::dispatch();
 
         RateLimiter::clear($this->throttleKey());
     }

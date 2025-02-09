@@ -9,7 +9,7 @@ class ModelDBMain extends Model
 {
     protected $connection = 'main';
 
-    protected static function boot(): void
+    /* protected static function boot(): void
     {
         parent::boot();
 
@@ -24,5 +24,5 @@ class ModelDBMain extends Model
         static::deleting(function ($model) {
             throw new Exception('No se puede eliminar este modelo directamente');
         });
-    }
+    } */
 }

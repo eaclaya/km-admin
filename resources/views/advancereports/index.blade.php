@@ -35,7 +35,8 @@
                 <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('advancereports.stock_in_stores') }}">
-                            <div class="title">Total Inventario general plusss</div>
+                                <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
+                            <div class="title">Total Inventario general plus</div>
                         </a>
                     </div>
                 </div>
@@ -570,14 +571,14 @@
                 </div>
             @endif
             @if (isset($roles['markers']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('clients.markers') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Mapa de clientes</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['visits']))
                 <div class="col-md-3">
@@ -590,14 +591,14 @@
                 </div>
             @endif
             @if (isset($roles['users_activity']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('usersmanagement.users_activity') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Actividad de usuarios</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['products_underwholesaleprice']))
                 <div class="col-md-3">
@@ -630,32 +631,32 @@
                 </div>
             @endif
             @if (isset($roles['products_in_packing']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('packings.products_in_packing') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Productos en packings</div>
                         </a>
                     </div>
-                </div>
-                <div class="col-md-3">
+                </div> --}}
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('verifyorder.products_in_verify') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Productos en Verificacion</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['transfers_in_packing']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('packings.transfers_in_packing') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Transferencias en packings</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['transfers_pending']))
                 <div class="col-md-3">
@@ -714,14 +715,14 @@
                 </div>
             @endif
             @if (isset($roles['goal_configuration']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('goal.goal_configuration') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Meta Tienda/Vendedores</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['client_notes']))
                 <div class="col-md-3">
@@ -805,7 +806,7 @@
                 </div>
             @endif
             @if (isset($roles['store_report']))
-                <div class="col-md-3">
+               {{--  <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('goal.store_report') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
@@ -820,17 +821,17 @@
                             <div class="title">Meta de Rutas</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['seller_report']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('goal.seller_report') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Meta de Vendedores plus</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
 
             @if (isset($roles['input_entries']))
@@ -844,44 +845,44 @@
                 </div>
             @endif
             @if (isset($roles['invoice_history']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('invoices.invoice_history') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Historial de facturas</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['import_history']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('imports.import_history') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Historial de importaciones</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['cv_requests']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('curriculums.cv_requests') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Curriculums</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['wholesaler_requests']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('wholesalers.wholesaler_requests') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Solicitudes Mayoristas</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['available_cash']))
                 <div class="col-md-3">
@@ -953,14 +954,14 @@
                 </div>
             @endif
 
-            <div class="col-md-3">
+            {{-- <div class="col-md-3">
                 <div class="card">
                     <a href="{{ url('settings/reports') }}">
                         <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                         <div class="title">Reportes Generales</div>
                     </a>
                 </div>
-            </div>
+            </div> --}}
             @if (isset($roles['export_invoices']))
                 <div class="col-md-3">
                     <div class="card">
@@ -982,14 +983,14 @@
                 </div>
             @endif
             @if (isset($roles['tracking_history']))
-                <div class="col-md-3">
+                {{-- <div class="col-md-3">
                     <div class="card">
                         <a href="{{ route('tracking_history.index') }}">
                             <div class="icon-wrapper"><i class="fa fa-book fa-2x"></i></div>
                             <div class="title">Tracking e Historial de Cambios</div>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             @endif
             @if (isset($roles['traces_request']))
                 <div class="col-md-3">

@@ -1,12 +1,22 @@
 <div wire:ignore>
     <select
         style="width: 100%" class="form-control {{$name}}"
-        id="{{$name}}" name="{{$name}}"
+        id="{{$name}}" name="{{$name . ((isset($is_multiple) && trim($is_multiple) !== '') ? '[]' : '')}}"
         @if(isset($x_model) && trim($x_model) !== '')
             x-model="{{$x_model}}"
         @endif
+        @if(isset($is_multiple) && trim($is_multiple) !== '')
+            multiple="multiple"
+        @endif
     >
-        <!-- Add more options as needed -->
+    @if (isset($optionSelected) && count($optionSelected) > 0)
+        @foreach ($optionSelected as $option)
+            @if (!isset($option['id']))
+                @continue
+            @endif
+            <option value="{{$option['id']}}" selected>{{$option['text']}}</option>
+        @endforeach
+    @endif
     </select>
     <script>
         async function livewireTransport{{$uniqId}}(params) {
@@ -23,7 +33,6 @@
                 });
             });
         }
-
         function runAfterLivewireLoaded{{$uniqId}}(callback) {
             if (window.Livewire) {
                 callback();

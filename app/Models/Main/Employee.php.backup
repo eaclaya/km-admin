@@ -1,0 +1,184 @@
+<?php
+
+namespace App\Models\Main;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Employee extends ModelDBMain
+{
+
+    protected $connection = 'main';
+      public $timestamps = false;
+
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_EMPLOYEE;
+    }
+
+   public function account(){
+	return $this->belongsTo('App\Models\Main\Account');	
+   }
+ 
+   public function invoices(){
+	return $this->hasMany('App\Models\Main\Invoice', 'employee_id', 'id');
+   }
+    public function getEmployeeCommision($commissions, $invoices){
+         $total = 0; $totalItemsAmount = 0;
+	 $commissionTotals = [];
+	 foreach($invoices as $invoice){
+	if($invoice->invoice_status_id == 6){
+         foreach($invoice->invoice_items as $item){
+            $category_id = ($item->product) ? ($item->product->category_id) : null;
+            $employee_id = $item->invoice->employee_id;
+            $type = $item->invoice->client ? $item->invoice->client->type : null;
+	    $isValid = false;
+	    foreach($commissions as $commission){
+            $json = json_decode($commission->json, true);
+            $condition_match_result = false;
+	    $conditions_match = [];
+            foreach($json as $index =>  $conditions){
+		    $conditions_match[$index] = [];
+		    if($conditions){
+		    foreach($conditions as $subindex => $condition){
+			
+			 if($subindex == 'prices' || $subindex == 'categories' || $subindex == 'employees' || $subindex == 'condition'){
+			      if(is_array($condition) == false){
+				$match = false;
+				if($subindex == 'condition'){ $match = $condition; }
+				else{
+					foreach($condition as $key => $value){
+                                         	if($subindex == 'categories' && $key == $category_id){
+                                                	$match = true;
+                                        	}
+                                        	if($subindex == 'prices' && $value == $type){
+                                                	$match = true;
+                                        	}
+                                        	if($subindex == 'employees' && $key == $employee_id){
+                                                	$match = true;
+						}
+					}
+				}
+			    $conditions_match[$index] = $match;
+			  }	
+			 }else{
+			 $conditions_match[$index][$subindex] = [];
+                         foreach($condition as $key => $values){
+				 $match = false;
+                                 if($key == 'condition'){ $match = $values; }
+				 else{
+                                    foreach($values as $code => $value){
+                                        if($key == 'categories' && $code == $category_id){
+                                                $match = true;
+                                        }
+                                        if($key == 'prices' && $value == $type){
+                                                $match = true;
+                                        }
+                                        if($key == 'employees' && $code == $employee_id){
+                                                $match = true;
+                                        }
+				    }
+                                }
+                                $conditions_match[$index][$subindex][] = $match;
+			 }
+			}
+                    }
+                }
+	    }
+	    $lastCondition = null;
+	    $count = count($conditions_match);
+	    $firstValue = array_values($conditions_match)[0];
+	    if(!is_array($firstValue)){
+		    $items = $conditions_match;
+		if($count == 1){ $lastCondition = $items[0]; }
+                    if($count == 3){
+                        if($items[1] === 0){ $lastCondition = $items[0] || $items[2]; }
+                        else{ $lastCondition = $items[0] && $items[2]; }
+                    }
+                    if($count == 5){
+                        if($items[1] === 0 && $items[3] == 0){ $lastCondition = $items[0] || $items[2] || $items[4]; }
+                        if($items[1] === 1 && $items[3] == 1){ $lastCondition = $items[0] && $items[2] && $items[4]; }
+                        if($items[1] === 0 && $items[3] == 1){ $lastCondition = $items[0] || $items[2] && $items[4]; }
+                        if($items[1] === 1 && $items[3] == 0){ $lastCondition = $items[0] && $items[2] || $items[4]; }
+                    }
+	    }else{
+	    foreach($conditions_match as $items){
+		    $count = count($items);
+                    if($count == 1){ $lastCondition = $items[0][0]; }
+                    if($count == 3){
+                        if($items[1][0] === 0){ $lastCondition = $items[0][0] || $items[2][0]; }
+                        else{ $lastCondition = $items[0][0] && $items[2][0]; }
+                    }
+                    if($count == 5){
+                        if($items[1][0] === 0 && $items[3][0] == 0){ $lastCondition = $items[0][0] || $items[2][0] || $items[4][0]; }
+                        if($items[1][0] === 1 && $items[3][0] == 1){ $lastCondition = $items[0][0] && $items[2][0] && $items[4][0]; }
+                        if($items[1][0] === 0 && $items[3][0] == 1){ $lastCondition = $items[0][0] || $items[2][0] && $items[4][0]; }
+                        if($items[1][0] === 1 && $items[3][0] == 0){ $lastCondition = $items[0][0] && $items[2][0] || $items[4][0]; }
+                    }
+                    if($lastCondition == false){
+                        break;
+		    }
+	    }
+	    }
+	    $isValid = !$lastCondition;
+            if($isValid) {
+                    if(isset($commissionTotals[$commission->id]) == false){
+			    $commissionTotals[$commission->id] = [
+				    'cost' =>  0,
+				    'qty' => 0,
+				    'total' => 0,
+				    'percent' => $commission->commission_percent,
+				    'goal' => $commission->goal,
+				    'goal_amount_min' => $commission->goal_amount_min,
+				    'goal_amount_max' => $commission->goal_amount_max,
+				    'commission' => 0,
+				    'type' => $commission->type
+
+			    ];
+                    }
+		    $commissionTotals[$commission->id]['commission'] += floatval($item->cost * $item->qty) * ($commission->commission_percent/100);
+		    $commissionTotals[$commission->id]['cost'] += floatval($item->cost);
+		    $commissionTotals[$commission->id]['qty'] += floatval($item->qty);
+		    $commissionTotals[$commission->id]['total'] += floatval($item->cost * $item->qty);
+            }
+          }
+	 }
+	}
+	 }
+	 foreach($commissionTotals as  $key => $total){
+		 if($total['goal_amount_max'] > 0){
+			if(!($total['cost'] >= $total['goal_amount_min'] && $total['cost'] < $total['goal_amount_max'])){
+                                unset($commissionTotals[$key]);
+                        }
+
+		 }else{
+			if(!($total['cost'] >= $total['goal_amount_min'])){
+				unset($commissionTotals[$key]);
+			}
+		}
+	}
+        return $commissionTotals;
+    }
+
+       public function saveCommission($employee, $data){
+	 $payroll = Payroll::where('employee_id', $employee->id)->first();
+	 $payroll->commission_amount = 0;
+	 $payroll->commission_percent = 0;
+	 $payroll->commission_global = 0;
+         foreach($data as $item){
+                if($item['type'] == 1){
+                        $payroll->commission_amount = $item['commission'];
+                        $payroll->commission_percent = $item['percent'];
+                        $payroll->sales_amount = $item['total'];
+                }
+
+                if($item['type'] == 2){
+                        $payroll->commission_global = $item['commission'];
+                }
+        }
+        $payroll->save();
+    }
+}

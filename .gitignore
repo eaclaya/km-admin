@@ -20,3 +20,6 @@ yarn-error.log
 /.vscode
 docker-compose.yml
 Dockerfile
+.php-cs-fixer.cache
+
+/public/backup_file.sql.gz

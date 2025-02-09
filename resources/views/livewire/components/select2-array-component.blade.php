@@ -1,9 +1,12 @@
 <div wire:ignore>
     <select
         style="width: 100%" class="form-control {{$name}}"
-        id="{{$name}}" name="{{$name}}"
+        id="{{$name}}" name="{{$name . ((isset($is_multiple) && $is_multiple !== false) ? '[]' : '')}}"
         @if(isset($x_model) && trim($x_model) !== '')
             x-model="{{$x_model}}"
+        @endif
+        @if(isset($is_multiple) && $is_multiple !== false)
+            multiple="multiple"
         @endif
     >
         <!-- Add more options as needed -->
