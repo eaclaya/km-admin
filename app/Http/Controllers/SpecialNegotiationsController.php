@@ -57,7 +57,7 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['invoice_select'] = [
             'model' => "App\\Models\\Main\\Invoice",
-            'filters'=> ['invoice_number', 'created_at', 'amount'],
+            'filters'=> ['invoice_number'],
             'columnText'=> ['invoice_number', 'created_at', 'amount'],
             'name' => 'invoice_id',
             'is_multiple' => true,
@@ -142,7 +142,7 @@ class SpecialNegotiationsController extends Controller
         ];
         $data['invoice_select'] = [
             'model' => 'App\\Models\\Main\\Invoice',
-            'filters' => ['invoice_number', 'created_at', 'amount'],
+            'filters' => ['invoice_number'],
             'columnText' => ['invoice_number', 'created_at', 'amount'],
             'name' => 'invoice_id',
             'is_multiple' => true,
