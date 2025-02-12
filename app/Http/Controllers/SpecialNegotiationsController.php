@@ -21,6 +21,7 @@ class SpecialNegotiationsController extends Controller
     {
         $user = Auth::user()->realUser();
         $routes_id = $this->moduleService->getRouteToUser($user);
+        dd($routes_id);
 
         return view('special_negotiations.index', ['routes_id' => $routes_id]);
     }
