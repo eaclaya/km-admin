@@ -21,7 +21,6 @@ class SpecialNegotiationsController extends Controller
     {
         $user = Auth::user()->realUser();
         $routes_id = $this->moduleService->getRouteToUser($user);
-        dd($routes_id);
 
         return view('special_negotiations.index', ['routes_id' => $routes_id]);
     }
@@ -34,7 +33,7 @@ class SpecialNegotiationsController extends Controller
 
         $data['route_select'] = [
             'model' => "App\\Models\\Main\\Route",
-            'filters'=> ['name'],
+            'filters'=> ['name', 'deleted' => null],
             'columnText'=> ['name'],
             'name' => 'route_id',
         ];
@@ -115,7 +114,7 @@ class SpecialNegotiationsController extends Controller
 
         $data['route_select'] = [
             'model' => 'App\\Models\\Main\\Route',
-            'filters' => ['name'],
+            'filters'=> ['name', 'deleted' => null],
             'columnText' => ['name'],
             'name' => 'route_id',
             'optionSelected' => [

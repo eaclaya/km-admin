@@ -47,7 +47,7 @@ class Select2ModelComponent extends Component
         $this->key = $key;
 
         if(isset($set_properties) && is_array($set_properties) && count($set_properties) > 0 ){
-            if ( $this->isArrayofArrays($set_properties)){
+            if ( $this->isArrayofArrays($set_properties) ){
                 $this->set_properties = $set_properties;
             }else{
                 $this->set_properties = [$set_properties];
@@ -151,7 +151,11 @@ class Select2ModelComponent extends Component
             if(isset($filters) && count($filters) > 0){
                 foreach($filters as $filter => $value){
                     if (!is_int($filter)) {
-                        $query->where($filter, $value);
+                        if(is_array($value)){
+                            $query->where($filter, array_keys($value), array_values($value));
+                        }else{
+                            $query->where($filter, $value);
+                        }
                     }
                 }
             }

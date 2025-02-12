@@ -24,6 +24,7 @@ class SpecialNegotiationsService
         if (! isset($negotiation)) {
             return false;
         }
+
         $condition_id = $data['conditions_special_negotiation_id'];
         $condition = $this->moduleRepository->setConditionInToNegotiation(
             $condition_id,
