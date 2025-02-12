@@ -48,7 +48,7 @@
                     dropdownParent: dialog.length > 0 ? dialog : null,
                     width: 'resolve',
                     ajax: {
-                        delay: 250,
+                        delay: 1000,
                         data: function (params) {
                             return {
                                 search: params.term,

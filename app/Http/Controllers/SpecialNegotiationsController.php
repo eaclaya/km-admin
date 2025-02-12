@@ -42,6 +42,14 @@ class SpecialNegotiationsController extends Controller
             'filters'=> ['name'],
             'columnText'=> ['name'],
             'name' => 'account_id',
+            'set_properties' => [
+                [
+                    'name' => 'invoice_id',
+                    'filters' => [
+                        'account_id' => '$selected',
+                    ],
+                ],
+            ]
         ];
         $data['employee_select'] = [
             'model' => "App\\Models\\Main\\Employee",
