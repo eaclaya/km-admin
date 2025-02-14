@@ -65,16 +65,45 @@ class SpecialNegotiationsRepository
 
     public function createQuotas($data, $negosation_id)
     {
-        foreach ($data as $value) {
-            $invoices = $value['invoice_id'];
-            unset($value['invoice_id']);
-            $value['status'] = 0;
-            $quota = Quota::create($value);
-            $quota->invoices()->sync($invoices);
-        }
-        $quotas = Quota::where('special_negotiations_id', $negosation_id)->get();
+        return DB::transaction(function () use ($data, $negosation_id) {
+            $oldQuotas = Quota::where('special_negotiations_id', $negosation_id)->orderBy('id', 'asc')->get();
+            $oldQuotasCount = $oldQuotas->count();
+            $dataCount = count($data);
 
-        return $quotas;
+            for ($i = 0; $i < max($oldQuotasCount, $dataCount); $i++) {
+                if ($i < $dataCount) {
+                    $value = $data[$i];
+                    $invoices = $value['invoice_id'];
+                    unset($value['invoice_id']);
+                    $value['status'] = 0;
+
+                    if ($i < $oldQuotasCount) {
+                        // Actualizar cuota existente
+                        $quota = $oldQuotas[$i];
+                        if (isset($quota->status)) {
+                            $value['status'] = $quota->status;
+                        } else {
+                            $value['status'] = 0;
+                        }
+                        $quota->update($value);
+                        $quota->invoices()->sync($invoices);
+                    } else {
+                        // Crear nueva cuota
+                        $quota = Quota::create($value);
+                        $quota->invoices()->sync($invoices);
+                    }
+                } else {
+                    // Eliminar cuota sobrante
+                    $quota = $oldQuotas[$i];
+                    $quota->invoices()->detach();
+                    $quota->delete();
+                }
+            }
+
+            $quotas = Quota::where('special_negotiations_id', $negosation_id)->get();
+
+            return $quotas;
+        });
     }
 
     public function updateQuota($id, $data)

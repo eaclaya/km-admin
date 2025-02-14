@@ -180,9 +180,17 @@ class SpecialNegotiationsController extends Controller
         return redirect()->route('special_negotiations.index');
     }
 
-    public function destroy(string $id)
+    public function destroyQuota(string $id)
     {
-        //
+        $quota = $this->moduleService->getRepository()->destroyQuota($id);
+        if (! $quota) {
+            Session::flash('message', 'No se encontro la Cuota');
+
+            return redirect()->back();
+        }
+        Session::flash('message', 'Cuota Actualizada Correctamente');
+
+        return redirect()->back();
     }
 
     public function quotaStore(Request $request)
