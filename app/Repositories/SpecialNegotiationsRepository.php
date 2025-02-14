@@ -87,6 +87,7 @@ class SpecialNegotiationsRepository
                         }
                         $quota->update($value);
                         $quota->invoices()->sync($invoices);
+                        $this->paymentCalculate($quota->id);
                     } else {
                         // Crear nueva cuota
                         $quota = Quota::create($value);
@@ -255,7 +256,7 @@ class SpecialNegotiationsRepository
         return $discount;
     }
 
-    public function calculateDiscountNegotiation($negotiation, $newDiscount)
+    public function calculateDiscountNegotiation($negotiation)
     {
         $discounts = $negotiation->discounts();
         $porcentQuotasDiscount = $discounts->sum('porcent_quotas_discount');
