@@ -269,7 +269,6 @@ class SpecialNegotiationsRepository
 
             return true;
         } catch (Exception $e) {
-            dd($e);
             return false;
         }
     }
@@ -312,6 +311,31 @@ class SpecialNegotiationsRepository
         return $discount;
     }
 
+    public function destroyDiscount($data, $id)
+    {
+        $discount = DiscountQuota::find($id);
+        if (! isset($discount)) {
+            return false;
+        }
+        try {
+            unset($data['_token']);
+            $this->clearDiscountInvoicetoUpdate($discount);
+            $discount->activateTracking();
+            $discount->setReason($data['reason']);
+            unset($data['reason']);
+            $discount->save();
+
+            $quota_id = $discount->quota_id;
+            $discount->delete();
+
+            $this->calculateQuotaStatus($quota_id, null);
+
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     public function calculateDiscountNegotiation($negotiation)
     {
         $discounts = $negotiation->discounts();
@@ -337,7 +361,6 @@ class SpecialNegotiationsRepository
         $negotiation = $discount->special_negotiation;
         $newDiscount = $discount->porcent_quotas_discount;
         $this->calculateDiscountNegotiation($negotiation, $newDiscount);
-
     }
 
     public function clearDiscountInvoicetoUpdate($discount)

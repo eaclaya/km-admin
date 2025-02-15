@@ -296,9 +296,9 @@ class SpecialNegotiationsController extends Controller
         $data = $request->all();
         $refund = $this->moduleService->getRepository()->destroyRefund($data, $id);
         if (! $refund) {
-            return response()->json(['error' => 'No se encontro el pago'], 404);
+            return response()->json(['error' => 'No se encontro el Rembolso'], 404);
         }
-        return response()->json(['success' => 'Pago Eliminado Correctamente'], 200);
+        return response()->json(['success' => 'Rembolso Eliminado Correctamente'], 200);
     }
 
     public function discountStore(Request $request)
@@ -323,6 +323,16 @@ class SpecialNegotiationsController extends Controller
         Session::flash('message', 'Descuento Actualizado Correctamente');
 
         return redirect()->back();
+    }
+
+    public function discountDestroy(Request $request, string $id)
+    {
+        $data = $request->all();
+        $discount = $this->moduleService->getRepository()->destroyDiscount($data, $id);
+        if (! $discount) {
+            return response()->json(['error' => 'No se encontro el Descuento'], 404);
+        }
+        return response()->json(['success' => 'Descuento Eliminado Correctamente'], 200);
     }
 
     public function set_credit_record(Request $request, $id)
