@@ -223,14 +223,15 @@
         <div class="card">
             <div class="card-header">
                 Cuotas
-                    -
-                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createQuotaModal">
-                        Crear Cuotas
-                    </button>
                 @if($special_negotiation->quotas->count() == 0)
                     -
                     <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createQuotaModal">
                         Crear Cuotas
+                    </button>
+                @else
+                    -
+                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createQuotaModal">
+                        Editar Cuotas
                     </button>
                 @endif
                 <div class="card-tools">
