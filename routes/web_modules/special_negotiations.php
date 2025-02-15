@@ -13,16 +13,22 @@ Route::middleware(['auth'])->group(function () {
         ->name('special_negotiations.payment.store');
     Route::post('special_negotiations/payment/{id}/update', [SpecialNegotiationsController::class, 'paymentUpdate'])
         ->name('special_negotiations.payment.update');
+    Route::post('special_negotiations/payment/{id}/destroy', [SpecialNegotiationsController::class, 'paymentDestroy'])
+        ->name('special_negotiations.payment.destroy');
 
     Route::post('special_negotiations/refund/store', [SpecialNegotiationsController::class, 'refundStore'])
         ->name('special_negotiations.refund.store');
     Route::post('special_negotiations/refund/{id}/update', [SpecialNegotiationsController::class, 'refundUpdate'])
         ->name('special_negotiations.refund.update');
+    Route::post('special_negotiations/refund/{id}/destroy', [SpecialNegotiationsController::class, 'refundDestroy'])
+        ->name('special_negotiations.refund.destroy');
 
     Route::post('special_negotiations/discount/store', [SpecialNegotiationsController::class, 'discountStore'])
         ->name('special_negotiations.discount.store');
     Route::post('special_negotiations/discount/{id}/update', [SpecialNegotiationsController::class, 'discountUpdate'])
         ->name('special_negotiations.discount.update');
+    Route::post('special_negotiations/discount/{id}/destroy', [SpecialNegotiationsController::class, 'discountDestroy'])
+        ->name('special_negotiations.discount.destroy');
 
     Route::get('special_negotiations/{id}/get_payments', [SpecialNegotiationsController::class, 'get_payments'])
         ->name('special_negotiations.get_payments');

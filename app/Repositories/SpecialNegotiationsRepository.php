@@ -10,6 +10,7 @@ use App\Models\Main\Quota;
 use App\Models\Main\RefundQuota;
 use App\Models\Main\SpecialNegotiation;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class SpecialNegotiationsRepository
@@ -78,7 +79,6 @@ class SpecialNegotiationsRepository
                     $value['status'] = 0;
 
                     if ($i < $oldQuotasCount) {
-                        // Actualizar cuota existente
                         $quota = $oldQuotas[$i];
                         if (isset($quota->status)) {
                             $value['status'] = $quota->status;
@@ -89,13 +89,17 @@ class SpecialNegotiationsRepository
                         $quota->invoices()->sync($invoices);
                         $this->paymentCalculate($quota->id);
                     } else {
-                        // Crear nueva cuota
                         $quota = Quota::create($value);
                         $quota->invoices()->sync($invoices);
                     }
                 } else {
-                    // Eliminar cuota sobrante
                     $quota = $oldQuotas[$i];
+                    foreach ($quota->discounts as $discount) {
+                        $this->clearDiscountInvoicetoUpdate($discount);
+                        $discount->delete();
+                    }
+                    $quota->payments()->delete();
+                    $quota->refunds()->delete();
                     $quota->invoices()->detach();
                     $quota->delete();
                 }
@@ -167,6 +171,32 @@ class SpecialNegotiationsRepository
         return $payment;
     }
 
+    public function destroyPayment($data, $id)
+    {
+        $payment = PaymentQuota::find($id);
+        if (! isset($payment)) {
+            return false;
+        }
+        try {
+            unset($data['_token']);
+            $payment->activateTracking();
+            $payment->setReason($data['reason']);
+            unset($data['reason']);
+            $payment->save();
+
+            $quota_id = $payment->quota_id;
+            $payment->delete();
+
+            $this->paymentCalculate($quota_id);
+            $this->calculateQuotaStatus($quota_id, null);
+
+            return true;
+        } catch (Exception $e) {
+            dd($e);
+            return false;
+        }
+    }
+
     public function createRefund($data)
     {
         unset($data['_token']);
@@ -216,6 +246,32 @@ class SpecialNegotiationsRepository
         $this->calculateQuotaStatus($quota_id, $refund->final_balance);
 
         return $refund;
+    }
+
+    public function destroyRefund($data, $id)
+    {
+        $refund = RefundQuota::find($id);
+        if (! isset($refund)) {
+            return false;
+        }
+        try {
+            unset($data['_token']);
+            $refund->activateTracking();
+            $refund->setReason($data['reason']);
+            unset($data['reason']);
+            $refund->save();
+
+            $quota_id = $refund->quota_id;
+            $refund->delete();
+
+            $this->refundCalculate($quota_id);
+            $this->calculateQuotaStatus($quota_id, null);
+
+            return true;
+        } catch (Exception $e) {
+            dd($e);
+            return false;
+        }
     }
 
     public function createDiscount($data)

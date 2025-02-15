@@ -180,19 +180,6 @@ class SpecialNegotiationsController extends Controller
         return redirect()->route('special_negotiations.index');
     }
 
-    public function destroyQuota(string $id)
-    {
-        $quota = $this->moduleService->getRepository()->destroyQuota($id);
-        if (! $quota) {
-            Session::flash('message', 'No se encontro la Cuota');
-
-            return redirect()->back();
-        }
-        Session::flash('message', 'Cuota Actualizada Correctamente');
-
-        return redirect()->back();
-    }
-
     public function quotaStore(Request $request)
     {
         $data = $request->all();
@@ -269,6 +256,16 @@ class SpecialNegotiationsController extends Controller
         return redirect()->back();
     }
 
+    public function paymentDestroy(Request $request, string $id)
+    {
+        $data = $request->all();
+        $payment = $this->moduleService->getRepository()->destroyPayment($data, $id);
+        if (! $payment) {
+            return response()->json(['error' => 'No se encontro el pago'], 404);
+        }
+        return response()->json(['success' => 'Pago Eliminado Correctamente'], 200);
+    }
+
     public function refundStore(Request $request)
     {
         $data = $request->all();
@@ -292,6 +289,16 @@ class SpecialNegotiationsController extends Controller
         Session::flash('message', 'Rembolso Actualizado Correctamente');
 
         return redirect()->back();
+    }
+
+    public function refundDestroy(Request $request, string $id)
+    {
+        $data = $request->all();
+        $refund = $this->moduleService->getRepository()->destroyRefund($data, $id);
+        if (! $refund) {
+            return response()->json(['error' => 'No se encontro el pago'], 404);
+        }
+        return response()->json(['success' => 'Pago Eliminado Correctamente'], 200);
     }
 
     public function discountStore(Request $request)

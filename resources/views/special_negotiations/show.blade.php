@@ -373,7 +373,7 @@
                                     <td>-</td>
                                     <td>
                                         <x-anchor-permission class="btn btn-outline-primary btn-sm"
-                                            onclick="editPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$payment->id}}*-*{{$payment->mount_balance}}*-*{{$payment->create_payment_at}}*-*{{$payment->invoice_id}}')">
+                                            onclick="editPayment('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$payment->id}}*-*{{$payment->mount_balance}}*-*{{$payment->create_payment_at}}*-*{{$payment->invoice_id}}*-*{{$payment->payment_id}}')">
                                             Editar
                                         </x-anchor-permission>
                                     </td>
@@ -406,7 +406,7 @@
                                     <td>-</td>
                                     <td>
                                         <x-anchor-permission class="btn btn-outline-warning btn-sm"
-                                            onclick="editRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$refund->id}}*-*{{$refund->mount_balance}}*-*{{$refund->refund_at}}*-*{{$refund->invoice_id}}')">
+                                            onclick="editRefund('{{$quota->id}}*-*{{$quota->invoices->pluck('id')->implode(',')}}*-*{{$refund->id}}*-*{{$refund->mount_balance}}*-*{{$refund->refund_at}}*-*{{$refund->invoice_id}}*-*{{$refund->refund_id}}')">
                                             Editar
                                         </x-anchor-permission>
                                     </td>
@@ -730,6 +730,7 @@
                     <form class="row" method="POST" multipart="multipart/form-data" id='editPaymentForm'>
                         @csrf
                         <input type="hidden" name="quota_id" id="edit_quota_id" >
+                        <input type="hidden" id="edit_payment_quota_id" >
 
                         <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
                             <div class="col-md-12">
@@ -760,8 +761,8 @@
                                 <input type="date" class="form-control" id="edit_payment_at" name="payment_at" required />
                             </div>
                             <div class="col-md-4">
-                                <label for="reason" class="form-label">Rason del Cambio:</label>
-                                <input type="text" class="form-control" id="reason" name="reason" maxlength="50" required />
+                                <label for="reason_payment" class="form-label">Rason del Cambio:</label>
+                                <input type="text" class="form-control" id="reason_payment" name="reason" maxlength="50" required />
                             </div>
                         </div>
                         <hr>
@@ -769,6 +770,9 @@
                         <div class="col-md-3">
                             <p></p>
                             <button type="submit" class="btn btn-primary">Enviar</button>
+                            <button type="button" class="btn btn-danger" onclick="deletePayment()" >
+                                Eliminar
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -845,18 +849,19 @@
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="editRefundModalLabel">Editar Rembolso</h5>
-              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+                <h5 class="modal-title" id="editRefundModalLabel">Editar Rembolso</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
                 <div class="container">
                     <form class="row" method="POST" multipart="multipart/form-data" id='editRefundForm'>
                         @csrf
                         <input type="hidden" name="quota_id" id="edit_refund_quota_id" >
+                        <input type="hidden" id="edit_refund_quota_refund_id" >
 
                         <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
                             <div class="col-md-12">
-                                <h4>Crear Pago</h4>
+                                <h4>Editar Rembolso</h4>
                             </div>
                             <div class="col-md-4">
                                 <label for="edit_refund_quota_invoice_id" class="form-label">Factura:</label>
@@ -884,7 +889,7 @@
                             </div>
                             <div class="col-md-4">
                                 <label for="reason" class="form-label">Rason del Cambio:</label>
-                                <input type="text" class="form-control" id="reason" name="reason" maxlength="50" required />
+                                <input type="text" class="form-control" id="reason_refund" name="reason" maxlength="50" required />
                             </div>
                         </div>
                         <hr>
@@ -892,6 +897,9 @@
                         <div class="col-md-3">
                             <p></p>
                             <button type="submit" class="btn btn-primary">Enviar</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteRefund()" >
+                                Eliminar
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -907,8 +915,8 @@
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="createDiscountModalLabel">Crear Descuento</h5>
-              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+                <h5 class="modal-title" id="createDiscountModalLabel">Crear Descuento</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -1006,14 +1014,15 @@
         <div class="modal-dialog modal-xl">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="editDiscountModalLabel">Editar Descuento</h5>
-              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
+                <h5 class="modal-title" id="editDiscountModalLabel">Editar Descuento</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
                 <div class="container">
                     <form class="row" method="POST" multipart="multipart/form-data" id='editDiscountForm' >
                         @csrf
                         <input type="hidden" name="quota_id" id="edit_discount_quota_id" >
+                        <input type="hidden" name="quota_id" id="edit_discount_quota_discount_id" >
 
                         <div class="col-md-12 row py-3 mb-3 border-bottom border-top">
                             <div class="col-md-12">
@@ -1086,9 +1095,9 @@
 
                         <div class="col-md-12 row">
                             <div class="col-md-3">
-                                <label for="reason" class="form-label">Rason:</label>
+                                <label for="reason_discount" class="form-label">Rason:</label>
                                 <input
-                                    type="text" class="form-control" id="reason"
+                                    type="text" class="form-control" id="reason_discount"
                                     name="reason"
                                     required
                                 />
@@ -1096,6 +1105,9 @@
                             <div class="col-md-3">
                                 <p></p>
                                 <button type="submit" class="btn btn-primary">Enviar</button>
+                                <button type="button" class="btn btn-danger" onclick="deleteDiscount()" >
+                                    Eliminar
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -1347,14 +1359,15 @@
             let invoice_ids = parts[1].split(',');
             invoice_ids = invoice_ids.map(id => parseInt(id));
 
-            let paymentId = parts[2];
+            let paymentQuotaId = parts[2];
             let mountBalance = parts[3];
             let createPaymentAt = parts[4];
             let invoiceId = parts[5];
+            let paymentId = parts[6];
 
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
 
-            let url = "{{route('special_negotiations.payment.update', ':id')}}".replace(':id', paymentId);
+            let url = "{{route('special_negotiations.payment.update', ':id')}}".replace(':id', paymentQuotaId);
 
             $('#editPaymentForm').attr('action', url);
 
@@ -1374,6 +1387,7 @@
             $('#edit_mount_balance').val(mountBalance);
             $('#edit_payment_at').val(createPaymentAt);
             $('#edit_payment_id').val(paymentId);
+            $('#edit_payment_quota_id').val(paymentQuotaId);
             $('#editPaymentModal').modal('show');
         }
 
@@ -1406,6 +1420,37 @@
             $('#edit_mount_balance').val(mount);
             $('#edit_payment_at').val(date);
         })
+
+        function deletePayment() {
+            let reason = $('#reason_payment').val();
+            let paymentQuotaId = $('#edit_payment_quota_id').val();
+
+            if (reason === '') {
+                alert('Debes ingresar un motivo para eliminar el pago.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{route('special_negotiations.payment.destroy', ':id')}}".replace(':id', paymentQuotaId),
+                type: 'POST',
+                data: {
+                    '_token': $('meta[name="csrf-token"]').attr('content'),
+                    'reason': reason
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Pago eliminado correctamente.');
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar el pago: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('Ocurrió un error al eliminar el pago. Inténtalo de nuevo más tarde.');
+                }
+            });
+        }
 
         // Refunds
 
@@ -1463,14 +1508,15 @@
             let invoice_ids = parts[1].split(',');
             invoice_ids = invoice_ids.map(id => parseInt(id));
 
-            let refundId = parts[2];
+            let refundQuotaId = parts[2];
             let mountBalance = parts[3];
             let createRefundAt = parts[4];
             let invoiceId = parts[5];
+            let refundId = parts[6];
 
             const invoicesFilter = invoices.filter(objeto => invoice_ids.includes(objeto.id));
 
-            let url = "{{route('special_negotiations.refund.update', ':id')}}".replace(':id', refundId);
+            let url = "{{route('special_negotiations.refund.update', ':id')}}".replace(':id', refundQuotaId);
 
             $('#editRefundForm').attr('action', url);
 
@@ -1490,6 +1536,7 @@
             $('#edit_refund_mount_balance').val(mountBalance);
             $('#edit_refund_at').val(createRefundAt);
             $('#edit_refund_id').val(refundId);
+            $('#edit_refund_quota_refund_id').val(refundQuotaId);
             $('#editRefundModal').modal('show');
         }
 
@@ -1522,6 +1569,37 @@
             $('#edit_refund_mount_balance').val(mount);
             $('#edit_refund_at').val(date);
         })
+
+        function deleteRefund() {
+            let reason = $('#reason_refund').val();
+            let refundQuotaId = $('#edit_refund_quota_refund_id').val();
+
+            if (reason === '') {
+                alert('Debes ingresar un motivo para eliminar el rembolso.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{route('special_negotiations.refund.destroy', ':id')}}".replace(':id', refundQuotaId),
+                type: 'POST',
+                data: {
+                    '_token': $('meta[name="csrf-token"]').attr('content'),
+                    'reason': reason
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Pago eliminado correctamente.');
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar el pago: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('Ocurrió un error al eliminar el pago. Inténtalo de nuevo más tarde.');
+                }
+            });
+        }
 
         // Discounts
 
@@ -1569,6 +1647,7 @@
             }
             changeCreatePorcentQuotasDiscount(this);
         })
+
         $('#create_porcent_quotas_discount').keyup(function() {
             const limit = $(this).prop('max');
             if (parseFloat($(this).val()) > parseFloat(limit)) {
@@ -1629,6 +1708,7 @@
             $('#edit_porcent_quotas_discount').prop('max', limit);
 
             $('#edit_porcent_quotas_discount').val(porcent_quotas_discount);
+            $('#edit_discount_quota_discount_id').val(discount_id);
 
             $('#edit_porcent_quotas_discount').trigger('change');
             $('#editDiscountModal').modal('show');
@@ -1658,6 +1738,37 @@
             }
             changeEditPorcentQuotasDiscount(this);
         })
+
+        function deleteDiscount() {
+            let reason = $('#reason_discount').val();
+            let discountQuotaId = $('#edit_discount_quota_discount_id').val();
+
+            if (reason === '') {
+                alert('Debes ingresar un motivo para eliminar el rembolso.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{route('special_negotiations.discount.destroy', ':id')}}".replace(':id', discountQuotaId),
+                type: 'POST',
+                data: {
+                    '_token': $('meta[name="csrf-token"]').attr('content'),
+                    'reason': reason
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Descuento eliminado correctamente.');
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar el descuento: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('Ocurrió un error al eliminar el descuento. Inténtalo de nuevo más tarde.');
+                }
+            });
+        }
 
         function changeEditPorcentQuotasDiscount(event){
             let value = event.value;
