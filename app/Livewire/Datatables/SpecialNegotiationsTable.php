@@ -139,7 +139,7 @@ class SpecialNegotiationsTable extends DataTableComponent
             Column::make('Saldo Vencido', 'id')
                 ->format(function (string $value, $row) use ($negotiationService) {
                     $today = Carbon::now();
-                    $quota = $row->quotas()->where('credit_payment_at', '<=', $today->toDateString())->first();
+                    $quota = $row->quotas()->where('credit_payment_at', '<=', $today->toDateString())->select('id')->first();
                     $finalBalance = 0;
                     if (isset($quota)) {
                         $finalBalance = $negotiationService->getRepository()->calculateFinalBalance($quota->id);

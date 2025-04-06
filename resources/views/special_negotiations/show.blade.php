@@ -108,7 +108,7 @@
                         @php
                             $discountForPayment = $discount_applied / ($quotasCount > 0 ? $quotasCount : 1)
                         @endphp
-                        L {{$discount_applied / ($quotasCount > 0 ? $quotasCount : 1)}}
+                        L {{$discountForPayment}}
                     </div>
                     <div class="border-bottom bg-light">
                         <label class="control-label col-5">Importe total del crédito - descuento</label>
